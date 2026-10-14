@@ -40,6 +40,9 @@ SUBSETS = [
 ]
 ZONING = RAW / "shuinan_zoning_areas_2024.csv"
 PROJECTS = RAW / "shuinan_major_projects_2026.csv"
+# Impact notes per project, one row per project and impact; empty notes show as "not assessed yet".
+IMPACTS = RAW / "shuinan_project_impacts.csv"
+IMPACT_KEYS = ("environmental", "social", "economic", "circularity", "mobility", "health")
 REFS = RAW / "reference_points.csv"
 PLAN_DXF = RAW / "Figure_7-1_Detailed_Plan_A3_English_CAD.dxf"
 # Georeferenced trace of the detailed plan; regenerate with scripts/georef_plan.py.
@@ -76,6 +79,7 @@ DOWNLOADS = [
     (SUBSETS[3][0], "Xitun and Beitun: 81 village boundaries (subset)", "西屯區、北屯區81里里界（子集）"),
     (ZONING, "Shuinan Airport site detailed plan: land-use areas (2024)", "水湳機場原址細部計畫土地使用分區面積"),
     (PROJECTS, "Shuinan park major projects and status (2026)", "水湳經貿園區重大建設進度"),
+    (IMPACTS, "Major projects: impact notes (environmental, social, economic, circularity, mobility, health)", "重大建設影響面向說明"),
     (PLAN, "Detailed plan trace, fitted to OSM roads (errors of a few tens of metres)", "細部計畫描圖（已對齊OSM路網）"),
     (PLAN_DXF, "Detailed plan, English reference CAD (A3 sheet units, not georeferenced)", "細部計畫圖英文參考版CAD"),
     (REFS, "Reference point coordinates and sources", "參考點座標與出處"),
@@ -149,6 +153,25 @@ def dissolve(features):
     return out
 
 
+def read_impacts(project_names):
+    """Impact notes keyed by project_zh, then impact; rows with no note are left out."""
+    impacts = {}
+    if not IMPACTS.exists():
+        return impacts
+    for row in read_csv(IMPACTS):
+        name, key = row["project_zh"], row["impact"].strip().lower()
+        if name not in project_names:
+            print(f"warning: {IMPACTS.name}: unknown project {name!r}")
+            continue
+        if key not in IMPACT_KEYS:
+            print(f"warning: {IMPACTS.name}: unknown impact {row['impact']!r} for {name}")
+            continue
+        note_en, note_zh = row["note_en"].strip(), row["note_zh"].strip()
+        if note_en or note_zh:
+            impacts.setdefault(name, {})[key] = {"en": note_en, "zh": note_zh, "source": row["source"].strip()}
+    return impacts
+
+
 def load_data():
     districts = read_geojson(DISTRICTS)
     villages = read_geojson(VILLAGES)
@@ -165,8 +188,10 @@ def load_data():
             "source": row["source"],
         })
 
+    project_rows = read_csv(PROJECTS)
+    impacts = read_impacts({row["project_zh"] for row in project_rows})
     projects = []
-    for row in read_csv(PROJECTS):
+    for row in project_rows:
         en = row["project_en"]
         projects.append({
             "zh": row["project_zh"],
@@ -177,6 +202,7 @@ def load_data():
             "figures": row["key_figures_en"],
             "phase": PROJECT_PHASE.get(row["project_zh"], "unknown"),
             "source": row["source"],
+            "impacts": impacts.get(row["project_zh"], {}),
         })
 
     # Drop properties the page never reads to keep the inline payload small.

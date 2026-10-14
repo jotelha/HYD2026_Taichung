@@ -822,6 +822,30 @@ h2 .zh.block { margin-top: 3px; }
 .projects li.is-sel { outline: 1px solid var(--ink); outline-offset: 6px; }
 .p-loc { margin: 2px 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: var(--fs-xs); color: var(--muted); }
 .p-loc .btn-s { padding: 2px 8px; font-size: var(--fs-xs); }
+/* impact attributes: one toggle per impact, the note opens below the row */
+.p-imp { display: flex; flex-wrap: wrap; gap: 4px; margin: 6px 0 0; padding: 0; list-style: none; }
+.imp-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 2px 8px;
+  background: var(--field);
+  border: 1px solid var(--rule);
+  border-radius: 999px;
+  font-size: var(--fs-xs);
+  color: var(--ink-2);
+  cursor: pointer;
+}
+.imp-btn::before { content: ""; width: 6px; height: 6px; border-radius: 50%; box-sizing: border-box; border: 1px dashed var(--muted); flex: none; }
+.imp-btn.has::before { background: var(--hl); border: 0; }
+.imp-btn:hover { border-color: var(--hl); }
+.imp-btn[aria-expanded="true"] { background: var(--hl); color: var(--on-hl); border-color: var(--hl); }
+.imp-btn[aria-expanded="true"]::before { background: var(--on-hl); border: 0; }
+.imp-note { margin: 6px 0 0; padding: 7px 10px; border-left: 2px solid var(--hl); background: var(--field); font-size: var(--fs-sm); }
+.imp-note h4 { margin: 0 0 2px; font-size: var(--fs-sm); font-weight: 700; }
+.imp-note p { margin: 0; }
+.imp-note .empty { color: var(--muted); font-style: italic; }
+.imp-note .p-src { margin-top: 3px; }
 
 /* detailed plan overlay + reference points */
 .plan-patch {
@@ -2113,6 +2137,15 @@ h3.mini .zh { text-transform: none; letter-spacing: 0.02em; }
   // ---------- projects: list + numbered markers ----------
   // Locations come from scripts/locate_projects.py (OSM features, a road junction or a traced plan block).
   const chip = { open: ["open", "Open"], pending: ["pending", "Upcoming"], unknown: ["", "Unclassified"] };
+  // [key in shuinan_project_impacts.csv, English title, Chinese title]
+  const IMPACTS = [
+    ["environmental", "Environmental Impact", "環境影響"],
+    ["social", "Social Impact", "社會影響"],
+    ["economic", "Economic Impacts", "經濟影響"],
+    ["circularity", "Circularity Aspects", "循環面向"],
+    ["mobility", "Mobility Impacts", "交通影響"],
+    ["health", "Health Issues", "健康議題"],
+  ];
   const METHOD = { osm: "OpenStreetMap", intersection: "Road junction", plan_block: "Traced plan", ref: "Published coordinate" };
   const locByZh = new Map((DATA.project_locations ? DATA.project_locations.features : []).map((f) => [f.properties.project_zh, f]));
   const projects = DATA.projects.map((p, i) => {
@@ -2193,17 +2226,40 @@ h3.mini .zh { text-transform: none; letter-spacing: 0.02em; }
         <p class="p-status">${esc(p.status)}</p>
         ${p.figures ? `<p class="p-fig">${esc(p.figures)}</p>` : ""}
         ${loc}
+        <ul class="p-imp" aria-label="Impacts">${IMPACTS.map(([key, en, zhName]) => `<li><button type="button" class="imp-btn${p.impacts[key] ? " has" : ""}" data-imp="${key}" aria-expanded="false" aria-controls="imp-${p.n}">${esc(en)}<span class="zh" lang="zh-Hant-TW">${esc(zhName)}</span></button></li>`).join("")}</ul>
+        <div class="imp-note" id="imp-${p.n}" role="region" aria-live="polite" hidden></div>
         <p class="p-src">Source: ${esc(p.source)}</p>
       </li>`;
   }).join("");
+  function showImpact(li, pr, key) {
+    const panel = li.querySelector(".imp-note");
+    const btns = li.querySelectorAll("[data-imp]");
+    const open = key && panel.dataset.imp !== key;
+    for (const b of btns) b.setAttribute("aria-expanded", String(open && b.dataset.imp === key));
+    panel.hidden = !open;
+    panel.dataset.imp = open ? key : "";
+    if (!open) return;
+    const [, en, zhName] = IMPACTS.find(([k]) => k === key);
+    const it = pr.impacts[key];
+    panel.innerHTML = `<h4>${esc(en)}${zh(zhName)}</h4>` + (it
+      ? (it.en ? `<p>${esc(it.en)}</p>` : "") + (it.zh ? `<p>${zh(it.zh, "zh block")}</p>` : "") +
+        (it.source ? `<p class="p-src">Source: ${esc(it.source)}</p>` : "")
+      : `<p class="empty">Not assessed yet. Add a note in data/raw/shuinan_project_impacts.csv.</p>`);
+  }
   $("#projects").addEventListener("click", (e) => {
     const btn = e.target.closest("[data-show]");
     if (btn) selectProject(projects[+btn.dataset.show - 1], true);
+    const imp = e.target.closest("[data-imp]");
+    if (imp) {
+      const li = imp.closest("li[id^='proj-']");
+      showImpact(li, projects[+li.id.slice(5) - 1], imp.dataset.imp);
+    }
   });
   const nLoc = locatedProjects.size;
   $("#proj-note").textContent = nLoc
     ? `Numbers match the markers on the map. ${nLoc} of ${projects.length} entries are placed: from OpenStreetMap features where mapped, otherwise from the traced plan; hover a marker for its source.`
     : "This table has no coordinates, so the projects are not plotted on the map yet.";
+  $("#proj-note").textContent += " Click an impact to read its note; a filled dot means a note has been added.";
 
   // ---------- sources ----------
   const vertexCount = DATA.villages.features.reduce((s, f) => s + (f.geometry ? rings(f.geometry).flat().reduce((t, r) => t + r.length, 0) : 0), 0);

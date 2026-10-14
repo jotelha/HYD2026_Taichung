@@ -24,6 +24,7 @@ The interface is English-first, with Chinese as the secondary language: map labe
 - Numbered markers for the major projects, with their mapped footprints and sources
 - Coordinate ticks on the neatline, scale bar and north arrow
 - Side panels: land-use areas of the Shuinan Airport site detailed plan (2024) and the status of major projects (2026)
+- Each major project carries six clickable impact attributes (Environmental Impact, Social Impact, Economic Impacts, Circularity Aspects, Mobility Impacts, Health Issues); their notes come from `data/raw/shuinan_project_impacts.csv`
 
 The landing page (`index.html`) introduces the map and lists every data file for download.
 
@@ -139,6 +140,7 @@ The script uses only the Python standard library. It inlines the GeoJSON and CSV
 | `data/raw/context_xitun_beitun_villages.geojson` | Xitun and Beitun: 81 village boundaries | Subset of the former-city file |
 | `data/raw/shuinan_zoning_areas_2024.csv` | Zone areas of the Shuinan Airport site detailed plan | Urban Development Bureau, Taichung City Government: public briefing for the 2nd comprehensive review (2024-02-01) |
 | `data/raw/shuinan_major_projects_2026.csv` | Status of major projects in the park | Taichung City Government project reports (2025-09-30, 2026-08-03) and news coverage; see each row's `source` |
+| `data/raw/shuinan_project_impacts.csv` | Impact notes per major project (environmental, social, economic, circularity, mobility, health), one row per project and impact; empty notes show as "not assessed yet" | To be filled; see each row's `source` |
 | `data/raw/Figure_7-1_Detailed_Plan_A3_English_CAD.dxf` | Detailed plan, unofficial English reference trace | A3 sheet units, not georeferenced |
 | `data/raw/reference_points.csv` | Reference coordinates and their sources | OpenStreetMap, Wikipedia, OurAirports |
 | `data/derived/shuinan_detailed_plan_traced.geojson` | Detailed plan trace fitted to the road network | `scripts/georef_plan.py` |
@@ -194,6 +196,7 @@ data/derived/             fitted plan trace, OSM roads and landmarks, project lo
 - 重大建設編號標記，附OSM基地範圍與出處
 - 圖框經緯度刻度、比例尺與指北針
 - 側欄：水湳機場原址細部計畫土地使用面積（2024）與園區重大建設進度（2026）
+- 每項重大建設附六個可點選的影響面向（環境影響、社會影響、經濟影響、循環面向、交通影響、健康議題），內容來自`data/raw/shuinan_project_impacts.csv`
 
 成果首頁（`index.html`）介紹地圖並列出所有可下載的資料。
 
