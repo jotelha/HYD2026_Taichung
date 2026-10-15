@@ -17,6 +17,7 @@ The interface is English-first, with Chinese as the secondary language: labels a
 - **Mock booths** at Feng Chia: zoom in to see 399 booth rectangles coloured by their Boba Index (0–5 on the viridis scale, purple through green to yellow); hover one for its name, id, street and score. Names, positions and scores are invented (see below)
 - A **Boba Index heat map** over Feng Chia: the booth scores smoothed into a continuous surface on its own plasma scale (purple → orange → yellow), stretched from its lowest to its highest value, readable from the overview zooms on; a slider sets the smoothing width (10–60 m, default 25 m), and hovering shows the smoothed value and how many booths it averages (see below)
 - A collapsible **legend** in the map's top-left corner: the market symbols and areas, the district boundary, and the colour keys of the booths and the heat map (each shown while its layer is on; the heat-map key shows the current range). It starts collapsed on small screens; the north arrow sits under the zoom buttons
+- **Find**: a collapsible panel on the map's left side, under the legend, with the booth and place searches (both panels start collapsed on small screens)
 - **Find a Booth**: search the mock booths by English or Chinese name, dish, street or number (e.g. `oden`, `阿明 臭豆腐`, `FJ-0316`; every word must match). Results show the score; picking one (or pressing Enter for the first) zooms to the booth, rings it and shows a card, switching Feng Chia and the booth layer on if needed. Clicking a booth on the map selects it too; `Esc` clears the selection
 - **Garbage bins**: public bins, waste containers and recycling points mapped in OpenStreetMap (70 in the eight districts), as small bin icons from street-level zooms; hover one for its type and OSM feature (see below)
 - **Stores with toilets**: convenience stores tagged in OpenStreetMap as having a toilet (123 in the eight districts), as blue WC badges from street-level zooms; hover one for the store, branch and opening hours (see below)
@@ -179,6 +180,7 @@ img/                       brand assets (logo, banner, pearl scale, icons)
 - 逢甲夜市的**模擬攤位**：放大後可看到399個依珍奶指數（0–5，viridis色階：紫→綠→黃）著色的攤位方塊，滑過可看店名、編號、所在街道與分數；店名、位置與分數皆為虛構（見下方說明）
 - 逢甲夜市的**珍奶指數熱度圖**：把攤位分數平滑成連續的面，使用獨立的plasma色階（紫→橘→黃），並依最低到最高值拉伸，縮小時也看得清楚；滑桿可調整平滑半徑（10–60公尺，預設25公尺），滑過可看平滑後的數值與參與平均的攤位數（見下方說明）
 - 地圖左上角可收合的**圖例**：市場符號與範圍、區界，以及攤位與熱度圖的色階（各在其圖層開啟時顯示，熱度圖色階顯示目前的數值範圍）；小螢幕預設收合，指北針移到縮放按鈕下方
+- **Find**查詢：地圖左側、圖例下方可收合的面板，包含攤位與地點搜尋（小螢幕上兩個面板預設收合）
 - **Find a Booth**查詢攤位：可用中英文店名、品項、街道或編號搜尋模擬攤位（例如`oden`、`阿明 臭豆腐`、`FJ-0316`，每個詞都須符合）；結果列出分數，點選（或按Enter選第一筆）會移到該攤位、加上圓圈標示並顯示資訊卡，必要時自動開啟逢甲夜市與攤位圖層。在地圖上點攤位也會選取；按`Esc`取消
 - **垃圾桶**：OpenStreetMap上的公共垃圾桶、大型垃圾箱與資源回收點（八區內共70處），放大到街道層級後以垃圾桶圖示顯示，滑過可看類型與OSM地物（見下方說明）
 - **有廁所的超商**：OpenStreetMap上標示有廁所的便利商店（八區內123家），放大到街道層級後以藍色WC標記顯示，滑過可看店名、分店與營業時間（見下方說明）

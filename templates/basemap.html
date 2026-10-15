@@ -531,29 +531,46 @@ h1 .zh { margin-left: 0.5em; font-family: "Noto Serif TC", "Songti TC", serif; f
   display: grid;
   gap: 4px;
 }
-.map-legend {
+/* left column on the map: the legend, then the booth and place search; it scrolls when taller than the map */
+.map-left {
   position: absolute;
   z-index: 2;
   top: 16px;
   left: 30px; /* clear of the latitude ticks in the left margin */
-  max-width: min(300px, calc(100% - 96px));
-  max-height: calc(100% - 80px);
-  overflow: auto;
+  width: min(330px, calc(100% - 96px));
+  max-height: calc(100% - 100px); /* ends above the scale bar */
+  overflow-x: hidden;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  display: grid;
+  gap: 8px;
+  align-content: start;
+  overscroll-behavior: contain;
+}
+.map-panel {
   padding: 6px 10px 8px;
   background: color-mix(in srgb, var(--surface) 92%, transparent);
   border: 1px solid var(--rule);
   border-radius: var(--r-sm);
   font-size: var(--fs-xs);
 }
-.map-legend summary { cursor: pointer; font: 500 12px var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
-.map-legend summary .zh { text-transform: none; letter-spacing: 0.02em; }
+.map-panel summary { cursor: pointer; font: 500 12px var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.map-panel summary .zh { text-transform: none; letter-spacing: 0.02em; }
 .map-legend .legend-lines { display: grid; gap: 3px; margin: 6px 0 0; font-size: var(--fs-xs); }
 .map-legend .legend-lines li { gap: 6px; white-space: nowrap; }
 .map-legend .legend-lines .zh, .map-legend .booth-key .zh, .map-legend .heat-key .zh { font-size: 12px; }
 .map-legend .mkt-key, .map-legend .line-key { width: 20px; flex: none; }
 .map-legend .booth-key, .map-legend .heat-key { margin-top: 8px; font-size: var(--fs-xs); }
 .map-legend .ramp { margin: 4px 0 2px; height: 8px; }
-:root:is([data-style="program"], [data-style="boba"]) .map-legend { border-radius: 8px; box-shadow: 0 1px 2px rgba(22, 24, 42, 0.14); }
+.find-block { margin-top: 8px; }
+.find-h { margin: 0 0 4px; font-size: var(--fs-sm); font-weight: 700; }
+:root[data-style="boba"] .find-h { color: var(--brand-green); }
+.map-find .search input { padding: 5px 8px; font-size: var(--fs-sm); }
+.map-find .search button { padding: 5px 10px; font-size: var(--fs-sm); }
+.map-find .booth-results button, .map-find .place-results .go { font-size: var(--fs-xs); }
+.map-find .booth-card { font-size: var(--fs-xs); }
+.map-find .booth-results .zh, .map-find .booth-card .zh, .map-find .place-results .zh { display: inline-block; } /* a Chinese name moves to the next line whole */
+:root:is([data-style="program"], [data-style="boba"]) .map-panel { border-radius: 8px; box-shadow: 0 1px 2px rgba(22, 24, 42, 0.14); }
 .map-ctrl button {
   width: 32px;
   height: 32px;
@@ -923,7 +940,8 @@ h2 .zh.block { margin-top: 3px; }
           <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
         </button>
       </div>
-      <details class="map-legend" id="map-legend" open>
+      <div class="map-left" id="map-left">
+      <details class="map-legend map-panel" id="map-legend" open>
         <summary>Legend<span class="zh" lang="zh-Hant-TW">圖例</span></summary>
         <ul class="legend-lines" id="mkt-legend">
           <li><span class="mkt-key night"></span>Night market<span class="zh" lang="zh-Hant-TW">夜市</span></li>
@@ -949,53 +967,36 @@ h2 .zh.block { margin-top: 3px; }
           <div class="ends"><span id="heat-min"></span><span id="heat-mid"></span><span id="heat-max"></span></div>
         </div>
       </details>
+      <details class="map-find map-panel" id="map-find" open>
+        <summary>Find<span class="zh" lang="zh-Hant-TW">查詢</span></summary>
+        <div class="find-block" id="booth-search" hidden>
+          <h3 class="find-h" id="h-booth">A booth<span class="zh" lang="zh-Hant-TW">攤位</span></h3>
+          <form class="search" id="booth-form" autocomplete="off" role="search">
+            <label for="booth-q" hidden>Booth name, dish, street or number</label>
+            <input id="booth-q" type="search" placeholder="e.g. oden, 臭豆腐 or FJ-0316">
+            <button type="submit">Find</button>
+          </form>
+          <p class="search-msg" id="booth-msg" role="status"></p>
+          <ul class="booth-results" id="booth-results"></ul>
+          <div class="booth-card" id="booth-card" hidden></div>
+        </div>
+        <div class="find-block">
+          <h3 class="find-h" id="h-place">A place<span class="zh" lang="zh-Hant-TW">地點</span></h3>
+          <form class="search" id="place-form" autocomplete="off" role="search">
+            <label for="place-q" hidden>Address or place</label>
+            <input id="place-q" type="search" placeholder="Address or place, e.g. 臺中車站">
+            <button type="submit">Search</button>
+          </form>
+          <p class="search-msg" id="place-msg" role="status"></p>
+          <ul class="place-results" id="place-results"></ul>
+        </div>
+      </details>
+      </div>
       <div class="coord" id="coord" hidden></div>
       <div class="attrib" id="attrib" hidden></div>
     </div>
 
     <aside class="aside">
-      <section aria-labelledby="h-nm">
-        <h2 id="h-nm">Night Markets<span class="zh" lang="zh-Hant-TW">夜市</span></h2>
-        <p class="intro">The Boba Index (Built On Belonging and Authenticity) is a prototype for rating Taichung's night markets on how authentic they are and how much they belong to their place. The map shows Taichung's markets and night markets; at Feng Chia, every booth carries its own score.</p>
-        <div class="nm-all" role="group" aria-label="Night markets shown on the map">Show<button type="button" class="btn-s" id="nm-all">All</button><button type="button" class="btn-s" id="nm-none">None</button></div>
-        <ul class="nm-list" id="nm-list"></ul>
-      </section>
-
-      <section aria-labelledby="h-booth" id="booth-search" hidden>
-        <h2 id="h-booth">Find a Booth<span class="zh" lang="zh-Hant-TW">查詢攤位</span></h2>
-        <form class="search" id="booth-form" autocomplete="off" role="search">
-          <label for="booth-q" hidden>Booth name, dish, street or number</label>
-          <input id="booth-q" type="search" placeholder="e.g. oden, 臭豆腐 or FJ-0316">
-          <button type="submit">Find</button>
-        </form>
-        <p class="search-msg" id="booth-msg" role="status"></p>
-        <ul class="booth-results" id="booth-results"></ul>
-        <div class="booth-card" id="booth-card" hidden></div>
-      </section>
-
-      <section aria-labelledby="h-place">
-        <h2 id="h-place">Find a Place<span class="zh" lang="zh-Hant-TW">查詢地點</span></h2>
-        <form class="search" id="place-form" autocomplete="off" role="search">
-          <label for="place-q" hidden>Address or place</label>
-          <input id="place-q" type="search" placeholder="Address or place, e.g. 臺中車站 or Wenhua Road">
-          <button type="submit">Search</button>
-        </form>
-        <p class="search-msg" id="place-msg" role="status"></p>
-        <ul class="place-results" id="place-results"></ul>
-      </section>
-
-      <section aria-labelledby="h-route">
-        <h2 id="h-route">Walking Route<span class="zh" lang="zh-Hant-TW">步行路線</span></h2>
-        <dl class="route-ends">
-          <dt>A</dt><dd><span id="rt-from" class="none">Start: a searched place or</span><button type="button" class="btn-s" id="rt-here">My location</button></dd>
-          <dt>B</dt><dd><span id="rt-to" class="none">Destination: a searched place or a booth's "Walk here"</span></dd>
-        </dl>
-        <p class="search-msg" id="rt-msg" role="status"></p>
-        <p class="route-summary" id="rt-summary" hidden></p>
-        <ol class="route-steps" id="rt-steps"></ol>
-        <p class="note" id="rt-credit" hidden>Walking directions by <a href="https://valhalla.github.io/valhalla/" target="_blank" rel="noopener">Valhalla</a> on the FOSSGIS server; map data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors. <button type="button" class="btn-s" id="rt-clear">Clear route</button></p>
-      </section>
-
       <section aria-labelledby="h-layers">
         <h2 id="h-layers">Layers<span class="zh" lang="zh-Hant-TW">圖層</span></h2>
         <div class="toggles" role="group" aria-label="Layers">
@@ -1019,6 +1020,29 @@ h2 .zh.block { margin-top: 3px; }
           </div>
           <p class="note">The heat map is the distance-weighted average of nearby booths' scores (Gaussian kernel of this width), clipped to the market extent and faded where booths are sparse. Its colours stretch from the lowest to the highest smoothed value, so they change with the width; compare the numbers in the legend, not the colours, across widths.</p>
         </div>
+      </section>
+
+      <section aria-labelledby="h-route">
+        <h2 id="h-route">Walking Route<span class="zh" lang="zh-Hant-TW">步行路線</span></h2>
+        <dl class="route-ends">
+          <dt>A</dt><dd><span id="rt-from" class="none">Start: a searched place or</span><button type="button" class="btn-s" id="rt-here">My location</button></dd>
+          <dt>B</dt><dd><span id="rt-to" class="none">Destination: a searched place or a booth's "Walk here"</span></dd>
+        </dl>
+        <p class="search-msg" id="rt-msg" role="status"></p>
+        <p class="route-summary" id="rt-summary" hidden></p>
+        <ol class="route-steps" id="rt-steps"></ol>
+        <p class="note" id="rt-credit" hidden>Walking directions by <a href="https://valhalla.github.io/valhalla/" target="_blank" rel="noopener">Valhalla</a> on the FOSSGIS server; map data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors. <button type="button" class="btn-s" id="rt-clear">Clear route</button></p>
+      </section>
+
+      <section aria-labelledby="h-nm">
+        <h2 id="h-nm">Night Markets<span class="zh" lang="zh-Hant-TW">夜市</span></h2>
+        <p class="intro">The Boba Index (Built On Belonging and Authenticity) is a prototype for rating Taichung's night markets on how authentic they are and how much they belong to their place. The map shows Taichung's markets and night markets; at Feng Chia, every booth carries its own score.</p>
+        <div class="nm-all" role="group" aria-label="Night markets shown on the map">Show<button type="button" class="btn-s" id="nm-all">All</button><button type="button" class="btn-s" id="nm-none">None</button></div>
+        <ul class="nm-list" id="nm-list"></ul>
+      </section>
+
+      <section aria-labelledby="h-dist">
+        <h2 id="h-dist">Districts<span class="zh" lang="zh-Hant-TW">行政區</span></h2>
         <ul class="legend" id="legend"></ul>
         <p class="note">The eight districts of the former Taichung City. Click a district to zoom to it.</p>
       </section>
@@ -1153,12 +1177,12 @@ h2 .zh.block { margin-top: 3px; }
   const layers = { osm: BASEMAP };
 
   const inner = () => ({ x0: M.l, y0: M.t, x1: W - M.r, y1: H - M.b });
-  // The open legend covers the frame's top-left corner, so views fitted to something (the opening view, a route, a
+  // The open legend / find panels cover the frame's left side, so views fitted to something (the opening view, a route, a
   // district) use the part of the frame to its right. Zoom limits keep using the whole frame (avoid = false).
   function viewArea(avoid = true) {
-    const r = inner(), lg = $("#map-legend");
-    if (!avoid || !lg || !lg.open) return r;
-    const right = lg.getBoundingClientRect().right - svg.getBoundingClientRect().left + 8;
+    const r = inner(), col = $("#map-left");
+    if (!avoid || !col || !col.querySelector("details[open]")) return r;
+    const right = col.getBoundingClientRect().right - svg.getBoundingClientRect().left + 8;
     return right > r.x0 && right < (r.x0 + r.x1) / 2 ? { ...r, x0: right } : r;
   }
   function fitView(box, pad, cap, clamp = true, avoid = true) {
@@ -2071,7 +2095,7 @@ h2 .zh.block { margin-top: 3px; }
     li.querySelector("button").addEventListener("click", () => zoomTo(d.box, 24));
     legend.appendChild(li);
   }
-  legend.insertAdjacentHTML("afterbegin", `<li class="legend-group">Districts · night markets / all markets${zh("行政區・夜市／市場數")}</li>`);
+  legend.insertAdjacentHTML("afterbegin", `<li class="legend-group">Night markets / all markets${zh("夜市／市場數")}</li>`);
   $("#lyr-osm-wrap").hidden = !BASEMAP;
   $("#lyr-osm").addEventListener("change", (e) => {
     osmMsg.hidden = true;
@@ -2262,7 +2286,7 @@ h2 .zh.block { margin-top: 3px; }
   colourBooths();
 
   // ---------- boot ----------
-  if (window.matchMedia("(max-width: 640px)").matches) $("#map-legend").open = false; // keep the small map clear
+  if (window.matchMedia("(max-width: 640px)").matches) { $("#map-legend").open = false; $("#map-find").open = false; } // keep the small map clear
   setBasemap(BASEMAP, false);
   new ResizeObserver(() => resize()).observe(frame);
   resize();
