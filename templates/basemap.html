@@ -588,6 +588,7 @@ h2 .zh.block { margin-top: 3px; }
 
 /* mock booths: true-size rectangles coloured by Boba Index; shown once they are a few pixels wide */
 .heat { opacity: 0.85; cursor: help; }
+.heat-key { margin-top: 12px; }
 .heat-ctrl { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 4px 10px; margin-top: 8px; font-size: var(--fs-xs); color: var(--ink-2); }
 .heat-ctrl input[type="range"] { width: 100%; accent-color: var(--accent); }
 .heat-ctrl output { font: 500 11px var(--font-mono); min-width: 3.5em; text-align: right; }
@@ -595,8 +596,8 @@ h2 .zh.block { margin-top: 3px; }
 #map.booths-on .mkt-area.booth-host { fill-opacity: 0.12; }
 #map.booths-on .mkt-extent.booth-host { fill-opacity: 0.06; }
 .booth-key { margin-top: 12px; font-size: var(--fs-sm); }
-.booth-key .ramp { height: 10px; margin: 6px 0 3px; border-radius: var(--r-sm); }
-.booth-key .ends { display: flex; justify-content: space-between; font: 500 11px var(--font-mono); color: var(--ink-2); }
+.booth-key .ramp, .heat-key .ramp { height: 10px; margin: 6px 0 3px; border-radius: var(--r-sm); }
+.booth-key .ends, .heat-key .ends { display: flex; justify-content: space-between; font: 500 11px var(--font-mono); color: var(--ink-2); }
 .mock { font: 600 10px var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--rule); border-radius: var(--r-sm); padding: 0 4px; margin-left: 6px; }
 
 /* night-market list */
@@ -727,6 +728,12 @@ h2 .zh.block { margin-top: 3px; }
             <output id="heat-bw-v" for="heat-bw">25 m</output>
           </div>
           <p class="note">The heat map is the distance-weighted average of nearby booths' scores (Gaussian kernel of this width), clipped to the market extent and faded where booths are sparse.</p>
+          <div class="heat-key">
+            Heat map, smoothed Boba Index<span class="zh" lang="zh-Hant-TW">熱度圖</span>
+            <div class="ramp" id="heat-ramp" aria-hidden="true"></div>
+            <div class="ends"><span id="heat-min"></span><span id="heat-mid"></span><span id="heat-max"></span></div>
+            <p class="note">Colours stretch from the lowest to the highest smoothed value, so they change with the smoothing width; compare the numbers, not the colours, across widths.</p>
+          </div>
         </div>
         <div class="toggles" role="group" aria-label="Layers">
           <label id="lyr-osm-wrap" hidden><input type="checkbox" id="lyr-osm" checked>Basemap, English labels<span class="zh" lang="zh-Hant-TW">英文底圖</span></label>
@@ -1422,11 +1429,13 @@ h2 .zh.block { margin-top: 3px; }
   // darkest purple so low scores stay visible on the dark theme too, and the same colour means the same score in every theme
   const RAMP = ["#482475", "#414487", "#355f8d", "#2a788e", "#21918c", "#22a884", "#44bf70", "#7ad151", "#bddf26", "#fde725"];
   const hexRgb = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16));
-  const rampColor = (stops, v) => {
-    const t = Math.max(0, Math.min(1, v / 5)) * (stops.length - 1), i = Math.min(Math.floor(t), stops.length - 2), f = t - i;
+  const rampAt = (stops, u) => {
+    // u in 0..1 -> [r, g, b], linear between the stops
+    const t = Math.max(0, Math.min(1, u)) * (stops.length - 1), i = Math.min(Math.floor(t), stops.length - 2), f = t - i;
     const a = hexRgb(stops[i]), b = hexRgb(stops[i + 1]);
-    return `rgb(${a.map((c, j) => Math.round(c + (b[j] - c) * f)).join(",")})`;
+    return a.map((c, j) => Math.round(c + (b[j] - c) * f));
   };
+  const rampColor = (stops, v) => `rgb(${rampAt(stops, v / 5).join(",")})`; // Boba Index 0..5
   const booths = [];
   if (boothHost) {
     const [bw, bd] = BOOTHS.size_m.map((m) => m / GROUND); // ground metres -> world units
@@ -1478,7 +1487,11 @@ h2 .zh.block { margin-top: 3px; }
   const gHeat = $("#g-heat");
   const HEAT_CELL_M = 2;                    // grid cell, ground metres
   const HEAT_FULL = 1.5;                    // summed kernel weight at which a cell is fully opaque
-  let heatImg = null, heatBw = 25, heatBuckets = null;
+  // plasma, a different scale from the booths' viridis so the two layers never read as one; it starts one step above
+  // the darkest blue-purple so low values stay visible on the dark theme
+  const HEAT_RAMP = ["#41049d", "#6a00a8", "#8f0da4", "#b12a90", "#cc4778", "#e16462", "#f2844b", "#fca636", "#fcce25", "#f0f921"];
+  $("#heat-ramp").style.background = `linear-gradient(to right, ${HEAT_RAMP.join(", ")})`;
+  let heatImg = null, heatBw = 25, heatBuckets = null, heatRange = [0, 5];
   const kernelAt = (wx, wy, bwM) => {
     // weighted mean at a world point; bwM in ground metres
     const h = bwM / GROUND, r2 = 9 * h * h, inv = 1 / (2 * h * h), size = heatBuckets.size;
@@ -1509,14 +1522,28 @@ h2 .zh.block { margin-top: 3px; }
     const canvas = document.createElement("canvas");
     canvas.width = nx; canvas.height = ny;
     const ctx = canvas.getContext("2d"), img = ctx.createImageData(nx, ny);
-    const lut = Array.from({ length: 51 }, (_, i) => rampColor(RAMP, i / 10).match(/\d+/g).map(Number));
+    // first pass: values and weights; the colour range comes from the fully opaque cells, so faint fringe cells
+    // with only a booth or two behind them do not stretch it
+    const vals = new Float32Array(nx * ny).fill(NaN), wts = new Float32Array(nx * ny);
+    let lo = Infinity, hi = -Infinity;
     for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
       const { value, weight } = kernelAt(x0 + (i + 0.5) * cell, y0 + (j + 0.5) * cell, heatBw);
       if (value == null) continue;
-      const [r, g, b] = lut[Math.round(Math.max(0, Math.min(5, value)) * 10)], o = 4 * (j * nx + i);
-      img.data[o] = r; img.data[o + 1] = g; img.data[o + 2] = b;
-      img.data[o + 3] = Math.round(255 * Math.min(1, weight / HEAT_FULL));
+      vals[j * nx + i] = value; wts[j * nx + i] = weight;
+      if (weight >= HEAT_FULL) { lo = Math.min(lo, value); hi = Math.max(hi, value); }
     }
+    if (!(hi > lo)) { lo = 0; hi = 5; }
+    heatRange = [lo, hi];
+    const lut = Array.from({ length: 256 }, (_, i) => rampAt(HEAT_RAMP, i / 255));
+    for (let n = 0; n < vals.length; n++) {
+      if (Number.isNaN(vals[n])) continue;
+      const [r, g, b] = lut[Math.round(Math.max(0, Math.min(1, (vals[n] - lo) / (hi - lo))) * 255)], o = 4 * n;
+      img.data[o] = r; img.data[o + 1] = g; img.data[o + 2] = b;
+      img.data[o + 3] = Math.round(255 * Math.min(1, wts[n] / HEAT_FULL));
+    }
+    $("#heat-min").textContent = lo.toFixed(1);
+    $("#heat-mid").textContent = ((lo + hi) / 2).toFixed(1);
+    $("#heat-max").textContent = hi.toFixed(1);
     ctx.putImageData(img, 0, 0);
     if (!heatImg) {
       heatImg = svgEl("image", { class: "heat", preserveAspectRatio: "none", "clip-path": "url(#heat-clip)" }, gHeat);
@@ -1534,8 +1561,8 @@ h2 .zh.block { margin-top: 3px; }
     $("#heat-bw").addEventListener("input", (e) => {
       heatBw = +e.target.value;
       $("#heat-bw-v").textContent = heatBw + " m";
-      cancelAnimationFrame(pending);
-      pending = requestAnimationFrame(buildHeat); // one rebuild per frame while dragging
+      clearTimeout(pending);
+      pending = setTimeout(buildHeat, 30); // one rebuild once dragging pauses for a moment
     });
     buildHeat();
   } else {
@@ -1580,7 +1607,7 @@ h2 .zh.block { margin-top: 3px; }
   $("#sources").innerHTML = [
     ...(markets.length ? [`Markets: © ${osmLink} contributors, ODbL 1.0; fetched ${esc(DATA.markets.fetched || "")}. ${markets.length} marketplaces inside the eight districts, ${nightMarkets.length} of them night markets (named 夜市). Only markets mapped in OpenStreetMap appear; points are footprint centres where an outline is mapped, and night markets also show that outline.`] : []),
     ...(markets.some((m) => m.extent) ? ["The dashed Feng Chia extent is our approximation: OSM street centrelines of Wenhua Road, Fengjia Road, Fuxing Road and Fengjia Road Lane 20 (the streets <i>Business Today</i>, 2015, names as the market area), buffered by 15 m. No official boundary is published."] : []),
-    ...(DATA.booths ? [`Feng Chia booths: <b>mock data</b>. ${DATA.booths.rows.length.toLocaleString("en-US")} booths of ${DATA.booths.size_m[0]} × ${DATA.booths.size_m[1]} m laid out every ${DATA.booths.pitch_m} m along both sides of the market streets, each with an invented name (typical stall-name patterns and dishes; no real stall names) and a random Boba Index from 0.0 to 5.0 that clusters around a few invented hot and cold spots (scripts/mock_booths.py, fixed seed), coloured on the viridis scale. They stand in for real booth data while the map is designed. The heat map is the Gaussian-weighted mean of the booth scores around each 2 m cell (bandwidth set by the slider, default 25 m), clipped to the market extent and faded where booths are sparse; it smooths away single-booth outliers, and its picture depends on the bandwidth.`] : []),
+    ...(DATA.booths ? [`Feng Chia booths: <b>mock data</b>. ${DATA.booths.rows.length.toLocaleString("en-US")} booths of ${DATA.booths.size_m[0]} × ${DATA.booths.size_m[1]} m laid out every ${DATA.booths.pitch_m} m along both sides of the market streets, each with an invented name (typical stall-name patterns and dishes; no real stall names) and a random Boba Index from 0.0 to 5.0 that clusters around a few invented hot and cold spots (scripts/mock_booths.py, fixed seed), coloured on the viridis scale. They stand in for real booth data while the map is designed. The heat map is the Gaussian-weighted mean of the booth scores around each 2 m cell (bandwidth set by the slider, default 25 m), clipped to the market extent and faded where booths are sparse, on the plasma scale stretched from its lowest to its highest value; it smooths away single-booth outliers, and its picture depends on the bandwidth.`] : []),
     `District boundaries: ${esc(DATA.boundary_source)}. Simplified; use them for orientation, not measurement. Areas come from the attribute table.`,
     `Coordinates: WGS84 (CRS84). The map uses Web Mercator to match the basemap; the scale bar uses the east-west scale at the center of the map.`,
     ...(BASEMAP ? [`Basemap: vector tiles from <a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> (© <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">OpenMapTiles</a>, data © ${osmLink} contributors), drawn with MapLibre GL JS. Labels show the English name (OSM name:en) where one is mapped, otherwise the local name. If the vector map cannot start, the standard OpenStreetMap tiles are used instead (labels in the local language), under the OSMF <a href="https://operations.osmfoundation.org/policies/tiles/" target="_blank" rel="noopener">tile usage policy</a>.`] : []),
