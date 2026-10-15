@@ -736,7 +736,8 @@ h2 .zh.block { margin-top: 3px; }
 .btn-s:hover { border-color: var(--hl); }
 
 /* mock booths: true-size rectangles coloured by Boba Index; shown once they are a few pixels wide */
-.heat { opacity: 0.85; cursor: help; }
+.heat { opacity: 0.55; cursor: help; } /* see-through, so streets and booths show under it */
+.heat-key .ramp { opacity: 0.55; } /* the key at the map's opacity, so its colours match */
 .heat-key { margin-top: 12px; }
 #booth-notes { margin-top: 10px; }
 .heat-ctrl { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 4px 10px; margin-top: 8px; font-size: var(--fs-xs); color: var(--ink-2); }
