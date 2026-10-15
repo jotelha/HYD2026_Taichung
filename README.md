@@ -20,6 +20,7 @@ The interface is English-first, with Chinese as the secondary language: labels a
 - **Find a Booth**: search the mock booths by English or Chinese name, dish, street or number (e.g. `oden`, `阿明 臭豆腐`, `FJ-0316`; every word must match). Results show the score; picking one (or pressing Enter for the first) zooms to the booth, rings it and shows a card, switching Feng Chia and the booth layer on if needed. Clicking a booth on the map selects it too; `Esc` clears the selection
 - **Garbage bins**: public bins, waste containers and recycling points mapped in OpenStreetMap (70 in the eight districts), as small bin icons from street-level zooms; hover one for its type and OSM feature (see below)
 - **Stores with toilets**: convenience stores tagged in OpenStreetMap as having a toilet (123 in the eight districts), as blue WC badges from street-level zooms; hover one for the store, branch and opening hours (see below)
+- **Pharmacies**: the pharmacies mapped in OpenStreetMap (324 in the eight districts), as green cross badges from street-level zooms; hover one for its name, branch and, where mapped, opening hours and whether it dispenses prescriptions (see below)
 - **Find a Place** and **Walking Route**: search any address or place around Taichung (Chinese or English), see it on the map, and use it as start (A) or destination (B); start from your own location, or send a booth there with **Walk here** on its card. The walking route is drawn on the map with its distance, time and turn-by-turn steps (click a step to zoom to it); see below
 - The districts with their night-market and market counts; click one to zoom to it
 - Three styles and three tones from the switches in the header, remembered in the browser:
@@ -41,6 +42,10 @@ Night markets show their mapped OSM outline as a coloured area. For Feng Chia th
 ### Stores with toilets (OpenStreetMap)
 
 `scripts/fetch_stores.py` (standard library) fetches every `shop=convenience` across the former city, leaves out the Shopee parcel pick-up points tagged as convenience stores (蝦皮店到店, 97 of them), and writes `data/derived/convenience_stores_osm.geojson` with each store's `toilets` tag: of 1,026 stores, 164 are tagged `yes`, 66 `no` and 796 not at all. `build_map.py` puts the `toilets=yes` stores inside the eight districts (123) on the **Stores with toilets** layer. Most 7-Eleven and FamilyMart branches have customer toilets, but few stores carry the tag yet, so many stores with toilets are missing; the file keeps the untagged stores in case the layer should show them too. The "Fetch OSM road network" workflow refreshes the file with the other OSM data.
+
+### Pharmacies (OpenStreetMap)
+
+`scripts/fetch_pharmacies.py` (standard library) fetches `amenity=pharmacy` (Taiwan's 藥局) across the former city and writes `data/derived/pharmacies_osm.geojson` (367 pharmacies; chains such as 丁丁 and 大樹 among them). `build_map.py` keeps the 324 inside the eight districts for the **Pharmacies** layer. Drugstore chains tagged `shop=chemist` (e.g. Watsons, Cosmed) are not included, although a few of their branches are tagged as pharmacies and appear. Only 28 pharmacies have opening hours in OSM and 26 say whether they dispense prescriptions, and some pharmacies are not mapped at all. The "Fetch OSM road network" workflow refreshes the file with the other OSM data.
 
 ### Place search and walking routes
 
@@ -127,6 +132,7 @@ Used by the map:
 | `data/derived/landmarks_osm.geojson` | Markets and night markets across the former city, plus named landmarks near Shuinan | OpenStreetMap, ODbL 1.0 |
 | `data/derived/fengjia_night_market_extent.geojson` | Feng Chia Night Market, approximate full extent (our approximation), plus the clipped street centrelines it was built from | `scripts/fengjia_extent.py`; OpenStreetMap, ODbL 1.0 |
 | `data/raw/custom_bins.csv` | Market bins placed by the Boba Index team at Feng Chia | Boba Index team |
+| `data/derived/pharmacies_osm.geojson` | Pharmacies | `scripts/fetch_pharmacies.py`; OpenStreetMap, ODbL 1.0 |
 | `data/derived/convenience_stores_osm.geojson` | Convenience stores with their toilets tag | `scripts/fetch_stores.py`; OpenStreetMap, ODbL 1.0 |
 | `data/derived/waste_bins_osm.geojson` | Garbage bins, waste containers and recycling points | `scripts/fetch_bins.py`; OpenStreetMap, ODbL 1.0 |
 | `data/derived/fengjia_booths_mock.geojson` | **Mock** Feng Chia booths with random Boba Index scores | `scripts/mock_booths.py` |
@@ -145,6 +151,7 @@ scripts/build_map.py       site build
 scripts/fetch_landmarks.py fetches OSM markets and landmarks (run by GitHub Actions)
 scripts/fetch_bins.py      fetches OSM garbage bins (run by GitHub Actions)
 scripts/fetch_stores.py    fetches OSM convenience stores and their toilets tag (run by GitHub Actions)
+scripts/fetch_pharmacies.py fetches OSM pharmacies (run by GitHub Actions)
 scripts/fengjia_extent.py  approximates the Feng Chia Night Market extent
 scripts/mock_booths.py     generates mock Feng Chia booths with random scores
 scripts/check_basemap.mjs  checks the basemap in a browser (run by GitHub Actions)
@@ -175,6 +182,7 @@ img/                       brand assets (logo, banner, pearl scale, icons)
 - **Find a Booth**查詢攤位：可用中英文店名、品項、街道或編號搜尋模擬攤位（例如`oden`、`阿明 臭豆腐`、`FJ-0316`，每個詞都須符合）；結果列出分數，點選（或按Enter選第一筆）會移到該攤位、加上圓圈標示並顯示資訊卡，必要時自動開啟逢甲夜市與攤位圖層。在地圖上點攤位也會選取；按`Esc`取消
 - **垃圾桶**：OpenStreetMap上的公共垃圾桶、大型垃圾箱與資源回收點（八區內共70處），放大到街道層級後以垃圾桶圖示顯示，滑過可看類型與OSM地物（見下方說明）
 - **有廁所的超商**：OpenStreetMap上標示有廁所的便利商店（八區內123家），放大到街道層級後以藍色WC標記顯示，滑過可看店名、分店與營業時間（見下方說明）
+- **藥局**：OpenStreetMap上的藥局（八區內324家），放大到街道層級後以綠色十字標記顯示，滑過可看店名、分店，以及有標示時的營業時間與是否可領處方箋（見下方說明）
 - **Find a Place**查詢地點與**Walking Route**步行路線：可用中英文搜尋臺中一帶的任何地址或地點，在地圖上查看，並設為起點（A）或終點（B）；也可從目前位置出發，或在攤位資訊卡按**Walk here**設為終點。步行路線會畫在地圖上，並列出距離、時間與逐步指引（點選步驟可放大到該處）；見下方說明
 - 各行政區的夜市／市場數，點選可縮放到該區
 - 頁首可切換三種風格（預設的**Boba**品牌風：標誌的棕色與米色配珍奶橘重點色；**Deck**簡報風；**Program**議程風）與三種色調（**Light**、**White**、**Dark**），選擇會記在瀏覽器中；尚未選擇時依裝置設定顯示淺色或深色
@@ -190,6 +198,8 @@ img/                       brand assets (logo, banner, pearl scale, icons)
 夜市以色塊顯示OSM上的範圍；逢甲夜市在OSM上只畫了文華路與逢甲路20巷，因此另以虛線標示**約略全範圍**（6.28公頃）：取文華路、逢甲路、福星路、逢甲路20巷（[商業周刊2015年報導](https://www.businesstoday.com.tw/article/category/80392/post/201507160040/)所列範圍）的OSM道路中心線，依`scripts/fengjia_extent.py`設定的路段裁切，兩側各外擴15 m後合併。官方未公布範圍，僅供參考。重建：`python3 scripts/fengjia_extent.py`（需`pip install shapely`及Overpass連線）。
 
 **有廁所的超商（OSM）**：`scripts/fetch_stores.py`（標準函式庫）抓取原臺中市範圍內所有`shop=convenience`，排除被標成便利商店的蝦皮店到店取貨點（97處），輸出`data/derived/convenience_stores_osm.geojson`並保留各店的`toilets`標籤：1,026家中164家標示`yes`、66家`no`、796家未標示。`build_map.py`將八區內標示`toilets=yes`的123家放在**Stores with toilets**圖層。多數7-Eleven與全家都有提供顧客使用的廁所，但目前標示的店家不多，因此許多有廁所的超商不會出現；檔案保留未標示的店家，日後可視需要一併顯示。「Fetch OSM road network」工作流程會一併更新。
+
+**藥局（OSM）**：`scripts/fetch_pharmacies.py`（標準函式庫）抓取原臺中市範圍內的`amenity=pharmacy`，輸出`data/derived/pharmacies_osm.geojson`（367家，包括丁丁、大樹等連鎖），`build_map.py`將八區內的324家放在**Pharmacies**圖層。標為`shop=chemist`的藥妝店（如屈臣氏、康是美）不在其中，但少數分店被標成藥局而會出現。OSM上只有28家標示營業時間、26家標示是否可領處方箋，也有藥局尚未繪製。「Fetch OSM road network」工作流程會一併更新。
 
 **地點搜尋與步行路線**：兩者都在瀏覽器中呼叫以OpenStreetMap資料為基礎的免費公共服務，不需API key。地點搜尋使用[Nominatim](https://nominatim.org/)，依其使用政策只在送出時查詢（每秒最多一次、不做即時建議），範圍限於臺灣及原臺中市周邊；路名與地標相當完整，門牌號碼僅部分收錄，精確地址有時只會定位到路段。步行路線使用FOSSGIS公共伺服器上的[Valhalla](https://valhalla.github.io/valhalla/)（行人模式），指引為英文、路名依OSM標示（多為中文）。這兩項服務僅供輕度合理使用，適合展示；正式上線應自行架設或改用付費服務。搜尋文字與路線點位會傳送給這些服務（資料說明中已註明）。未使用Google的搜尋與路線服務：需付費金鑰，且條款不允許在非Google地圖上顯示結果；大眾運輸路線則需要臺灣的TDX平台。
 

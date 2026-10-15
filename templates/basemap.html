@@ -807,6 +807,12 @@ h2 .zh.block { margin-top: 3px; }
 .wc-hit { fill: transparent; cursor: help; }
 .wc-badge { fill: #2364aa; stroke: var(--surface); stroke-width: 1.5px; paint-order: stroke; pointer-events: none; }
 .wc-text { font: 800 7.5px var(--font-body); fill: #fff; text-anchor: middle; dominant-baseline: central; pointer-events: none; letter-spacing: -0.2px; }
+/* pharmacies (OSM): green cross badges, the usual pharmacy sign */
+.rx-hit { fill: transparent; cursor: help; }
+.rx-badge { fill: #12824c; stroke: var(--surface); stroke-width: 1.5px; paint-order: stroke; pointer-events: none; }
+.rx-cross { fill: #fff; pointer-events: none; }
+.rx-key { width: 20px; display: flex; justify-content: center; }
+.rx-key svg { width: 14px; height: 14px; }
 .wc-key { width: 20px; display: flex; justify-content: center; }
 .wc-key svg { width: 18px; height: 14px; }
 .bin-key { width: 20px; display: flex; justify-content: center; }
@@ -900,6 +906,7 @@ h2 .zh.block { margin-top: 3px; }
           <g id="g-mkt"></g>
           <g id="g-bins"></g>
           <g id="g-wc"></g>
+          <g id="g-rx"></g>
           <g id="g-pins"></g>
           <g id="g-booth-sel" style="display: none"><circle class="booth-sel halo" r="13"></circle><circle class="booth-sel" r="13"></circle></g>
         </g>
@@ -926,6 +933,7 @@ h2 .zh.block { margin-top: 3px; }
           <li class="bin-legend" hidden><span class="bin-key"><svg viewBox="-6 -7 12 14" aria-hidden="true"><path class="bin-icon" d="M-5 -4.5 H5 M-1.8 -4.5 V-6 H1.8 V-4.5 M-4 -3 L-3.2 6 H3.2 L4 -3 Z"/></svg></span>Garbage bin<span class="zh" lang="zh-Hant-TW">垃圾桶</span></li>
           <li class="bin-legend" hidden><span class="bin-key bin-g market"><svg viewBox="-6 -7 12 14" aria-hidden="true"><path class="bin-icon" d="M-5 -4.5 H5 M-1.8 -4.5 V-6 H1.8 V-4.5 M-4 -3 L-3.2 6 H3.2 L4 -3 Z"/></svg></span>Market bin<span class="zh" lang="zh-Hant-TW">夜市垃圾桶</span></li>
           <li class="wc-legend" hidden><span class="wc-key"><svg viewBox="-9 -7 18 14" aria-hidden="true"><rect class="wc-badge" x="-8" y="-6" width="16" height="12" rx="3"/><text class="wc-text">WC</text></svg></span>Store with toilet<span class="zh" lang="zh-Hant-TW">有廁所的超商</span></li>
+          <li class="rx-legend" hidden><span class="rx-key"><svg viewBox="-7 -7 14 14" aria-hidden="true"><rect class="rx-badge" x="-6.5" y="-6.5" width="13" height="13" rx="3"/><path class="rx-cross" d="M-1.4 -4.2 H1.4 V-1.4 H4.2 V1.4 H1.4 V4.2 H-1.4 V1.4 H-4.2 V-1.4 H-1.4 Z"/></svg></span>Pharmacy<span class="zh" lang="zh-Hant-TW">藥局</span></li>
           <li class="bin-legend" hidden><span class="bin-key bin-g recycle"><svg viewBox="-6 -7 12 14" aria-hidden="true"><path class="bin-icon" d="M-5 -4.5 H5 M-1.8 -4.5 V-6 H1.8 V-4.5 M-4 -3 L-3.2 6 H3.2 L4 -3 Z"/></svg></span>Recycling<span class="zh" lang="zh-Hant-TW">資源回收</span></li>
         </ul>
         <div class="booth-key" id="booth-key" hidden>
@@ -995,6 +1003,7 @@ h2 .zh.block { margin-top: 3px; }
           <label><input type="checkbox" id="lyr-area" checked>Night-market areas<span class="zh" lang="zh-Hant-TW">夜市範圍</span></label>
           <label id="lyr-booths-wrap" hidden><input type="checkbox" id="lyr-booths" checked>Booths<span class="zh" lang="zh-Hant-TW">攤位</span></label>
           <label id="lyr-heat-wrap" hidden><input type="checkbox" id="lyr-heat" checked>Boba Index heat map<span class="zh" lang="zh-Hant-TW">珍奶指數熱度圖</span></label>
+          <label id="lyr-rx-wrap" hidden><input type="checkbox" id="lyr-rx" checked>Pharmacies<span class="zh" lang="zh-Hant-TW">藥局</span></label>
           <label id="lyr-wc-wrap" hidden><input type="checkbox" id="lyr-wc" checked>Stores with toilets<span class="zh" lang="zh-Hant-TW">有廁所的超商</span></label>
           <label id="lyr-bins-wrap" hidden><input type="checkbox" id="lyr-bins" checked>Garbage bins<span class="zh" lang="zh-Hant-TW">垃圾桶</span></label>
           <label><input type="checkbox" id="lyr-mkt" checked>Other markets<span class="zh" lang="zh-Hant-TW">其他市場</span></label>
@@ -1224,6 +1233,7 @@ h2 .zh.block { margin-top: 3px; }
     drawMarkets();
     drawBins();
     drawToilets();
+    drawPharmacies();
     drawPins();
     drawBooths();
     drawHeat();
@@ -1431,7 +1441,7 @@ h2 .zh.block { margin-top: 3px; }
   }
   function setAttrib() {
     // the market layer is OSM data too, so the credit stays while it is shown
-    attrib.hidden = !layers.osm && !markets.some(isShown) && !(DATA.bins && $("#lyr-bins").checked) && !(DATA.toilets && $("#lyr-wc").checked);
+    attrib.hidden = !layers.osm && !markets.some(isShown) && !(DATA.bins && $("#lyr-bins").checked) && !(DATA.toilets && $("#lyr-wc").checked) && !(DATA.pharmacies && $("#lyr-rx").checked);
     attrib.innerHTML = layers.osm && !rasterMode ? ATTRIB.vector : ATTRIB.osm;
   }
   function setBasemap(on, redraw = true) {
@@ -1558,12 +1568,14 @@ h2 .zh.block { margin-top: 3px; }
     const ht = e.target.__heat || null;
     const bn = e.target.__bin ?? null;
     const wc = e.target.__wc ?? null;
-    const d = mk || ht || bo != null || bn != null || wc != null ? null : e.target.__d || null;
+    const rx = e.target.__rx ?? null;
+    const d = mk || ht || bo != null || bn != null || wc != null || rx != null ? null : e.target.__d || null;
     setHot(d);
     if (e.pointerType === "touch") hideTip();
     else if (bo != null) showBoothTip(bo, e.clientX, e.clientY);
     else if (bn != null) showBinTip(bn, e.clientX, e.clientY);
     else if (wc != null) showToiletTip(wc, e.clientX, e.clientY);
+    else if (rx != null) showPharmacyTip(rx, e.clientX, e.clientY);
     else if (ht) showHeatTip(p, e.clientX, e.clientY);
     else if (mk) showMarketTip(mk, e.clientX, e.clientY);
     else if (d) showDistrictTip(d, e.clientX, e.clientY);
@@ -1577,6 +1589,7 @@ h2 .zh.block { margin-top: 3px; }
       if (t && t.__booth != null) { selectBooth(t.__booth, false); showBoothTip(t.__booth, e.clientX, e.clientY); }
       else if (t && t.__bin != null) showBinTip(t.__bin, e.clientX, e.clientY);
       else if (t && t.__wc != null) showToiletTip(t.__wc, e.clientX, e.clientY);
+      else if (t && t.__rx != null) showPharmacyTip(t.__rx, e.clientX, e.clientY);
       else if (t && t.__heat) showHeatTip(local(e), e.clientX, e.clientY);
       else if (t && t.__mkt) showMarketTip(t.__mkt, e.clientX, e.clientY);
       else if (t && t.__d && e.pointerType === "touch") showDistrictTip(t.__d, e.clientX, e.clientY);
@@ -2010,6 +2023,39 @@ h2 .zh.block { margin-top: 3px; }
     placeTip(cx, cy);
   }
 
+  // ---------- pharmacies (OpenStreetMap, fetched by scripts/fetch_pharmacies.py) ----------
+  const gRx = $("#g-rx");
+  const RX_CROSS = "M-1.6 -4.8 H1.6 V-1.6 H4.8 V1.6 H1.6 V4.8 H-1.6 V1.6 H-4.8 V-1.6 H-1.6 Z";
+  const pharmacies = (DATA.pharmacies ? DATA.pharmacies.rows : []).map(([lon, lat, en, local, hours, dispensing, osm], i) => {
+    const [wx, wy] = proj(lon, lat);
+    const g = svgEl("g", {}, gRx);
+    svgEl("circle", { class: "rx-hit", r: 11 }, g).__rx = i;
+    svgEl("rect", { class: "rx-badge", x: -7.5, y: -7.5, width: 15, height: 15, rx: 3.5 }, g);
+    svgEl("path", { class: "rx-cross", d: RX_CROSS }, g);
+    return { lon, lat, en, local, hours, dispensing, osm, wx, wy, g };
+  });
+  if (pharmacies.length) {
+    $("#lyr-rx-wrap").hidden = false;
+    $("#lyr-rx").addEventListener("change", () => { hideTip(); setAttrib(); draw(); });
+  }
+  function drawPharmacies() {
+    const on = pharmacies.length > 0 && $("#lyr-rx").checked;
+    for (const li of document.querySelectorAll(".rx-legend")) li.hidden = !on;
+    const show = on && view.k >= binMinK(); // street-level zooms, like the bins and toilets
+    gRx.style.display = show ? "" : "none";
+    if (!show) return;
+    for (const s of pharmacies) s.g.setAttribute("transform", `translate(${view.k * s.wx + view.tx} ${view.k * s.wy + view.ty})`);
+  }
+  function showPharmacyTip(i, cx, cy) {
+    const s = pharmacies[i];
+    const head = s.en ? `<b>${esc(s.en)}</b>${s.local ? zh(s.local) : ""}` : `<b>${zh(s.local || "藥局", "")}</b>`;
+    const disp = s.dispensing === "yes" ? "Dispenses prescriptions" : s.dispensing === "no" ? "No prescriptions" : "";
+    tip.innerHTML = `${head}<br>Pharmacy${zh("藥局")}${disp ? ` · ${disp}` : ""}<br>` +
+      (s.hours ? `Hours: <span class="num">${esc(s.hours)}</span><br>` : "") +
+      `OpenStreetMap ${esc(s.osm.replace("/", " "))}`;
+    placeTip(cx, cy);
+  }
+
   // ---------- districts ----------
   const legend = $("#legend");
   for (const d of [...districts].sort((a, b) => b.nMarkets - a.nMarkets || a.i - b.i)) {
@@ -2178,6 +2224,7 @@ h2 .zh.block { margin-top: 3px; }
       `This is a demonstrator: the Feng Chia booth layout, names and scores are illustrative and do not describe actual stalls.`] : []),
     ...(DATA.bins ? [`Garbage bins: © ${osmLink} contributors, ODbL 1.0; fetched ${esc(DATA.bins.fetched || "")}. ${bins.filter((b) => b.kind < 3).length} public bins, waste containers and recycling points mapped in OpenStreetMap inside the eight districts, plus ${bins.filter((b) => b.kind === 3).length} market bins placed by the Boba Index team at Feng Chia (orange), shown from street-level zooms. Public bins are rare in Taiwan, where household rubbish goes to the garbage trucks, and OSM coverage is patchy, so this shows what is mapped, not every bin.`] : []),
     ...(DATA.toilets ? [`Stores with toilets: © ${osmLink} contributors, ODbL 1.0; fetched ${esc(DATA.toilets.fetched || "")}. ${DATA.toilets.rows.length} convenience stores tagged toilets=yes in OpenStreetMap inside the eight districts, out of ${DATA.toilets.stores_total.toLocaleString("en-US")} stores fetched (Shopee parcel pick-up points left out). Most 7-Eleven and FamilyMart branches have customer toilets, but few stores carry the tag yet, so many stores with toilets are missing from this layer.`] : []),
+    ...(DATA.pharmacies ? [`Pharmacies: © ${osmLink} contributors, ODbL 1.0; fetched ${esc(DATA.pharmacies.fetched || "")}. ${DATA.pharmacies.rows.length} pharmacies (amenity=pharmacy) mapped in OpenStreetMap inside the eight districts; drugstore chains tagged shop=chemist are not included. Opening hours are shown where mapped, which is rarely, and some pharmacies are missing.`] : []),
     `Place search: <a href="https://nominatim.org/" target="_blank" rel="noopener">Nominatim</a> (data © ${osmLink} contributors, ODbL), limited to the Taichung area. Walking routes: <a href="https://valhalla.github.io/valhalla/" target="_blank" rel="noopener">Valhalla</a> on the FOSSGIS public server (data © ${osmLink} contributors); directions in English, street names as mapped in OSM. Both are free public services meant for light use; your search text and route points are sent to them.`,
     `District boundaries: ${esc(DATA.boundary_source)}. Simplified; use them for orientation, not measurement. Areas come from the attribute table.`,
     `Coordinates: WGS84 (CRS84). The map uses Web Mercator to match the basemap; the scale bar uses the east-west scale at the center of the map.`,

@@ -37,6 +37,8 @@ FENGJIA_EXTENT = ROOT / "data" / "derived" / "fengjia_night_market_extent.geojso
 BINS = ROOT / "data" / "derived" / "waste_bins_osm.geojson"
 # OSM convenience stores with their toilets tag, from scripts/fetch_stores.py. Optional.
 STORES = ROOT / "data" / "derived" / "convenience_stores_osm.geojson"
+# OSM pharmacies, from scripts/fetch_pharmacies.py. Optional.
+PHARMACIES = ROOT / "data" / "derived" / "pharmacies_osm.geojson"
 # Hand-placed market bins (the team's own, not in OSM). Optional.
 CUSTOM_BINS = RAW / "custom_bins.csv"
 # MOCK booths with random Boba Index scores from scripts/mock_booths.py. Optional.
@@ -227,18 +229,37 @@ def load_toilet_stores(districts):
     return {"fetched": fc.get("fetched"), "stores_total": total, "rows": rows}
 
 
+def load_pharmacies(districts):
+    """Pharmacies inside the eight districts as rows [lon, lat, name_en, name_local, opening_hours, dispensing, "type/id"]."""
+    if not PHARMACIES.exists():
+        return None
+    fc = read_json(PHARMACIES)
+    rows = []
+    for f in fc["features"]:
+        lon, lat = f["geometry"]["coordinates"]
+        if not any(in_geom(lon, lat, d["geometry"]) for d in districts["features"]):
+            continue
+        t = f["properties"]["tags"]
+        rows.append([lon, lat, t.get("name:en") or t.get("brand:en") or "",
+                     " ".join(x for x in (t.get("name", ""), t.get("branch", "")) if x),
+                     t.get("opening_hours", ""), t.get("dispensing", ""),
+                     f"{f['properties']['osm_type']}/{f['properties']['osm_id']}"])
+    return {"fetched": fc.get("fetched"), "rows": rows}
+
+
 def load_data():
     districts = read_geojson(DISTRICTS)
     markets = load_markets(districts)
     bins = load_bins(districts)
     toilets = load_toilet_stores(districts)
+    pharmacies = load_pharmacies(districts)
     boundary_source = districts["features"][0]["properties"]["source"]
     # Drop properties the page never reads to keep the inline payload small.
     keep = ("district_code", "district_zh", "district_en", "area_km2", "label_lon", "label_lat")
     for f in districts["features"]:
         f["properties"] = {k: f["properties"][k] for k in keep}
     districts.pop("crs", None)
-    return {"districts": districts, "markets": markets, "booths": load_booths(), "bins": bins, "toilets": toilets, "boundary_source": boundary_source}
+    return {"districts": districts, "markets": markets, "booths": load_booths(), "bins": bins, "toilets": toilets, "pharmacies": pharmacies, "boundary_source": boundary_source}
 
 
 def inline_json(obj):
