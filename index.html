@@ -911,7 +911,7 @@ h2 .zh.block { margin-top: 3px; }
     // deep enough for the mock booths (3.5 m) to reach about 20 px
     kMin = fitK * 0.6; kMax = fitK * 160;
     if (!interacted || !oldW) {
-      view = fitView(totalBox, 18);
+      view = homeView();
     } else {
       // keep the same world point at the centre, keep relative zoom
       const cx = (oldW / 2 - view.tx) / view.k, cy = (oldH / 2 - view.ty) / view.k;
@@ -1202,7 +1202,8 @@ h2 .zh.block { margin-top: 3px; }
     setView({ k, tx: sx - (sx - view.tx) * f, ty: sy - (sy - view.ty) * f }, animate);
   }
   const zoomCenter = (factor) => zoomAt(factor, (M.l + W - M.r) / 2, (M.t + H - M.b) / 2, true);
-  const resetView = () => { interacted = false; setView(fitView(totalBox, 18), true); };
+  // the full-extent button keeps its meaning; after it, resizing keeps the view instead of returning home
+  const resetView = () => { interacted = true; setView(fitView(totalBox, 18), true); };
   const zoomTo = (box, pad, cap) => { interacted = true; setView(fitView(box, pad, cap), true); };
 
   $("#zin").addEventListener("click", () => zoomCenter(1.6));
@@ -1451,6 +1452,15 @@ h2 .zh.block { margin-top: 3px; }
     $("#lyr-booths").addEventListener("change", () => { hideTip(); draw(); });
   }
   const boothMinK = boothHost ? (4 * GROUND) / BOOTHS.size_m[0] : Infinity; // booths at least 4 px long
+  // opening view: the Feng Chia market with its booths showing (fit the extent, but never below the booth zoom);
+  // without booth data, the whole former city
+  function homeView() {
+    if (!booths.length) return fitView(totalBox, 18);
+    const v = fitView(boothHost.box, 24);
+    const k = Math.min(kMax, Math.max(v.k, boothMinK * 1.15)), r = inner();
+    const cx = (boothHost.box[0] + boothHost.box[2]) / 2, cy = (boothHost.box[1] + boothHost.box[3]) / 2;
+    return { k, tx: (r.x0 + r.x1) / 2 - k * cx, ty: (r.y0 + r.y1) / 2 - k * cy };
+  }
   function colourBooths() {
     if (!booths.length) return;
     for (const b of booths) b.el.setAttribute("fill", rampColor(RAMP, b.score));

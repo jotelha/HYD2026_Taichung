@@ -11,6 +11,7 @@ Live site (GitHub Pages): https://jotelha.github.io/HYD2026_Taichung/
 The interface is English-first, with Chinese as the secondary language: labels and side panels are in English, and market and district names carry their Chinese names.
 
 - The markets and night markets mapped in OpenStreetMap inside the 8 districts of the former Taichung City, on an English-labelled basemap
+- The map opens on the Feng Chia Night Market, zoomed in far enough for its booths to show; the full-extent button (or `0`) shows the whole former city
 - Night markets as filled dots with their mapped area in colour; other markets as hollow dots. Hover or tap for the name, district, mapped area, coordinates and OSM feature
 - A side list of the night markets, largest first: a checkbox switches each one's dot, label and area on or off (**All** / **None** for the lot), and **Show on map** zooms to it. Under the legend, **Night-market areas** switches the coloured outlines (and Feng Chia's dashed extent) on and off, **Mock booths** the Feng Chia booths, and **Other markets** the remaining markets
 - **Mock booths** at Feng Chia: zoom in to see 622 booth rectangles coloured by their Boba Index (0–5 on the viridis scale, purple through green to yellow); hover one for its name, id, street and score. Names, positions and scores are invented (see below)
@@ -122,6 +123,7 @@ data/derived/              OSM extracts and derived layers
 介面以英文為主、中文為輔，市場與行政區名稱都附上中文。
 
 - 原臺中市8區範圍內、OSM上的市場與夜市，疊在英文標註底圖上
+- 地圖開啟時直接放大到逢甲夜市並顯示攤位；按全圖按鈕（或`0`）可看整個原臺中市
 - 夜市以實心點加彩色範圍表示，其他市場以空心點表示；滑過或點選可看名稱、行政區、範圍面積、座標與OSM地物
 - 側欄列出各夜市（依面積排序）：勾選框可個別開關每個夜市的標記、名稱與範圍（**All**／**None**一次全開或全關），**Show on map**移到該夜市；圖例下方的圖層開關可分別切換**Night-market areas**（夜市範圍色塊與逢甲夜市虛線範圍）、**Mock booths**（逢甲模擬攤位）與**Other markets**（其他市場）
 - 逢甲夜市的**模擬攤位**：放大後可看到622個依珍奶指數（0–5，viridis色階：紫→綠→黃）著色的攤位方塊，滑過可看店名、編號、所在街道與分數；店名、位置與分數皆為虛構（見下方說明）
