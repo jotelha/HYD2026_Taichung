@@ -18,6 +18,7 @@ The interface is English-first, with Chinese as the secondary language: labels a
 - A **Boba Index heat map** over Feng Chia: the booth scores smoothed into a continuous surface on its own plasma scale (purple → orange → yellow), stretched from its lowest to its highest value, readable from the overview zooms on; a slider sets the smoothing width (10–60 m, default 25 m), and hovering shows the smoothed value and how many booths it averages (see below)
 - A collapsible **legend** in the map's top-left corner: the market symbols and areas, the district boundary, and the colour keys of the booths and the heat map (each shown while its layer is on; the heat-map key shows the current range). It starts collapsed on small screens; the north arrow sits under the zoom buttons
 - **Find a Booth**: search the mock booths by English or Chinese name, dish, street or number (e.g. `oden`, `阿明 臭豆腐`, `FJ-0316`; every word must match). Results show the score; picking one (or pressing Enter for the first) zooms to the booth, rings it and shows a card, switching Feng Chia and the booth layer on if needed. Clicking a booth on the map selects it too; `Esc` clears the selection
+- **Garbage bins**: public bins, waste containers and recycling points mapped in OpenStreetMap (70 in the eight districts), as small bin icons from street-level zooms; hover one for its type and OSM feature (see below)
 - The districts with their night-market and market counts; click one to zoom to it
 - Three styles and three tones from the switches in the header, remembered in the browser:
   - **Boba** (the default): the Boba Index brand, with the logo's brown ink on cream, boba-orange highlights, Bricolage Grotesque and rounded cards
@@ -34,6 +35,10 @@ The interface is English-first, with Chinese as the secondary language: labels a
 `scripts/fetch_landmarks.py` fetches every `amenity=marketplace` feature and every feature named …夜市 across the former city. `build_map.py` keeps marketplaces and untagged features whose name ends in 夜市 (so the parking lots, access ways and restaurants that only share the name drop out), drops stall sub-areas and duplicate points, and clips to the district boundaries. That leaves 62 markets, 7 of them night markets. Markets that nobody has mapped in OSM are missing (for example Yizhong Street).
 
 Night markets show their mapped OSM outline as a coloured area. For Feng Chia that outline covers only Wenhua Road and Fengjia Road Lane 20, so the map adds a dashed **approximate full extent** (6.28 ha): the OSM centrelines of Wenhua Road, Fengjia Road, Fuxing Road and Fengjia Road Lane 20 (the streets [Business Today, 2015](https://www.businesstoday.com.tw/article/category/80392/post/201507160040/) names as the market area), clipped to the stretches set in `scripts/fengjia_extent.py`, buffered by 15 m and merged. No official boundary is published; treat it as an approximation. Regenerate with `python3 scripts/fengjia_extent.py` (needs `pip install shapely` and Overpass access).
+
+### Garbage bins (OpenStreetMap)
+
+`scripts/fetch_bins.py` (standard library) fetches `amenity=waste_basket` (public bins), `amenity=waste_disposal` (larger containers) and `amenity=recycling` across the former city, leaving out recycling centres (facilities, not bins), and writes `data/derived/waste_bins_osm.geojson`; `build_map.py` keeps those inside the eight districts. The **Garbage bins** layer draws them as solid bin icons (bins and containers) or outlined ones (recycling) from street-level zooms. Public bins are rare in Taiwan, where household rubbish goes to the garbage trucks, and OSM coverage is patchy, so the layer shows what is mapped, not every bin. The "Fetch OSM road network" workflow refreshes the file with the other OSM data.
 
 ### Mock booths (Feng Chia)
 
@@ -104,6 +109,7 @@ Used by the map:
 | `data/raw/former_city_8_districts.geojson` | 8 district boundaries of the former Taichung City | MOI district boundaries (2025-03-18) and NLSC village boundaries (2026-08-17), processed with plotdb/pdmaptw v2.4.0; Open Government Data License v1.0 |
 | `data/derived/landmarks_osm.geojson` | Markets and night markets across the former city, plus named landmarks near Shuinan | OpenStreetMap, ODbL 1.0 |
 | `data/derived/fengjia_night_market_extent.geojson` | Feng Chia Night Market, approximate full extent (our approximation), plus the clipped street centrelines it was built from | `scripts/fengjia_extent.py`; OpenStreetMap, ODbL 1.0 |
+| `data/derived/waste_bins_osm.geojson` | Garbage bins, waste containers and recycling points | `scripts/fetch_bins.py`; OpenStreetMap, ODbL 1.0 |
 | `data/derived/fengjia_booths_mock.geojson` | **Mock** Feng Chia booths with random Boba Index scores | `scripts/mock_booths.py` |
 
 Kept from the former-city and Shuinan research map, not shown on the page: village boundaries and attributes (`former_city_villages.*`, the old-downtown and Xitun–Beitun subsets), the Shuinan detailed plan (`Figure_7-1_Detailed_Plan_A3_English_CAD.dxf`, `shuinan_detailed_plan_traced.geojson`), zoning areas, major projects and their locations, reference points and the OSM road network, with the scripts that produce them (`georef_plan.py`, `register_plan.py`, `fetch_roads.py`, `locate_projects.py`). The git history has the earlier pages that used them.
@@ -118,6 +124,7 @@ map/index.html             redirect to the home page (generated)
 templates/basemap.html     page template
 scripts/build_map.py       site build
 scripts/fetch_landmarks.py fetches OSM markets and landmarks (run by GitHub Actions)
+scripts/fetch_bins.py      fetches OSM garbage bins (run by GitHub Actions)
 scripts/fengjia_extent.py  approximates the Feng Chia Night Market extent
 scripts/mock_booths.py     generates mock Feng Chia booths with random scores
 scripts/check_basemap.mjs  checks the basemap in a browser (run by GitHub Actions)
@@ -146,6 +153,7 @@ img/                       brand assets (logo, banner, pearl scale, icons)
 - 逢甲夜市的**珍奶指數熱度圖**：把攤位分數平滑成連續的面，使用獨立的plasma色階（紫→橘→黃），並依最低到最高值拉伸，縮小時也看得清楚；滑桿可調整平滑半徑（10–60公尺，預設25公尺），滑過可看平滑後的數值與參與平均的攤位數（見下方說明）
 - 地圖左上角可收合的**圖例**：市場符號與範圍、區界，以及攤位與熱度圖的色階（各在其圖層開啟時顯示，熱度圖色階顯示目前的數值範圍）；小螢幕預設收合，指北針移到縮放按鈕下方
 - **Find a Booth**查詢攤位：可用中英文店名、品項、街道或編號搜尋模擬攤位（例如`oden`、`阿明 臭豆腐`、`FJ-0316`，每個詞都須符合）；結果列出分數，點選（或按Enter選第一筆）會移到該攤位、加上圓圈標示並顯示資訊卡，必要時自動開啟逢甲夜市與攤位圖層。在地圖上點攤位也會選取；按`Esc`取消
+- **垃圾桶**：OpenStreetMap上的公共垃圾桶、大型垃圾箱與資源回收點（八區內共70處），放大到街道層級後以垃圾桶圖示顯示，滑過可看類型與OSM地物（見下方說明）
 - 各行政區的夜市／市場數，點選可縮放到該區
 - 頁首可切換三種風格（預設的**Boba**品牌風：標誌的棕色與米色配珍奶橘重點色；**Deck**簡報風；**Program**議程風）與三種色調（**Light**、**White**、**Dark**），選擇會記在瀏覽器中；尚未選擇時依裝置設定顯示淺色或深色
 - 拖曳平移、滾輪或雙指縮放；方向鍵平移、`+`／`-`縮放、`0`回到全圖
@@ -158,6 +166,8 @@ img/                       brand assets (logo, banner, pearl scale, icons)
 `fetch_landmarks.py`抓取原臺中市範圍內所有`amenity=marketplace`及名稱含「夜市」的地物；`build_map.py`保留市場及名稱以「夜市」結尾、未另標類型的地物（排除同名的停車場、通道與餐廳），去除攤區分區與重複點位，並以區界裁切，共62處，其中7處夜市。OSM未繪製的市場不會出現（例如一中街）。
 
 夜市以色塊顯示OSM上的範圍；逢甲夜市在OSM上只畫了文華路與逢甲路20巷，因此另以虛線標示**約略全範圍**（6.28公頃）：取文華路、逢甲路、福星路、逢甲路20巷（[商業周刊2015年報導](https://www.businesstoday.com.tw/article/category/80392/post/201507160040/)所列範圍）的OSM道路中心線，依`scripts/fengjia_extent.py`設定的路段裁切，兩側各外擴15 m後合併。官方未公布範圍，僅供參考。重建：`python3 scripts/fengjia_extent.py`（需`pip install shapely`及Overpass連線）。
+
+**垃圾桶（OSM）**：`scripts/fetch_bins.py`（標準函式庫）抓取原臺中市範圍內的`amenity=waste_basket`（公共垃圾桶）、`amenity=waste_disposal`（大型垃圾箱）與`amenity=recycling`（不含資源回收場等設施），輸出`data/derived/waste_bins_osm.geojson`，`build_map.py`保留八區範圍內的點位。**Garbage bins**圖層以實心圖示表示垃圾桶與垃圾箱、空心圖示表示資源回收，放大到街道層級才顯示。臺灣公共垃圾桶不多（家戶垃圾交由垃圾車收運），OSM的繪製也不完整，因此只呈現已繪製的點位。「Fetch OSM road network」工作流程會一併更新。
 
 **模擬攤位（逢甲夜市）**：目前沒有攤位資料，因此由`scripts/mock_booths.py`（標準函式庫）產生虛構攤位供設計地圖：沿逢甲夜市各街道兩側、退到車道之外（依OSM道路等級），每10.2公尺放一個3.5 × 3公尺的攤位，略過位於交叉道路上、與其他攤位太近或超出約略範圍的位置；分數在空間上群聚而非均勻分布：以2.5為基準，在市集內隨機選三個高點與三個低點（彼此相距至少120公尺，幅度±1.6–2.3分、範圍40–80公尺的高斯分布），每個攤位的珍奶指數為所在位置的場值加上強雜訊（標準差2.5）；超出0.0–5.0的抽樣會重抽而非截斷（截斷常態分布），因此兩端不會堆積，結果取到小數一位。個別攤位看起來幾乎是隨機的（與場值的相關約0.2），熱度圖則能部分呈現高分區與低分區：預設25公尺平滑後與場值的相關約0.56，40公尺約0.70，平滑半徑越大越明顯。高低點位置記錄在輸出檔的`score_field`，可用`FIELD_*`常數調整。使用固定亂數種子，重跑結果相同（共399個）。攤位數依旅遊資料常見的「約400個攤位」設定（官方未公布；逢甲大學2023年調查商圈內實際營業店家955家，含店面）。每個攤位另有虛構的中英文店名，依真實攤名常見的組合（阿＋名字、姓＋記、姓＋稱謂或地名，有時加上「古早味」「手工」等形容，再接品項）與30種夜市常見小吃產生，例如「許記正宗蔥油餅」；組合方式參考逢甲夜市美食報導（[TVBS 食尚玩家](https://supertaste.tvbs.com.tw/food/351458)、[funtime](https://www.funtime.com.tw/blog/funtime/taichung-fengjia-food-map)）與[Smile Taiwan](https://smiletaiwan.cw.com.tw/article/3000)。店名不得包含逢甲夜市真實攤位的名稱（腳本中的`REAL_STALLS`），以免隨機分數被誤認為對真實店家的評分；店名使用獨立的亂數種子，修改店名不影響分數。腳本讀取`fengjia_extent.py`一併儲存的街道中心線，輸出`data/derived/fengjia_booths_mock.geojson`；作為展示版本，頁面上的攤位不再標示「模擬」，看起來如同真實資料；頁面資料說明中保留一句說明，指出逢甲夜市的攤位配置、店名與分數僅為示意，並非實際攤位。資料仍為虛構時請保留這句說明，並避免使用真實攤名（`REAL_STALLS`），以免隨機分數被誤認為對真實店家的評分。**熱度圖**為每個2公尺網格周圍攤位分數的高斯加權平均（Nadaraya–Watson核平滑，在瀏覽器中計算），不是攤位密度，也不是產生模擬分數用的場，因此換成真實攤位資料後可直接沿用。滑桿設定核的寬度；攤位稀疏處逐漸透明，並以約略範圍裁切。色彩採用plasma色階，與攤位的viridis不同，避免兩層混淆；色階依涵蓋充足網格的最低到最高平滑值拉伸（例如25公尺時為1.7–3.5，60公尺時為1.9–3.1），熱度圖圖例會顯示目前的範圍，不同寬度之間請比較數字而非顏色。平滑會抹掉個別攤位的極端值，呈現結果也取決於所選寬度。**Boba Index heat map**與**Booths**可各自開關。
 

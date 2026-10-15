@@ -43,18 +43,18 @@
   --r-sm: 2px;
   --r-md: 2px;
   --rule-strong: 2px solid var(--ink);
-  --dist-char: 8.5; /* approx px per character of a district label, for label collision */
+  --dist-char: 9.5; /* approx px per character of a district label, for label collision */
 
   --font-display: "Instrument Serif", "Noto Serif TC", "Songti TC", "PMingLiU", Georgia, serif;
   --font-body: "Instrument Sans", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
   --font-zh: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
 
-  --fs-xs: 11.5px;
-  --fs-sm: 13px;
-  --fs-md: 14.5px;
-  --fs-lg: 20px;
-  --fs-xl: 32px;
+  --fs-xs: 13px;
+  --fs-sm: 14.5px;
+  --fs-md: 16px;
+  --fs-lg: 22.5px;
+  --fs-xl: 36px;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]):not([data-theme="white"]) {
@@ -145,7 +145,7 @@
   --r-sm: 6px;
   --r-md: 12px;
   --rule-strong: 1px solid var(--rule);
-  --dist-char: 10;
+  --dist-char: 11;
   --font-display: "Bricolage Grotesque", "Noto Sans TC", system-ui, sans-serif;
   --font-body: "IBM Plex Sans", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
@@ -234,7 +234,7 @@
   --r-sm: 8px;
   --r-md: 14px;
   --rule-strong: 2px solid var(--hl);
-  --dist-char: 10;
+  --dist-char: 11;
   --font-display: "Bricolage Grotesque", "Noto Sans TC", system-ui, sans-serif;
 }
 :root[data-style="boba"][data-theme="white"] {
@@ -374,7 +374,7 @@ h1 .zh { margin-left: 0.5em; font-family: "Noto Serif TC", "Songti TC", serif; f
   background: transparent;
   border: 0;
   border-left: 1px solid var(--rule);
-  font: 500 10.5px/1.6 var(--font-mono);
+  font: 500 12px/1.6 var(--font-mono);
   letter-spacing: 0.1em;
   text-transform: uppercase;
   color: var(--ink-2);
@@ -383,7 +383,7 @@ h1 .zh { margin-left: 0.5em; font-family: "Noto Serif TC", "Songti TC", serif; f
 .theme-switch button:first-child { border-left: 0; }
 .theme-switch button:hover { background: var(--field); }
 .theme-switch button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
-.theme-switch .zh { margin-left: 0.35em; font-size: 11px; letter-spacing: 0.02em; text-transform: none; color: inherit; opacity: 0.75; }
+.theme-switch .zh { margin-left: 0.35em; font-size: 12.5px; letter-spacing: 0.02em; text-transform: none; color: inherit; opacity: 0.75; }
 
 /* ---------- main grid ---------- */
 .main {
@@ -488,12 +488,12 @@ h1 .zh { margin-left: 0.5em; font-family: "Noto Serif TC", "Songti TC", serif; f
   pointer-events: none;
 }
 .dlabel { stroke-width: 4px; }
-.dlabel .l1 { font: italic 400 21px var(--font-display); letter-spacing: -0.2px; fill: var(--ink); }
-.dlabel .l2 { font: 500 11.5px "Noto Serif TC", "Songti TC", serif; letter-spacing: 0.3em; fill: var(--ink-2); }
+.dlabel .l1 { font: italic 400 23.5px var(--font-display); letter-spacing: -0.2px; fill: var(--ink); }
+.dlabel .l2 { font: 500 13px "Noto Serif TC", "Songti TC", serif; letter-spacing: 0.3em; fill: var(--ink-2); }
 
 .tick { stroke: var(--line-admin); stroke-width: 1; }
 .ticklabel {
-  font: 10px var(--font-mono);
+  font: 11px var(--font-mono);
   fill: var(--muted);
   text-anchor: middle;
   font-variant-numeric: tabular-nums;
@@ -502,7 +502,7 @@ h1 .zh { margin-left: 0.5em; font-family: "Noto Serif TC", "Songti TC", serif; f
 .sb-b { fill: var(--surface); }
 .sb-frame { fill: none; stroke: var(--ink); stroke-width: 1; }
 .sb-label {
-  font: 10px var(--font-mono);
+  font: 11px var(--font-mono);
   fill: var(--ink);
   text-anchor: middle;
   paint-order: stroke;
@@ -511,7 +511,7 @@ h1 .zh { margin-left: 0.5em; font-family: "Noto Serif TC", "Songti TC", serif; f
 }
 .north-a { fill: var(--ink); }
 .north-b { fill: var(--surface); stroke: var(--ink); stroke-width: 1; }
-.north-n { font: 700 11px var(--font-mono); fill: var(--ink); text-anchor: middle; }
+.north-n { font: 700 12.5px var(--font-mono); fill: var(--ink); text-anchor: middle; }
 
 /* ---------- map overlays ---------- */
 .map-ctrl {
@@ -527,7 +527,7 @@ h1 .zh { margin-left: 0.5em; font-family: "Noto Serif TC", "Songti TC", serif; f
   z-index: 2;
   top: 16px;
   left: 30px; /* clear of the latitude ticks in the left margin */
-  max-width: min(250px, calc(100% - 96px));
+  max-width: min(300px, calc(100% - 96px));
   max-height: calc(100% - 80px);
   overflow: auto;
   padding: 6px 10px 8px;
@@ -536,11 +536,11 @@ h1 .zh { margin-left: 0.5em; font-family: "Noto Serif TC", "Songti TC", serif; f
   border-radius: var(--r-sm);
   font-size: var(--fs-xs);
 }
-.map-legend summary { cursor: pointer; font: 500 10.5px var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.map-legend summary { cursor: pointer; font: 500 12px var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
 .map-legend summary .zh { text-transform: none; letter-spacing: 0.02em; }
 .map-legend .legend-lines { display: grid; gap: 3px; margin: 6px 0 0; font-size: var(--fs-xs); }
-.map-legend .legend-lines li { gap: 6px; }
-.map-legend .legend-lines .zh, .map-legend .booth-key .zh, .map-legend .heat-key .zh { font-size: 10.5px; }
+.map-legend .legend-lines li { gap: 6px; white-space: nowrap; }
+.map-legend .legend-lines .zh, .map-legend .booth-key .zh, .map-legend .heat-key .zh { font-size: 12px; }
 .map-legend .mkt-key, .map-legend .line-key { width: 20px; flex: none; }
 .map-legend .booth-key, .map-legend .heat-key { margin-top: 8px; font-size: var(--fs-xs); }
 .map-legend .ramp { margin: 4px 0 2px; height: 8px; }
@@ -556,7 +556,7 @@ h1 .zh { margin-left: 0.5em; font-family: "Noto Serif TC", "Songti TC", serif; f
   border-radius: var(--r-sm);
   color: var(--ink);
   cursor: pointer;
-  font: 500 18px/1 var(--font-mono);
+  font: 500 20px/1 var(--font-mono);
 }
 .map-ctrl button:hover { background: var(--bg); }
 .map-ctrl svg { width: 16px; height: 16px; }
@@ -567,7 +567,7 @@ h1 .zh { margin-left: 0.5em; font-family: "Noto Serif TC", "Songti TC", serif; f
   bottom: 23px;
   padding: 1px 6px;
   background: color-mix(in srgb, var(--surface) 88%, transparent);
-  font-size: 10.5px;
+  font-size: 12px;
   line-height: 1.5;
   color: var(--ink-2);
 }
@@ -608,11 +608,11 @@ h1 .zh { margin-left: 0.5em; font-family: "Noto Serif TC", "Songti TC", serif; f
 }
 h2 {
   margin: 0 0 10px;
-  font: 400 23px/1.15 var(--font-display);
+  font: 400 26px/1.15 var(--font-display);
   letter-spacing: -0.3px;
   text-wrap: balance;
 }
-h2 .zh { font-size: 13px; letter-spacing: 0.04em; }
+h2 .zh { font-size: 14.5px; letter-spacing: 0.04em; }
 h2 .zh.block { margin-top: 3px; }
 .sub { margin: -4px 0 12px; font-size: var(--fs-sm); color: var(--ink-2); }
 .note { margin: 10px 0 0; font-size: var(--fs-xs); color: var(--muted); line-height: 1.5; }
@@ -621,7 +621,7 @@ h2 .zh.block { margin-top: 3px; }
 
 /* legend */
 .legend { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
-.legend-group { margin: 6px 0 0; font: 500 10.5px var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.legend-group { margin: 6px 0 0; font: 500 12px var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
 .legend-group:first-child { margin-top: 0; }
 .legend-group .zh { text-transform: none; letter-spacing: 0.02em; }
 .legend-dist {
@@ -682,7 +682,7 @@ h2 .zh.block { margin-top: 3px; }
 .mkt-dot { fill: var(--surface); stroke: var(--ink-2); stroke-width: 1.5px; pointer-events: none; }
 .mkt-g.night .mkt-dot { fill: var(--ink); stroke: var(--surface); stroke-width: 2px; paint-order: stroke; }
 .mkt-label {
-  font: 500 10.5px var(--font-body);
+  font: 500 12px var(--font-body);
   fill: var(--ink-2);
   paint-order: stroke;
   stroke: var(--surface);
@@ -712,13 +712,13 @@ h2 .zh.block { margin-top: 3px; }
 #booth-notes { margin-top: 10px; }
 .heat-ctrl { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 4px 10px; margin-top: 8px; font-size: var(--fs-xs); color: var(--ink-2); }
 .heat-ctrl input[type="range"] { width: 100%; accent-color: var(--accent); }
-.heat-ctrl output { font: 500 11px var(--font-mono); min-width: 3.5em; text-align: right; }
+.heat-ctrl output { font: 500 12.5px var(--font-mono); min-width: 3.5em; text-align: right; }
 .booth { stroke: var(--surface); stroke-width: 0.6; vector-effect: non-scaling-stroke; cursor: help; }
 #map.booths-on .mkt-area.booth-host { fill-opacity: 0.12; }
 #map.booths-on .mkt-extent.booth-host { fill-opacity: 0.06; }
 .booth-key { margin-top: 12px; font-size: var(--fs-sm); }
 .booth-key .ramp, .heat-key .ramp { height: 10px; margin: 6px 0 3px; border-radius: var(--r-sm); }
-.booth-key .ends, .heat-key .ends { display: flex; justify-content: space-between; font: 500 11px var(--font-mono); color: var(--ink-2); }
+.booth-key .ends, .heat-key .ends { display: flex; justify-content: space-between; font: 500 12.5px var(--font-mono); color: var(--ink-2); }
 
 /* night-market list */
 .intro { margin: 0 0 14px; font-size: var(--fs-sm); color: var(--ink-2); line-height: 1.5; }
@@ -727,7 +727,7 @@ h2 .zh.block { margin-top: 3px; }
 .nm-list input { grid-row: 1 / span 2; accent-color: var(--accent); width: 15px; height: 15px; margin: 0; cursor: pointer; }
 .nm-list label { cursor: pointer; }
 .nm-list h3 { margin: 0; font-size: var(--fs-md); font-weight: 700; }
-.nm-list .zh { font-size: var(--fs-sm); }
+.nm-list .zh { font-size: var(--fs-sm); white-space: nowrap; } /* never split a Chinese name */
 .nm-list .meta { grid-column: 2; margin: 0; font-size: var(--fs-xs); color: var(--ink-2); }
 .nm-list .btn-s { grid-column: 3; grid-row: 1 / span 2; padding: 2px 8px; font-size: var(--fs-xs); }
 .nm-list li.is-off h3, .nm-list li.is-off .meta { color: var(--muted); }
@@ -755,20 +755,26 @@ h2 .zh.block { margin-top: 3px; }
 .cup .c-pearl.on { fill: currentColor; }
 .booth-card .score .cup { margin-right: 2px; }
 .tip-score { display: flex; align-items: center; gap: 10px; margin-top: 6px; }
-.tip-score .big { font: 600 22px/1 var(--font-mono); }
+.tip-score .big { font: 600 24.5px/1 var(--font-mono); }
 .pearl-key { display: flex; align-items: flex-end; gap: 10px; margin-top: 6px; color: var(--ink-2); }
-.pearl-key span { display: grid; justify-items: center; font: 500 10.5px var(--font-mono); }
+.pearl-key span { display: grid; justify-items: center; font: 500 12px var(--font-mono); }
+/* garbage bins (OSM): small bin icons, solid for bins and containers, outlined for recycling */
+.bin-hit { fill: transparent; cursor: help; }
+.bin-icon { fill: var(--ink); stroke: var(--surface); stroke-width: 1.5px; paint-order: stroke; stroke-linejoin: round; pointer-events: none; }
+.bin-g.recycle .bin-icon { fill: var(--surface); stroke: var(--ink); stroke-width: 1.3px; }
+.bin-key { width: 20px; display: flex; justify-content: center; }
+.bin-key svg { width: 12px; height: 14px; }
 .booth-sel { fill: none; stroke: var(--ink); stroke-width: 2.5px; pointer-events: none; }
 .booth-sel.halo { stroke: var(--surface); stroke-width: 5px; }
 :root:is([data-style="program"], [data-style="boba"]) .search button:hover { background: var(--hl); color: var(--on-hl, var(--bg)); }
 
 /* ---------- program style: type and details ---------- */
-:root:is([data-style="program"], [data-style="boba"]) h1 { font-weight: 800; font-size: 29px; letter-spacing: -0.02em; }
+:root:is([data-style="program"], [data-style="boba"]) h1 { font-weight: 800; font-size: 32.5px; letter-spacing: -0.02em; }
 :root[data-style="program"] h1::before { content: "#"; color: var(--hl-text); }
 :root:is([data-style="program"], [data-style="boba"]) h1 i { font-style: normal; }
 :root:is([data-style="program"], [data-style="boba"]) h1 .zh { font-family: var(--font-zh); font-size: 0.55em; font-weight: 600; letter-spacing: 0.04em; }
-:root:is([data-style="program"], [data-style="boba"]) h2 { font-weight: 800; font-size: 21px; letter-spacing: -0.01em; }
-:root:is([data-style="program"], [data-style="boba"]) .dlabel .l1 { font-style: normal; font-weight: 800; font-size: 17px; letter-spacing: -0.01em; }
+:root:is([data-style="program"], [data-style="boba"]) h2 { font-weight: 800; font-size: 23.5px; letter-spacing: -0.01em; }
+:root:is([data-style="program"], [data-style="boba"]) .dlabel .l1 { font-style: normal; font-weight: 800; font-size: 19px; letter-spacing: -0.01em; }
 :root:is([data-style="program"], [data-style="boba"]) .dlabel .l2 { font-family: var(--font-zh); font-weight: 600; letter-spacing: 0.2em; }
 :root:is([data-style="program"], [data-style="boba"]) .eyebrow { letter-spacing: 0.08em; }
 :root:is([data-style="program"], [data-style="boba"]) .eyebrow a { color: var(--hl-text); }
@@ -837,6 +843,7 @@ h2 .zh.block { margin-top: 3px; }
           </g>
           <g id="g-labels"></g>
           <g id="g-mkt"></g>
+          <g id="g-bins"></g>
           <g id="g-booth-sel" style="display: none"><circle class="booth-sel halo" r="13"></circle><circle class="booth-sel" r="13"></circle></g>
         </g>
         <rect class="neatline" id="neatline"></rect>
@@ -859,6 +866,8 @@ h2 .zh.block { margin-top: 3px; }
           <li><span class="mkt-key area"></span>Night-market area<span class="zh" lang="zh-Hant-TW">夜市範圍（OSM）</span></li>
           <li id="mkt-legend-extent" hidden><span class="mkt-key extent"></span>Feng Chia, approx. extent<span class="zh" lang="zh-Hant-TW">逢甲夜市約略範圍</span></li>
           <li><span class="line-key"></span>District boundary<span class="zh" lang="zh-Hant-TW">區界</span></li>
+          <li class="bin-legend" hidden><span class="bin-key"><svg viewBox="-6 -7 12 14" aria-hidden="true"><path class="bin-icon" d="M-5 -4.5 H5 M-1.8 -4.5 V-6 H1.8 V-4.5 M-4 -3 L-3.2 6 H3.2 L4 -3 Z"/></svg></span>Garbage bin<span class="zh" lang="zh-Hant-TW">垃圾桶</span></li>
+          <li class="bin-legend" hidden><span class="bin-key bin-g recycle"><svg viewBox="-6 -7 12 14" aria-hidden="true"><path class="bin-icon" d="M-5 -4.5 H5 M-1.8 -4.5 V-6 H1.8 V-4.5 M-4 -3 L-3.2 6 H3.2 L4 -3 Z"/></svg></span>Recycling<span class="zh" lang="zh-Hant-TW">資源回收</span></li>
         </ul>
         <div class="booth-key" id="booth-key" hidden>
           Booth Boba Index<span class="zh" lang="zh-Hant-TW">攤位珍奶指數</span>
@@ -904,6 +913,7 @@ h2 .zh.block { margin-top: 3px; }
           <label><input type="checkbox" id="lyr-area" checked>Night-market areas<span class="zh" lang="zh-Hant-TW">夜市範圍</span></label>
           <label id="lyr-booths-wrap" hidden><input type="checkbox" id="lyr-booths" checked>Booths<span class="zh" lang="zh-Hant-TW">攤位</span></label>
           <label id="lyr-heat-wrap" hidden><input type="checkbox" id="lyr-heat" checked>Boba Index heat map<span class="zh" lang="zh-Hant-TW">珍奶指數熱度圖</span></label>
+          <label id="lyr-bins-wrap" hidden><input type="checkbox" id="lyr-bins" checked>Garbage bins<span class="zh" lang="zh-Hant-TW">垃圾桶</span></label>
           <label><input type="checkbox" id="lyr-mkt" checked>Other markets<span class="zh" lang="zh-Hant-TW">其他市場</span></label>
         </div>
         <p class="note" id="osm-msg" hidden></p>
@@ -1121,6 +1131,7 @@ h2 .zh.block { margin-top: 3px; }
       d.labelEl.style.display = show ? "" : "none";
     }
     drawMarkets();
+    drawBins();
     drawBooths();
     drawHeat();
     drawTicks();
@@ -1327,7 +1338,7 @@ h2 .zh.block { margin-top: 3px; }
   }
   function setAttrib() {
     // the market layer is OSM data too, so the credit stays while it is shown
-    attrib.hidden = !layers.osm && !markets.some(isShown);
+    attrib.hidden = !layers.osm && !markets.some(isShown) && !(DATA.bins && $("#lyr-bins").checked);
     attrib.innerHTML = layers.osm && !rasterMode ? ATTRIB.vector : ATTRIB.osm;
   }
   function setBasemap(on, redraw = true) {
@@ -1452,10 +1463,12 @@ h2 .zh.block { margin-top: 3px; }
     const mk = e.target.__mkt || null;
     const bo = e.target.__booth ?? null;
     const ht = e.target.__heat || null;
-    const d = mk || ht || bo != null ? null : e.target.__d || null;
+    const bn = e.target.__bin ?? null;
+    const d = mk || ht || bo != null || bn != null ? null : e.target.__d || null;
     setHot(d);
     if (e.pointerType === "touch") hideTip();
     else if (bo != null) showBoothTip(bo, e.clientX, e.clientY);
+    else if (bn != null) showBinTip(bn, e.clientX, e.clientY);
     else if (ht) showHeatTip(p, e.clientX, e.clientY);
     else if (mk) showMarketTip(mk, e.clientX, e.clientY);
     else if (d) showDistrictTip(d, e.clientX, e.clientY);
@@ -1467,6 +1480,7 @@ h2 .zh.block { margin-top: 3px; }
     if (drag && !drag.moved && e.type === "pointerup") {
       const t = drag.target;
       if (t && t.__booth != null) { selectBooth(t.__booth, false); showBoothTip(t.__booth, e.clientX, e.clientY); }
+      else if (t && t.__bin != null) showBinTip(t.__bin, e.clientX, e.clientY);
       else if (t && t.__heat) showHeatTip(local(e), e.clientX, e.clientY);
       else if (t && t.__mkt) showMarketTip(t.__mkt, e.clientX, e.clientY);
       else if (t && t.__d && e.pointerType === "touch") showDistrictTip(t.__d, e.clientX, e.clientY);
@@ -1825,6 +1839,36 @@ h2 .zh.block { margin-top: 3px; }
     placeTip(cx, cy);
   }
 
+  // ---------- garbage bins (OpenStreetMap, fetched by scripts/fetch_bins.py) ----------
+  const gBins = $("#g-bins");
+  const BIN_KIND = [["Garbage bin", "垃圾桶"], ["Waste container", "大型垃圾箱"], ["Recycling", "資源回收"]];
+  const BIN_PATH = "M-5 -4.5 H5 M-1.8 -4.5 V-6 H1.8 V-4.5 M-4 -3 L-3.2 6 H3.2 L4 -3 Z"; // lid, handle, tapered body
+  const bins = (DATA.bins ? DATA.bins.rows : []).map(([lon, lat, kind, osm], i) => {
+    const [wx, wy] = proj(lon, lat);
+    const g = svgEl("g", { class: kind === 2 ? "bin-g recycle" : "bin-g" }, gBins);
+    svgEl("circle", { class: "bin-hit", r: 10 }, g).__bin = i;
+    svgEl("path", { class: "bin-icon", d: BIN_PATH, transform: "scale(1.15)" }, g);
+    return { lon, lat, kind, osm, wx, wy, g };
+  });
+  if (bins.length) {
+    $("#lyr-bins-wrap").hidden = false;
+    $("#lyr-bins").addEventListener("change", () => { hideTip(); setAttrib(); draw(); });
+  }
+  const binMinK = () => fitK * 3; // street-level zooms only, so the city overview stays clear
+  function drawBins() {
+    const on = bins.length > 0 && $("#lyr-bins").checked;
+    for (const li of document.querySelectorAll(".bin-legend")) li.hidden = !on;
+    const show = on && view.k >= binMinK();
+    gBins.style.display = show ? "" : "none";
+    if (!show) return;
+    for (const b of bins) b.g.setAttribute("transform", `translate(${view.k * b.wx + view.tx} ${view.k * b.wy + view.ty})`);
+  }
+  function showBinTip(i, cx, cy) {
+    const b = bins[i], [en, zhName] = BIN_KIND[b.kind];
+    tip.innerHTML = `<b>${en}</b>${zh(zhName)}<br><span class="num">${b.lat.toFixed(5)}°N, ${b.lon.toFixed(5)}°E</span><br>OpenStreetMap ${esc(b.osm.replace("/", " "))}`;
+    placeTip(cx, cy);
+  }
+
   // ---------- districts ----------
   const legend = $("#legend");
   for (const d of [...districts].sort((a, b) => b.nMarkets - a.nMarkets || a.i - b.i)) {
@@ -1855,6 +1899,7 @@ h2 .zh.block { margin-top: 3px; }
     ...(markets.some((m) => m.extent) ? ["The dashed Feng Chia extent is our approximation: OSM street centrelines of Wenhua Road, Fengjia Road, Fuxing Road and Fengjia Road Lane 20 (the streets <i>Business Today</i>, 2015, names as the market area), buffered by 15 m. No official boundary is published."] : []),
     ...(DATA.booths ? [`Feng Chia booths: ${DATA.booths.rows.length.toLocaleString("en-US")} booths of ${DATA.booths.size_m[0]} × ${DATA.booths.size_m[1]} m along both sides of the market streets, each with its Boba Index from 0.0 to 5.0 on the viridis scale. The heat map is the Gaussian-weighted mean of the booth scores around each 2 m cell (bandwidth set by the slider, default 25 m), clipped to the market extent and faded where booths are sparse, on the plasma scale stretched from its lowest to its highest value; it smooths away single-booth outliers, and its picture depends on the bandwidth.`,
       `This is a demonstrator: the Feng Chia booth layout, names and scores are illustrative and do not describe actual stalls.`] : []),
+    ...(DATA.bins ? [`Garbage bins: © ${osmLink} contributors, ODbL 1.0; fetched ${esc(DATA.bins.fetched || "")}. ${DATA.bins.rows.length} public bins, waste containers and recycling points mapped in OpenStreetMap inside the eight districts, shown from street-level zooms. Public bins are rare in Taiwan, where household rubbish goes to the garbage trucks, and OSM coverage is patchy, so this shows what is mapped, not every bin.`] : []),
     `District boundaries: ${esc(DATA.boundary_source)}. Simplified; use them for orientation, not measurement. Areas come from the attribute table.`,
     `Coordinates: WGS84 (CRS84). The map uses Web Mercator to match the basemap; the scale bar uses the east-west scale at the center of the map.`,
     ...(BASEMAP ? [`Basemap: vector tiles from <a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> (© <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">OpenMapTiles</a>, data © ${osmLink} contributors), drawn with MapLibre GL JS. Labels show the English name (OSM name:en) where one is mapped, otherwise the local name. If the vector map cannot start, the standard OpenStreetMap tiles are used instead (labels in the local language), under the OSMF <a href="https://operations.osmfoundation.org/policies/tiles/" target="_blank" rel="noopener">tile usage policy</a>.`] : []),

@@ -32,6 +32,8 @@ DISTRICTS = RAW / "former_city_8_districts.geojson"
 LANDMARKS = ROOT / "data" / "derived" / "landmarks_osm.geojson"
 # Approximate full extent of the Feng Chia Night Market from scripts/fengjia_extent.py. Optional.
 FENGJIA_EXTENT = ROOT / "data" / "derived" / "fengjia_night_market_extent.geojson"
+# OSM garbage bins and recycling points from scripts/fetch_bins.py. Optional.
+BINS = ROOT / "data" / "derived" / "waste_bins_osm.geojson"
 # MOCK booths with random Boba Index scores from scripts/mock_booths.py. Optional.
 BOOTHS = ROOT / "data" / "derived" / "fengjia_booths_mock.geojson"
 EYEBROW = "#HackYourDistrict 2026 · Taichung · Night market prototype"
@@ -175,16 +177,33 @@ def load_booths():
             "id_prefix": "FJ-", "streets": streets, "rows": rows}
 
 
+def load_bins(districts):
+    """OSM bins inside the eight districts as rows [lon, lat, kind, "type/id"]; kind 0 = bin, 1 = container, 2 = recycling."""
+    if not BINS.exists():
+        return None
+    fc = read_json(BINS)
+    kinds = {"waste_basket": 0, "waste_disposal": 1, "recycling": 2}
+    rows = []
+    for f in fc["features"]:
+        lon, lat = f["geometry"]["coordinates"]
+        if not any(in_geom(lon, lat, d["geometry"]) for d in districts["features"]):
+            continue
+        p = f["properties"]
+        rows.append([lon, lat, kinds[p["tags"]["amenity"]], f"{p['osm_type']}/{p['osm_id']}"])
+    return {"fetched": fc.get("fetched"), "rows": rows}
+
+
 def load_data():
     districts = read_geojson(DISTRICTS)
     markets = load_markets(districts)
+    bins = load_bins(districts)
     boundary_source = districts["features"][0]["properties"]["source"]
     # Drop properties the page never reads to keep the inline payload small.
     keep = ("district_code", "district_zh", "district_en", "area_km2", "label_lon", "label_lat")
     for f in districts["features"]:
         f["properties"] = {k: f["properties"][k] for k in keep}
     districts.pop("crs", None)
-    return {"districts": districts, "markets": markets, "booths": load_booths(), "boundary_source": boundary_source}
+    return {"districts": districts, "markets": markets, "booths": load_booths(), "bins": bins, "boundary_source": boundary_source}
 
 
 def inline_json(obj):
