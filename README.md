@@ -13,6 +13,7 @@ The interface is English-first, with Chinese as the secondary language: labels a
 - The markets and night markets mapped in OpenStreetMap inside the 8 districts of the former Taichung City, on an English-labelled basemap
 - Night markets as filled dots with their mapped area in colour; other markets as hollow dots. Hover or tap for the name, district, mapped area, coordinates and OSM feature
 - A side list of the night markets, largest first: a checkbox switches each one's dot, label and area on or off (**All** / **None** for the lot), and **Show on map** zooms to it. The **Other markets** layer toggle covers the remaining markets
+- **Mock booths** at Feng Chia: zoom in to see 1,330 small booth rectangles coloured by their Boba Index (0–5, light to dark blue); hover one for its id, street and score. Positions and scores are invented (see below)
 - The districts with their night-market and market counts; click one to zoom to it
 - Two styles and three tones from the switches in the header, remembered in the browser:
   - **Deck**: the monochrome look of the HYD Healthy City Workshop deck (Instrument Serif, warm greys, 2px ink rules)
@@ -28,6 +29,16 @@ The interface is English-first, with Chinese as the secondary language: labels a
 `scripts/fetch_landmarks.py` fetches every `amenity=marketplace` feature and every feature named …夜市 across the former city. `build_map.py` keeps marketplaces and untagged features whose name ends in 夜市 (so the parking lots, access ways and restaurants that only share the name drop out), drops stall sub-areas and duplicate points, and clips to the district boundaries. That leaves 62 markets, 7 of them night markets. Markets that nobody has mapped in OSM are missing (for example Yizhong Street).
 
 Night markets show their mapped OSM outline as a coloured area. For Feng Chia that outline covers only Wenhua Road and Fengjia Road Lane 20, so the map adds a dashed **approximate full extent** (6.28 ha): the OSM centrelines of Wenhua Road, Fengjia Road, Fuxing Road and Fengjia Road Lane 20 (the streets [Business Today, 2015](https://www.businesstoday.com.tw/article/category/80392/post/201507160040/) names as the market area), clipped to the stretches set in `scripts/fengjia_extent.py`, buffered by 15 m and merged. No official boundary is published; treat it as an approximation. Regenerate with `python3 scripts/fengjia_extent.py` (needs `pip install shapely` and Overpass access).
+
+### Mock booths (Feng Chia)
+
+There is no booth data yet, so `scripts/mock_booths.py` (standard library) invents some to design the map with. It lays out 2.5 × 2 m booths every 3 m along both sides of the Feng Chia market streets, set back behind the carriageway (by OSM road class), skipping spots in a crossing street, too close to another booth or outside the approximate extent. Each booth gets a Boba Index drawn uniformly from 0.0 to 5.0 in steps of 0.1, from a fixed seed, so reruns give the same 1,330 booths. It reads the street centrelines that `fengjia_extent.py` stores next to the extent and writes `data/derived/fengjia_booths_mock.geojson`. The map labels everything from this file as mock data.
+
+```sh
+python3 scripts/mock_booths.py   # then python3 scripts/build_map.py
+```
+
+The booths are drawn at true size and appear once they are about 3 px long; the map now zooms in far enough for them to reach about 15 px.
 
 The usual build environment cannot reach the Overpass API, so a GitHub Actions workflow fetches the data: **Actions → Fetch OSM road network → Run workflow** runs `scripts/fetch_roads.py`, `scripts/fetch_landmarks.py` and `scripts/locate_projects.py`, rebuilds the site and commits the results. Run it again to refresh. The data is licensed under the ODbL 1.0 and must be credited "© OpenStreetMap contributors".
 
@@ -73,7 +84,8 @@ Used by the map:
 |---|---|---|
 | `data/raw/former_city_8_districts.geojson` | 8 district boundaries of the former Taichung City | MOI district boundaries (2025-03-18) and NLSC village boundaries (2026-08-17), processed with plotdb/pdmaptw v2.4.0; Open Government Data License v1.0 |
 | `data/derived/landmarks_osm.geojson` | Markets and night markets across the former city, plus named landmarks near Shuinan | OpenStreetMap, ODbL 1.0 |
-| `data/derived/fengjia_night_market_extent.geojson` | Feng Chia Night Market, approximate full extent (our approximation) | `scripts/fengjia_extent.py`; OpenStreetMap, ODbL 1.0 |
+| `data/derived/fengjia_night_market_extent.geojson` | Feng Chia Night Market, approximate full extent (our approximation), plus the clipped street centrelines it was built from | `scripts/fengjia_extent.py`; OpenStreetMap, ODbL 1.0 |
+| `data/derived/fengjia_booths_mock.geojson` | **Mock** Feng Chia booths with random Boba Index scores | `scripts/mock_booths.py` |
 
 Kept from the former-city and Shuinan research map, not shown on the page: village boundaries and attributes (`former_city_villages.*`, the old-downtown and Xitun–Beitun subsets), the Shuinan detailed plan (`Figure_7-1_Detailed_Plan_A3_English_CAD.dxf`, `shuinan_detailed_plan_traced.geojson`), zoning areas, major projects and their locations, reference points and the OSM road network, with the scripts that produce them (`georef_plan.py`, `register_plan.py`, `fetch_roads.py`, `locate_projects.py`). The git history has the earlier pages that used them.
 
@@ -88,6 +100,7 @@ templates/basemap.html     page template
 scripts/build_map.py       site build
 scripts/fetch_landmarks.py fetches OSM markets and landmarks (run by GitHub Actions)
 scripts/fengjia_extent.py  approximates the Feng Chia Night Market extent
+scripts/mock_booths.py     generates mock Feng Chia booths with random scores
 scripts/check_basemap.mjs  checks the basemap in a browser (run by GitHub Actions)
 data/raw/                  source data
 data/derived/              OSM extracts and derived layers
@@ -108,6 +121,7 @@ data/derived/              OSM extracts and derived layers
 - 原臺中市8區範圍內、OSM上的市場與夜市，疊在英文標註底圖上
 - 夜市以實心點加彩色範圍表示，其他市場以空心點表示；滑過或點選可看名稱、行政區、範圍面積、座標與OSM地物
 - 側欄列出各夜市（依面積排序）：勾選框可個別開關每個夜市的標記、名稱與範圍（**All**／**None**一次全開或全關），**Show on map**移到該夜市；其他市場由圖層開關的**Other markets**控制
+- 逢甲夜市的**模擬攤位**：放大後可看到1,330個依珍奶指數（0–5，淺藍到深藍）著色的攤位方塊，滑過可看編號、所在街道與分數；位置與分數皆為虛構（見下方說明）
 - 各行政區的夜市／市場數，點選可縮放到該區
 - 頁首可切換兩種風格（**Deck**簡報風、**Program**議程風）與三種色調（**Light**、**White**、**Dark**），選擇會記在瀏覽器中；尚未選擇時依裝置設定顯示淺色或深色
 - 拖曳平移、滾輪或雙指縮放；方向鍵平移、`+`／`-`縮放、`0`回到全圖
@@ -120,6 +134,8 @@ data/derived/              OSM extracts and derived layers
 `fetch_landmarks.py`抓取原臺中市範圍內所有`amenity=marketplace`及名稱含「夜市」的地物；`build_map.py`保留市場及名稱以「夜市」結尾、未另標類型的地物（排除同名的停車場、通道與餐廳），去除攤區分區與重複點位，並以區界裁切，共62處，其中7處夜市。OSM未繪製的市場不會出現（例如一中街）。
 
 夜市以色塊顯示OSM上的範圍；逢甲夜市在OSM上只畫了文華路與逢甲路20巷，因此另以虛線標示**約略全範圍**（6.28公頃）：取文華路、逢甲路、福星路、逢甲路20巷（[商業周刊2015年報導](https://www.businesstoday.com.tw/article/category/80392/post/201507160040/)所列範圍）的OSM道路中心線，依`scripts/fengjia_extent.py`設定的路段裁切，兩側各外擴15 m後合併。官方未公布範圍，僅供參考。重建：`python3 scripts/fengjia_extent.py`（需`pip install shapely`及Overpass連線）。
+
+**模擬攤位（逢甲夜市）**：目前沒有攤位資料，因此由`scripts/mock_booths.py`（標準函式庫）產生虛構攤位供設計地圖：沿逢甲夜市各街道兩側、退到車道之外（依OSM道路等級），每3公尺放一個2.5 × 2公尺的攤位，略過位於交叉道路上、與其他攤位太近或超出約略範圍的位置；每個攤位的珍奶指數從0.0到5.0（間隔0.1）均勻隨機抽取，使用固定亂數種子，重跑結果相同（共1,330個）。腳本讀取`fengjia_extent.py`一併儲存的街道中心線，輸出`data/derived/fengjia_booths_mock.geojson`；地圖上一律標示為模擬資料。攤位依實際尺寸繪製，約3像素長時才顯示，地圖最大縮放已加深到約15像素。
 
 一般建置環境連不到Overpass API，因此由GitHub Actions抓取：**Actions → Fetch OSM road network → Run workflow**，會依序執行`fetch_roads.py`、`fetch_landmarks.py`、`locate_projects.py`，重建網站並commit結果。資料授權為ODbL 1.0，須標示「© OpenStreetMap contributors」。
 

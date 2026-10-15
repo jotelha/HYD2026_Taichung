@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-The Boba Index: a prototype for a Taichung night-market authenticity index, built for #HackYourDistrict 2026 out of an earlier research map of the former Taichung City and the Shuinan Economic and Trade Park. It is a static GitHub Pages site (served from the root of branch `2026-10-15-HYD2026`, `.nojekyll`) whose single page maps the OSM markets and night markets in the eight districts. No index scores exist yet. There is no package manager, test suite or linter. The README is the authoritative user-facing doc (English first, then a Chinese section that mirrors it — keep both in step when changing documented behaviour).
+The Boba Index: a prototype for a Taichung night-market authenticity index, built for #HackYourDistrict 2026 out of an earlier research map of the former Taichung City and the Shuinan Economic and Trade Park. It is a static GitHub Pages site (served from the root of branch `2026-10-15-HYD2026`, `.nojekyll`) whose single page maps the OSM markets and night markets in the eight districts. No real index scores exist yet; Feng Chia carries mock booths with random scores. There is no package manager, test suite or linter. The README is the authoritative user-facing doc (English first, then a Chinese section that mirrors it — keep both in step when changing documented behaviour).
 
 ## Commands
 
@@ -12,6 +12,7 @@ The Boba Index: a prototype for a Taichung night-market authenticity index, buil
 python3 scripts/build_map.py                 # regenerate index.html and the map/index.html redirect (stdlib only)
 python3 scripts/build_map.py --fragment f.html  # also write a body-only map fragment without the basemap
 python3 scripts/fengjia_extent.py            # -> data/derived/fengjia_night_market_extent.geojson (needs shapely + Overpass)
+python3 scripts/mock_booths.py               # -> data/derived/fengjia_booths_mock.geojson (MOCK booths, random scores, fixed seed)
 python3 -m http.server 8000                  # local preview (tiles often fail from file://)
 node scripts/check_basemap.mjs http://localhost:8000/  # Playwright smoke test of the basemap
 ```
@@ -22,8 +23,9 @@ node scripts/check_basemap.mjs http://localhost:8000/  # Playwright smoke test o
 
 **Build pipeline.** `templates/basemap.html` is a self-contained HTML/CSS/JS fragment (no `<html>`/`<head>`). `build_map.py` reads the district boundaries and the markets, inlines them as one JSON payload, substitutes markers (`/*__DATA__*/null`, `/*__BASEMAP__*/true`, `<!--__EYEBROW__-->`), wraps the result in a page skeleton and writes `index.html`; `map/index.html` (the map's old address) becomes a redirect. `fill()` aborts if a marker is missing from the template. The generated files are committed — always rebuild and commit them after touching the template or data; never hand-edit them.
 
-**Data flow.** `data/raw/` is source data; `data/derived/` is produced by scripts. The page uses only `former_city_8_districts.geojson`, `landmarks_osm.geojson` and `fengjia_night_market_extent.geojson`:
-- `load_markets()` in `build_map.py` keeps `amenity=marketplace` features plus untagged features named …夜市, drops features inside another market's footprint or repeating a nearby name, clips to the districts and attaches each night market's OSM outline (`foot`). The Feng Chia entry also gets the street-buffer extent from `fengjia_extent.py` (one-off, not in CI; its street stretches and buffer are constants at the top).
+**Data flow.** `data/raw/` is source data; `data/derived/` is produced by scripts. The page uses only `former_city_8_districts.geojson`, `landmarks_osm.geojson`, `fengjia_night_market_extent.geojson` and `fengjia_booths_mock.geojson`:
+- `load_markets()` in `build_map.py` keeps `amenity=marketplace` features plus untagged features named …夜市, drops features inside another market's footprint or repeating a nearby name, clips to the districts and attaches each night market's OSM outline (`foot`). The Feng Chia entry also gets the street-buffer extent from `fengjia_extent.py` (one-off, not in CI; its street stretches and buffer are constants at the top). The extent file's first feature is the polygon; the rest are the clipped street centrelines (`kind: "street"`).
+- `mock_booths.py` lays mock booths along those centrelines and gives each a random Boba Index (0.0–5.0). `load_booths()` inlines them as compact rows `[lon, lat, bearing, score, street #]`; the template draws true-size rects coloured on a sequential blue ramp (`RAMP`, separate light/dark stops) once they are ≥ 3 px long. Everything from this file must stay labelled as mock in the UI.
 - The village, Shuinan plan, zoning, project, reference-point and road data and their scripts (`georef_plan.py`, `register_plan.py`, `locate_projects.py`, `fetch_roads.py`) are kept from the research map but no longer reach the page.
 
 **Map page (`templates/basemap.html`).** Hand-rolled SVG overlay in Web Mercator (district fills and outlines, night-market areas, market dots) layered over a MapLibre GL vector basemap (OpenFreeMap `positron`, labels switched to `name:en`), with a raster OSM tile fallback. The SVG and MapLibre must stay aligned within a pixel; `window.__hydBasemap` exposes mode/map for the smoke test. Basemap sources are `VECTOR_STYLE` / `TILE_URL`; keep the on-map attribution when changing them. World-space shapes go in `#world` (scaled by the view transform); markers and labels are screen-space groups repositioned in `draw()`.

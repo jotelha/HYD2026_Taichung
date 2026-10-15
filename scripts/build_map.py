@@ -2,7 +2,8 @@
 
 Reads the eight district boundaries of the former Taichung City from data/raw
 and the OpenStreetMap markets from data/derived (scripts/fetch_landmarks.py,
-plus the Feng Chia extent from scripts/fengjia_extent.py), fills
+plus the Feng Chia extent from scripts/fengjia_extent.py and the mock booths
+from scripts/mock_booths.py), fills
 templates/basemap.html and writes a self-contained page ready for GitHub Pages
 (deploy from branch, root). map/index.html, the old address of the map, becomes
 a redirect to the root.
@@ -31,6 +32,8 @@ DISTRICTS = RAW / "former_city_8_districts.geojson"
 LANDMARKS = ROOT / "data" / "derived" / "landmarks_osm.geojson"
 # Approximate full extent of the Feng Chia Night Market from scripts/fengjia_extent.py. Optional.
 FENGJIA_EXTENT = ROOT / "data" / "derived" / "fengjia_night_market_extent.geojson"
+# MOCK booths with random Boba Index scores from scripts/mock_booths.py. Optional.
+BOOTHS = ROOT / "data" / "derived" / "fengjia_booths_mock.geojson"
 EYEBROW = "#HackYourDistrict 2026 · Taichung · Night market prototype"
 
 REDIRECT = """<!doctype html>
@@ -138,6 +141,22 @@ def round_rings(geom):
     return [[[[round(x, 6), round(y, 6)] for x, y in ring] for ring in poly] for poly in rings(geom)]
 
 
+def load_booths():
+    """Mock booths as compact rows [lon, lat, bearing, boba_index, street #]; ids follow the row order."""
+    if not BOOTHS.exists():
+        return None
+    fc = read_json(BOOTHS)
+    streets, rows = [], []
+    for f in fc["features"]:
+        p = f["properties"]
+        key = [p["street_zh"], p["street_en"]]
+        if key not in streets:
+            streets.append(key)
+        rows.append([*p["centre"], p["bearing_deg"], p["boba_index"], streets.index(key)])
+    return {"market": "way/450771065", "note": fc["note"], "size_m": fc["booth_size_m"],
+            "id_prefix": "FJ-", "streets": streets, "rows": rows}
+
+
 def load_data():
     districts = read_geojson(DISTRICTS)
     markets = load_markets(districts)
@@ -147,7 +166,7 @@ def load_data():
     for f in districts["features"]:
         f["properties"] = {k: f["properties"][k] for k in keep}
     districts.pop("crs", None)
-    return {"districts": districts, "markets": markets, "boundary_source": boundary_source}
+    return {"districts": districts, "markets": markets, "booths": load_booths(), "boundary_source": boundary_source}
 
 
 def inline_json(obj):

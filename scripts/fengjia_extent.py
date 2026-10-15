@@ -10,8 +10,10 @@ stalls run), buffered by BUFFER_M on both sides for the carriageway, arcades
 and shopfronts, and merged into one polygon. Treat the result as an
 approximation, not a surveyed boundary.
 
-Writes data/derived/fengjia_night_market_extent.geojson. Street geometry
-(c) OpenStreetMap contributors, ODbL 1.0.
+Writes data/derived/fengjia_night_market_extent.geojson: the extent polygon
+first, then the clipped street centrelines it was built from (kind "street",
+used by scripts/mock_booths.py). Street geometry (c) OpenStreetMap
+contributors, ODbL 1.0.
 
 Needs shapely and Overpass access (not part of the CI build):
     python3 scripts/fengjia_extent.py
@@ -64,7 +66,7 @@ def to_deg(xy):
 def main():
     print("querying Overpass for the Feng Chia streets ...")
     result, used = overpass(QUERY)
-    pieces, way_ids = [], {}
+    pieces, way_ids, streets = [], {}, []
     for el in result.get("elements", []):
         name = el["tags"]["name"]
         line = LineString([(g["lon"], g["lat"]) for g in el["geometry"]])
@@ -74,6 +76,10 @@ def main():
             continue
         pieces.append(part)
         way_ids.setdefault(name, []).append(el["id"])
+        for seg in getattr(part, "geoms", [part]):
+            line = json.loads(json.dumps(mapping(shapely.transform(seg, to_deg))), parse_float=lambda s: round(float(s), 7))
+            streets.append({"type": "Feature", "geometry": line, "properties": {
+                "kind": "street", "name_zh": name, "highway": el["tags"].get("highway"), "osm_way": el["id"]}})
     missing = set(STREETS) - set(way_ids)
     if missing:
         raise SystemExit(f"no geometry for {', '.join(sorted(missing))}")
@@ -99,7 +105,7 @@ def main():
                 "source": "Streets named as the market area by Business Today (商業周刊), 2015; stretches and buffer are our approximation, not an official boundary",
             },
             "geometry": geom,
-        }],
+        }] + streets,
     }
     OUT.write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
     print(f"wrote {OUT.relative_to(ROOT)}: {out['features'][0]['properties']['area_ha']} ha, {geom['type']}")
