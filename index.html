@@ -597,11 +597,16 @@ h2 .zh.block { margin-top: 3px; }
 /* night-market list */
 .intro { margin: 0 0 14px; font-size: var(--fs-sm); color: var(--ink-2); line-height: 1.5; }
 .nm-list { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
-.nm-list li { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 2px 10px; }
+.nm-list li { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 2px 10px; }
+.nm-list input { grid-row: 1 / span 2; accent-color: var(--accent); width: 15px; height: 15px; margin: 0; cursor: pointer; }
+.nm-list label { cursor: pointer; }
 .nm-list h3 { margin: 0; font-size: var(--fs-md); font-weight: 700; }
 .nm-list .zh { font-size: var(--fs-sm); }
-.nm-list .meta { grid-column: 1; margin: 0; font-size: var(--fs-xs); color: var(--ink-2); }
-.nm-list .btn-s { grid-column: 2; grid-row: 1 / span 2; padding: 2px 8px; font-size: var(--fs-xs); }
+.nm-list .meta { grid-column: 2; margin: 0; font-size: var(--fs-xs); color: var(--ink-2); }
+.nm-list .btn-s { grid-column: 3; grid-row: 1 / span 2; padding: 2px 8px; font-size: var(--fs-xs); }
+.nm-list li.is-off h3, .nm-list li.is-off .meta { color: var(--muted); }
+.nm-all { display: flex; align-items: center; gap: 6px; margin: 0 0 10px; font-size: var(--fs-xs); color: var(--muted); }
+.nm-all .btn-s { padding: 2px 8px; font-size: var(--fs-xs); }
 
 /* ---------- program style: type and details ---------- */
 :root[data-style="program"] h1 { font-weight: 800; font-size: 29px; letter-spacing: -0.02em; }
@@ -690,6 +695,7 @@ h2 .zh.block { margin-top: 3px; }
       <section aria-labelledby="h-nm">
         <h2 id="h-nm">Night Markets<span class="zh" lang="zh-Hant-TW">夜市</span></h2>
         <p class="intro">A prototype for rating how authentic Taichung's night markets are. No scores yet: the map shows the markets mapped in OpenStreetMap.</p>
+        <div class="nm-all" role="group" aria-label="Night markets shown on the map">Show<button type="button" class="btn-s" id="nm-all">All</button><button type="button" class="btn-s" id="nm-none">None</button></div>
         <ul class="nm-list" id="nm-list"></ul>
       </section>
 
@@ -705,7 +711,7 @@ h2 .zh.block { margin-top: 3px; }
         <div class="toggles" role="group" aria-label="Layers">
           <label id="lyr-osm-wrap" hidden><input type="checkbox" id="lyr-osm" checked>Basemap, English labels<span class="zh" lang="zh-Hant-TW">英文底圖</span></label>
           <label><input type="checkbox" id="lyr-fill" checked>District tint<span class="zh" lang="zh-Hant-TW">區底色</span></label>
-          <label><input type="checkbox" id="lyr-mkt" checked>Markets<span class="zh" lang="zh-Hant-TW">市場、夜市</span></label>
+          <label><input type="checkbox" id="lyr-mkt" checked>Other markets<span class="zh" lang="zh-Hant-TW">其他市場</span></label>
         </div>
         <p class="note" id="osm-msg" hidden></p>
         <ul class="legend" id="legend"></ul>
@@ -738,6 +744,7 @@ h2 .zh.block { margin-top: 3px; }
   const zh = (s, cls = "zh") => `<span class="${cls}" lang="zh-Hant-TW">${esc(s)}</span>`;
   const fmt = (n, d = 2) => n.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
   const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
+  const isShown = (m) => (m.night ? m.on : $("#lyr-mkt").checked);
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   // ---------- projection ----------
@@ -1114,7 +1121,7 @@ h2 .zh.block { margin-top: 3px; }
   }
   function setAttrib() {
     // the market layer is OSM data too, so the credit stays while it is shown
-    attrib.hidden = !layers.osm && !(markets.length && $("#lyr-mkt").checked);
+    attrib.hidden = !layers.osm && !markets.some(isShown);
     attrib.innerHTML = layers.osm && !rasterMode ? ATTRIB.vector : ATTRIB.osm;
   }
   function setBasemap(on, redraw = true) {
@@ -1308,17 +1315,21 @@ h2 .zh.block { margin-top: 3px; }
     m.label = svgEl("text", { class: "mkt-label", x: 7, y: 4 }, m.g);
     m.label.textContent = m.en || m.zh;
     // the street-based extent sits under the mapped outline
-    if (m.extent) svgEl("path", { class: "mkt-extent", d: polyD(m.extent) }, gMktArea).__mkt = m;
-    if (m.foot) svgEl("path", { class: "mkt-area", d: polyD(m.foot) }, gMktArea).__mkt = m;
+    m.areas = [];
+    if (m.extent) m.areas.push(svgEl("path", { class: "mkt-extent", d: polyD(m.extent) }, gMktArea));
+    if (m.foot) m.areas.push(svgEl("path", { class: "mkt-area", d: polyD(m.foot) }, gMktArea));
+    for (const a of m.areas) a.__mkt = m;
+    m.on = true; // night markets switch one by one in the list; the others follow the "Other markets" toggle
   }
   $("#mkt-legend-extent").hidden = !markets.some((m) => m.extent);
   function drawMarkets() {
-    const show = markets.length && $("#lyr-mkt").checked;
-    gMkt.style.display = gMktArea.style.display = show ? "" : "none";
-    if (!show) return;
     // night markets are named sooner; the many neighbourhood markets only close in
     const kNight = fitK * 2, kMarket = fitK * 5;
     for (const m of markets) {
+      const show = isShown(m);
+      m.g.style.display = show ? "" : "none";
+      for (const a of m.areas) a.style.display = show ? "" : "none";
+      if (!show) continue;
       m.g.setAttribute("transform", `translate(${view.k * m.wx + view.tx} ${view.k * m.wy + view.ty})`);
       m.label.style.display = view.k > (m.night ? kNight : kMarket) ? "" : "none";
     }
@@ -1339,17 +1350,33 @@ h2 .zh.block { margin-top: 3px; }
     const area = m.extent ? `about ${m.extent_ha} ha (OSM outline ${m.ha} ha)` : m.ha ? `${m.ha} ha mapped` : "point only";
     return `
       <li>
-        <h3>${esc(m.en || m.zh)}${m.en ? zh(m.zh) : ""}</h3>
+        <input type="checkbox" id="nm-on-${i}" data-on="${i}" checked aria-label="Show ${esc(m.en || m.zh)} on the map">
+        <label for="nm-on-${i}"><h3>${esc(m.en || m.zh)}${m.en ? zh(m.zh) : ""}</h3></label>
         <p class="meta">${esc(m.district_en)} · ${area}</p>
         <button type="button" class="btn-s" data-nm="${i}">Show on map</button>
       </li>`;
   }).join("");
+  const nmItems = [...$("#nm-list").children];
+  function setNight(i, on) {
+    byArea[i].on = on;
+    nmItems[i].querySelector("input").checked = on;
+    nmItems[i].classList.toggle("is-off", !on);
+  }
+  const afterSwitch = () => { hideTip(); setAttrib(); draw(); };
+  $("#nm-list").addEventListener("change", (e) => {
+    if (e.target.dataset.on == null) return;
+    setNight(+e.target.dataset.on, e.target.checked);
+    afterSwitch();
+  });
   $("#nm-list").addEventListener("click", (e) => {
     const btn = e.target.closest("[data-nm]");
     if (!btn) return;
-    if (!$("#lyr-mkt").checked) { $("#lyr-mkt").checked = true; setAttrib(); }
-    zoomTo(byArea[+btn.dataset.nm].box, 60, fitK * 10);
+    const i = +btn.dataset.nm;
+    if (!byArea[i].on) { setNight(i, true); afterSwitch(); }
+    zoomTo(byArea[i].box, 60, fitK * 10);
   });
+  $("#nm-all").addEventListener("click", () => { byArea.forEach((m, i) => setNight(i, true)); afterSwitch(); });
+  $("#nm-none").addEventListener("click", () => { byArea.forEach((m, i) => setNight(i, false)); afterSwitch(); });
 
   // ---------- districts ----------
   const legend = $("#legend");

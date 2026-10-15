@@ -12,7 +12,7 @@ The interface is English-first, with Chinese as the secondary language: labels a
 
 - The markets and night markets mapped in OpenStreetMap inside the 8 districts of the former Taichung City, on an English-labelled basemap
 - Night markets as filled dots with their mapped area in colour; other markets as hollow dots. Hover or tap for the name, district, mapped area, coordinates and OSM feature
-- A side list of the night markets, largest first, each with **Show on map**
+- A side list of the night markets, largest first: a checkbox switches each one's dot, label and area on or off (**All** / **None** for the lot), and **Show on map** zooms to it. The **Other markets** layer toggle covers the remaining markets
 - The districts with their night-market and market counts; click one to zoom to it
 - Two styles and three tones from the switches in the header, remembered in the browser:
   - **Deck**: the monochrome look of the HYD Healthy City Workshop deck (Instrument Serif, warm greys, 2px ink rules)
@@ -107,7 +107,7 @@ data/derived/              OSM extracts and derived layers
 
 - 原臺中市8區範圍內、OSM上的市場與夜市，疊在英文標註底圖上
 - 夜市以實心點加彩色範圍表示，其他市場以空心點表示；滑過或點選可看名稱、行政區、範圍面積、座標與OSM地物
-- 側欄列出各夜市（依面積排序），可按**Show on map**移到該夜市
+- 側欄列出各夜市（依面積排序）：勾選框可個別開關每個夜市的標記、名稱與範圍（**All**／**None**一次全開或全關），**Show on map**移到該夜市；其他市場由圖層開關的**Other markets**控制
 - 各行政區的夜市／市場數，點選可縮放到該區
 - 頁首可切換兩種風格（**Deck**簡報風、**Program**議程風）與三種色調（**Light**、**White**、**Dark**），選擇會記在瀏覽器中；尚未選擇時依裝置設定顯示淺色或深色
 - 拖曳平移、滾輪或雙指縮放；方向鍵平移、`+`／`-`縮放、`0`回到全圖
