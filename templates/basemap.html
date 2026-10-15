@@ -833,6 +833,22 @@ h2 .zh.block { margin-top: 3px; }
   pointer-events: none;
 }
 #map.aligning { cursor: move; }
+.mkt-hit { fill: transparent; cursor: help; }
+.mkt-dot { fill: var(--surface); stroke: var(--ink-2); stroke-width: 1.5px; pointer-events: none; }
+.mkt-g.night .mkt-dot { fill: var(--ink); stroke: var(--surface); stroke-width: 2px; paint-order: stroke; }
+.mkt-label {
+  font: 500 10.5px var(--font-body);
+  fill: var(--ink-2);
+  paint-order: stroke;
+  stroke: var(--surface);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+.mkt-g.night .mkt-label { font-weight: 600; fill: var(--ink); }
+.mkt-key { width: 26px; display: flex; justify-content: center; }
+.mkt-key::before { content: ""; width: 7px; height: 7px; border-radius: 50%; box-sizing: border-box; border: 1.5px solid var(--ink-2); background: var(--surface); }
+.mkt-key.night::before { width: 9px; height: 9px; border: 0; background: var(--ink); }
 .ref-hit { fill: transparent; cursor: help; }
 .ref-dia { fill: var(--ink); stroke: var(--surface); stroke-width: 2px; paint-order: stroke; pointer-events: none; }
 .ref-label {
@@ -949,6 +965,7 @@ h3.mini .zh { text-transform: none; letter-spacing: 0.02em; }
             <path class="sel-outline" id="sel-outline"></path>
           </g>
           <g id="g-labels"></g>
+          <g id="g-mkt"></g>
           <g id="g-refs"></g>
           <g id="g-proj"></g>
         </g>
@@ -985,6 +1002,10 @@ h3.mini .zh { text-transform: none; letter-spacing: 0.02em; }
           <li><span class="line-key road-metro"></span>Metro<span class="zh" lang="zh-Hant-TW">捷運</span></li>
           <li><span class="line-key road-rail"></span>Railway<span class="zh" lang="zh-Hant-TW">鐵路</span></li>
         </ul>
+        <ul class="legend-lines" id="mkt-legend" hidden>
+          <li><span class="mkt-key night"></span>Night market<span class="zh" lang="zh-Hant-TW">夜市</span></li>
+          <li><span class="mkt-key"></span>Market<span class="zh" lang="zh-Hant-TW">市場</span></li>
+        </ul>
         <div class="toggles" role="group" aria-label="Layers">
           <label id="lyr-osm-wrap" hidden><input type="checkbox" id="lyr-osm" checked>Basemap, English labels<span class="zh" lang="zh-Hant-TW">英文底圖</span></label>
           <label><input type="checkbox" id="lyr-fill" checked>District tint<span class="zh" lang="zh-Hant-TW">區底色</span></label>
@@ -992,6 +1013,7 @@ h3.mini .zh { text-transform: none; letter-spacing: 0.02em; }
           <label><input type="checkbox" id="lyr-vline" checked>Village lines<span class="zh" lang="zh-Hant-TW">里界</span></label>
           <label><input type="checkbox" id="lyr-vlabel" checked>Village names<span class="zh" lang="zh-Hant-TW">里名</span></label>
           <label id="lyr-roads-wrap" hidden><input type="checkbox" id="lyr-roads" checked>Road network<span class="zh" lang="zh-Hant-TW">路網</span></label>
+          <label id="lyr-mkt-wrap" hidden><input type="checkbox" id="lyr-mkt" checked>Markets<span class="zh" lang="zh-Hant-TW">市場、夜市</span></label>
           <label><input type="checkbox" id="lyr-plan" checked>Detailed plan<span class="zh" lang="zh-Hant-TW">細部計畫</span></label>
           <label><input type="checkbox" id="lyr-proj" checked>Major projects<span class="zh" lang="zh-Hant-TW">重大建設</span></label>
           <label><input type="checkbox" id="lyr-refs" checked>Reference points<span class="zh" lang="zh-Hant-TW">參考點</span></label>
@@ -1305,6 +1327,7 @@ h3.mini .zh { text-transform: none; letter-spacing: 0.02em; }
     }
     svg.classList.toggle("zoom-detail", k > fitK * 2.5);
     drawRoadLabels();
+    drawMarkets();
     drawRefs();
     drawProjects();
     drawTicks();
@@ -1640,12 +1663,14 @@ h3.mini .zh { text-transform: none; letter-spacing: 0.02em; }
     updateCoord(p);
     const ref = e.target.__ref || null;
     const pj = e.target.__proj || null;
-    const v = ref || pj || aligning ? null : e.target.__v || null;
+    const mk = e.target.__mkt || null;
+    const v = ref || pj || mk || aligning ? null : e.target.__v || null;
     setHot(v);
     if (!pj) showFoot(selProject);
     if (e.pointerType === "touch") hideTip();
     else if (pj) showProjTip(pj, e.clientX, e.clientY);
     else if (ref) showRefTip(ref, e.clientX, e.clientY);
+    else if (mk) showMarketTip(mk, e.clientX, e.clientY);
     else if (v) showVillageTip(v, e.clientX, e.clientY);
     else hideTip();
   });
@@ -1661,6 +1686,8 @@ h3.mini .zh { text-transform: none; letter-spacing: 0.02em; }
         if (selProject) showProjTip(pr, e.clientX, e.clientY);
       } else if (drag.target && drag.target.__ref) {
         showRefTip(drag.target.__ref, e.clientX, e.clientY);
+      } else if (drag.target && drag.target.__mkt) {
+        showMarketTip(drag.target.__mkt, e.clientX, e.clientY);
       } else {
         const v = drag.target && drag.target.__v;
         select(v && v !== selected ? v : null);
@@ -2031,6 +2058,44 @@ h3.mini .zh { text-transform: none; letter-spacing: 0.02em; }
     `<li><b>${esc(r.name_en)}</b>${zh(r.name_zh)}<br><span class="mono">${r.lat.toFixed(5)}°N, ${r.lon.toFixed(5)}°E</span>` +
     `<span class="src"> · ${esc(r.source)}</span></li>`).join("");
 
+  // ---------- markets (OpenStreetMap, fetched by scripts/fetch_landmarks.py) ----------
+  // build_map.py keeps marketplaces and night markets inside the eight districts and drops duplicates.
+  const gMkt = $("#g-mkt");
+  const markets = (DATA.markets ? DATA.markets.features : []).map((m) => {
+    const [wx, wy] = proj(m.lon, m.lat);
+    const g = svgEl("g", { class: m.night ? "mkt-g night" : "mkt-g" }, gMkt);
+    const hit = svgEl("circle", { class: "mkt-hit", r: 9 }, g);
+    svgEl("circle", { class: "mkt-dot", r: m.night ? 4.5 : 3.5 }, g);
+    const label = svgEl("text", { class: "mkt-label", x: 7, y: 4 }, g);
+    label.textContent = m.en || m.zh;
+    const mk = { ...m, wx, wy, g, label };
+    hit.__mkt = mk;
+    return mk;
+  });
+  if (markets.length) {
+    $("#lyr-mkt-wrap").hidden = false;
+    $("#mkt-legend").hidden = false;
+  }
+  function drawMarkets() {
+    const show = markets.length && $("#lyr-mkt").checked;
+    gMkt.style.display = show ? "" : "none";
+    if (!show) return;
+    // night markets are named sooner; the many neighbourhood markets only close in
+    const kNight = fitK * 2, kMarket = fitK * 5;
+    for (const m of markets) {
+      m.g.setAttribute("transform", `translate(${view.k * m.wx + view.tx} ${view.k * m.wy + view.ty})`);
+      m.label.style.display = view.k > (m.night ? kNight : kMarket) ? "" : "none";
+    }
+  }
+  $("#lyr-mkt").addEventListener("change", draw);
+  function showMarketTip(m, cx, cy) {
+    const kind = m.night ? "Night market" : "Market";
+    const head = m.en ? `<b>${esc(m.en)}</b>${zh(m.zh)}` : m.zh ? `<b>${zh(m.zh, "")}</b>` : `<b>Unnamed market</b>`;
+    tip.innerHTML = `${head}<br>${kind}, ${esc(m.district_en)}${m.ha ? ` · ${m.ha} ha mapped` : ""}<br>` +
+      `<span class="num">${m.lat.toFixed(5)}°N, ${m.lon.toFixed(5)}°E</span><br>OpenStreetMap ${esc(m.osm.replace("/", " "))}`;
+    placeTip(cx, cy);
+  }
+
   // ---------- village lookup ----------
   const optLabel = (v) => `${v.en} ${v.zh} (${v.dist.short})`;
   const dl = $("#vlist");
@@ -2218,6 +2283,7 @@ h3.mini .zh { text-transform: none; letter-spacing: 0.02em; }
     `Reference points: coordinates as published by the sources listed with each point (Wikipedia infoboxes, OurAirports).`,
     ...(DATA.project_locations ? [`Major project locations: OpenStreetMap features (© OpenStreetMap contributors, ODbL 1.0; fetched ${esc(DATA.project_locations.landmarks_fetched || "")}), matched by name and type; Central Park from the traced plan. Mapped footprints may differ from official site areas.`] : []),
     ...(DATA.roads ? [`Road network: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors, ODbL 1.0; fetched ${esc(DATA.roads.fetched)} via the Overpass API and simplified to ${DATA.roads.simplify_tolerance_m} m. Local streets cover the Shuinan area only.`] : []),
+    ...(markets.length ? [`Markets: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors, ODbL 1.0; fetched ${esc(DATA.markets.fetched || "")}. ${markets.length} marketplaces inside the eight districts, ${markets.filter((m) => m.night).length} of them night markets (named 夜市). Only markets mapped in OpenStreetMap appear; points are footprint centres where an outline is mapped.`] : []),
     `Major projects: sources are listed with each entry. The Open / Upcoming chips are our grouping of the status text.`,
     `Coordinates: WGS84 (CRS84). The map uses Web Mercator to match the OpenStreetMap tiles; the scale bar uses the east-west scale at the center of the study area.`,
     ...(BASEMAP ? [`Basemap: vector tiles from <a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> (© <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">OpenMapTiles</a>, data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors), drawn with MapLibre GL JS. Labels show the English name (OSM name:en) where one is mapped, otherwise the local name. If the vector map cannot start, the standard OpenStreetMap tiles are used instead (labels in the local language), under the OSMF <a href="https://operations.osmfoundation.org/policies/tiles/" target="_blank" rel="noopener">tile usage policy</a>.`] : []),

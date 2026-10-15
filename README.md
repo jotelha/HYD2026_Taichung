@@ -60,9 +60,9 @@ Colour patches and zones: the ecological residential, cultural and commercial, i
 |---|---|---|---|---|
 | 1 | Taichung Green Museumbrary 臺中綠美圖 | 24.19295°N | 120.65446°E | OSM way 485125572 (grounds) |
 | 2 | Taichung International Exhibition Center 臺中國際會展中心 | 24.19386°N | 120.65177°E | OSM way 1305878545 (building) |
-| 3 | Shuinan Transfer Center 水湳轉運中心 | 24.19735°N | 120.65312°E | OSM way 1305878254 (bus station) |
+| 3 | Shuinan Transfer Center 水湳轉運中心 | 24.19741°N | 120.65322°E | OSM way 1305878254 (bus station) |
 | 4 | Taichung pop music and film center 臺中流行影音中心 | 24.18184°N | 120.65766°E | OSM way 485125554 (site) |
-| 5 | Taichung dome stadium 臺中超巨蛋 | 24.18016°N | 120.65345°E | OSM ways 1391518117 and 1391518516 (BOT site, 10.6 ha mapped; the city gives about 16.35 ha on Innovation R&D Zone 1) |
+| 5 | Taichung dome stadium 臺中超巨蛋 | 24.18101°N | 120.65331°E | OSM ways 1391518117 and 1391518516 (BOT site, 15.0 ha mapped; the city gives about 16.35 ha on Innovation R&D Zone 1) |
 | 6 | Taichung Central Park 中央公園 | 24.18518°N | 120.65463°E | Largest park patch of the traced plan (53.7 ha) |
 | 7 | MRT Green Line, Wenhua Senior High School Station 捷運綠線文華高中站 | 24.17150°N | 120.66065°E | OSM node 4428067702 (station) |
 | 8 | Parking supply in the park 園區停車供給 | – | – | Park-wide figure, not mapped |
@@ -82,6 +82,8 @@ The runway thresholds lay at 24.1786°N and 24.1933°N (PilotNav). The traced pl
 ## Road network and landmarks (OpenStreetMap)
 
 The **Road network** layer covers motorways down to tertiary roads, rail and metro across the former Taichung City, plus local streets around Shuinan (shown when zoomed in).
+
+The **Markets** layer shows the 62 marketplaces mapped in OpenStreetMap inside the eight districts. The 7 night markets (named 夜市, e.g. Feng Chia Night Market) get filled dots and are labelled sooner as you zoom in. `scripts/fetch_landmarks.py` fetches them across the former city. `build_map.py` keeps `amenity=marketplace` features and untagged features named …夜市, drops sub-areas and duplicate points, and clips to the district boundaries. Markets that nobody has mapped in OSM are missing.
 
 This build environment cannot reach the Overpass API, so a GitHub Actions workflow fetches the data: **Actions → Fetch OSM road network → Run workflow** runs `scripts/fetch_roads.py`, `scripts/fetch_landmarks.py` and `scripts/locate_projects.py`, rebuilds the site and commits the results. Run it again to refresh. The data is licensed under the ODbL 1.0 and must be credited "© OpenStreetMap contributors".
 
@@ -209,11 +211,11 @@ DXF是畫在A3圖紙上的描圖（單位mm），本身沒有地理座標；檔�
 
 ### 重大建設位置
 
-`scripts/locate_projects.py`依序嘗試：名稱與類型相符的OSM設施（排除同名公車站）、官方文件寫明的路口、計畫圖街廓，最後才用已發布的座標。7項中6項取自OSM設施，中央公園取自計畫圖公園色塊（53.7公頃），園區停車供給為全區統計，不標點。超巨蛋的OSM基地為10.6公頃，市府資料為創研一約16.35公頃。各項座標見上方英文表格。
+`scripts/locate_projects.py`依序嘗試：名稱與類型相符的OSM設施（排除同名公車站）、官方文件寫明的路口、計畫圖街廓，最後才用已發布的座標。7項中6項取自OSM設施，中央公園取自計畫圖公園色塊（53.7公頃），園區停車供給為全區統計，不標點。超巨蛋的OSM基地為15.0公頃，市府資料為創研一約16.35公頃。各項座標見上方英文表格。
 
 ### 路網與地標（OSM）
 
-路網涵蓋原臺中市範圍的國道到區道、鐵路與捷運，以及水湳周邊巷道（放大後顯示）。本環境連不到Overpass API，因此由GitHub Actions抓取：**Actions → Fetch OSM road network → Run workflow**，會依序執行`fetch_roads.py`、`fetch_landmarks.py`、`locate_projects.py`，重建網站並commit結果。資料授權為ODbL 1.0，須標示「© OpenStreetMap contributors」。
+路網涵蓋原臺中市範圍的國道到區道、鐵路與捷運，以及水湳周邊巷道（放大後顯示）。**市場**圖層顯示OSM上八區範圍內的62處市場，其中7處夜市（如逢甲夜市）以實心點標示，放大後較早顯示名稱。`fetch_landmarks.py`抓取原臺中市範圍的市場，`build_map.py`保留`amenity=marketplace`及名稱以「夜市」結尾的地物，去除分區與重複點位，並以區界裁切；OSM未繪製的市場不會出現。本環境連不到Overpass API，因此由GitHub Actions抓取：**Actions → Fetch OSM road network → Run workflow**，會依序執行`fetch_roads.py`、`fetch_landmarks.py`、`locate_projects.py`，重建網站並commit結果。資料授權為ODbL 1.0，須標示「© OpenStreetMap contributors」。
 
 ### 底圖（英文標註）
 

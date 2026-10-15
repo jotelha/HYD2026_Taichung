@@ -48,6 +48,8 @@ PLAN = ROOT / "data" / "derived" / "shuinan_detailed_plan_traced.geojson"
 ROADS = ROOT / "data" / "derived" / "roads_osm.geojson"
 # Major-project points from scripts/locate_projects.py. Optional.
 PROJECT_LOC = ROOT / "data" / "derived" / "project_locations.geojson"
+# OSM landmarks, including markets, from scripts/fetch_landmarks.py. Optional.
+LANDMARKS = ROOT / "data" / "derived" / "landmarks_osm.geojson"
 
 # Status chip per project, keyed by project_zh in shuinan_major_projects_2026.csv:
 # "open" = opened / in use / in service / existing, "pending" = not yet open.
@@ -149,6 +151,74 @@ def dissolve(features):
     return out
 
 
+def in_ring(x, y, ring):
+    inside = False
+    for (x1, y1), (x2, y2) in zip(ring, ring[1:]):
+        if (y1 > y) != (y2 > y) and x < x1 + (y - y1) * (x2 - x1) / (y2 - y1):
+            inside = not inside
+    return inside
+
+
+def in_geom(x, y, geom):
+    """Point in (Multi)Polygon, holes included."""
+    return any(in_ring(x, y, poly[0]) and not any(in_ring(x, y, h) for h in poly[1:]) for poly in rings(geom))
+
+
+def load_markets(districts):
+    """Markets and night markets in the former city from the OSM landmarks file.
+
+    Keeps amenity=marketplace features, plus untagged features whose name ends
+    in 夜市 (the parking lots, access ways and a restaurant that only share the
+    name are dropped). A feature whose point lies inside another market's
+    footprint (stalls zones, a node on top of the outline) or that repeats a
+    nearby market's name is a duplicate. Markets outside the eight districts go.
+    """
+    if not LANDMARKS.exists():
+        return None
+    lm = read_json(LANDMARKS)
+    cand = []
+    for f in lm["features"]:
+        t = f["properties"]["tags"]
+        name = t.get("name", "")
+        if t.get("amenity") != "marketplace" and not ("amenity" not in t and name.endswith("夜市")):
+            continue
+        cand.append(f)
+    polys = [f for f in cand if f["geometry"]["type"] in ("Polygon", "MultiPolygon")]
+    # bigger footprints first, so a sub-area never outranks the market around it
+    cand.sort(key=lambda f: (f["geometry"]["type"] != "Point", f["properties"].get("area_m2") or 0), reverse=True)
+    kept = []
+    for f in cand:
+        lon, lat = f["properties"]["centroid"]
+        name = f["properties"]["tags"].get("name", "")
+        if any(g is not f and in_geom(lon, lat, g["geometry"]) for g in polys if g in kept):
+            continue
+        if name and any(k["properties"]["tags"].get("name") == name
+                        and math.dist(k["properties"]["centroid"], (lon, lat)) < 0.003 for k in kept):
+            continue
+        kept.append(f)
+    out = []
+    for f in kept:
+        lon, lat = f["properties"]["centroid"]
+        dist = next((d for d in districts["features"] if in_geom(lon, lat, d["geometry"])), None)
+        if dist is None:
+            continue
+        t, p = f["properties"]["tags"], f["properties"]
+        name = t.get("name", "")
+        out.append({
+            "zh": name,
+            "en": t.get("name:en", ""),
+            "night": "夜市" in name or "night market" in t.get("name:en", "").lower(),
+            "lon": lon,
+            "lat": lat,
+            "ha": round(p["area_m2"] / 10000, 2) if p.get("area_m2") else None,
+            "district_en": dist["properties"]["district_en"],
+            "district_zh": dist["properties"]["district_zh"],
+            "osm": f"{p['osm_type']}/{p['osm_id']}",
+        })
+    out.sort(key=lambda m: (not m["night"], m["lat"]))
+    return {"fetched": lm.get("fetched"), "features": out}
+
+
 def load_data():
     districts = read_geojson(DISTRICTS)
     villages = read_geojson(VILLAGES)
@@ -185,6 +255,7 @@ def load_data():
     keep_d = ("district_code", "district_zh", "district_en", "area_km2",
               "village_count", "label_lon", "label_lat", "old_downtown")
     boundary_source = villages["features"][0]["properties"]["source"]
+    markets = load_markets(districts)
     for fc, keep in ((villages, keep_v), (districts, keep_d)):
         for f in fc["features"]:
             f["properties"] = {k: f["properties"][k] for k in keep}
@@ -202,6 +273,7 @@ def load_data():
         "refs": read_csv(REFS),
         "roads": read_json(ROADS) if ROADS.exists() else None,
         "project_locations": read_json(PROJECT_LOC) if PROJECT_LOC.exists() else None,
+        "markets": markets,
     }
 
 
