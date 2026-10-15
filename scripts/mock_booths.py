@@ -10,8 +10,16 @@ Along each street, booths of BOOTH_W x BOOTH_D metres sit every PITCH metres on
 both sides, set back from the centreline by half the carriageway (CARRIAGEWAY,
 by OSM highway class). A booth is skipped if it would stand in another street's
 carriageway (at junctions), overlap a booth already placed, or fall outside
-the extent. Each booth gets a Boba Index drawn uniformly from 0.0 to 5.0 in
-steps of 0.1, from a fixed seed so the output is reproducible.
+the extent.
+
+Scores are spatially clustered rather than uniform: a smooth field over the
+market starts at FIELD_BASE and adds FIELD_PEAKS Gaussian maxima and as many
+minima (amplitude FIELD_AMP, width FIELD_SIGMA), centred on randomly chosen
+booths at least FIELD_SPACING apart. Each booth's Boba Index is the field at
+its position plus Gaussian noise (FIELD_NOISE), clipped to 0.0-5.0 and rounded
+to 0.1, so neighbouring booths are alike and the market has hot and cold
+spots. The field's centres are written to the output (score_field). A fixed
+seed makes the output reproducible.
 
 Each booth also gets an invented name in Chinese and English, built from the
 patterns real stalls use (阿 + a given name, a surname + 記, a surname + a
@@ -34,6 +42,13 @@ EXTENT = ROOT / "data" / "derived" / "fengjia_night_market_extent.geojson"
 OUT = ROOT / "data" / "derived" / "fengjia_booths_mock.geojson"
 
 SEED = 2026
+# spatial score field (see the docstring)
+FIELD_BASE = 2.5
+FIELD_PEAKS = 3                # maxima, and as many minima
+FIELD_AMP = (1.6, 2.3)         # bump height range, Boba Index points
+FIELD_SIGMA = (40.0, 80.0)     # bump width range, metres
+FIELD_SPACING = 120.0          # minimum distance between bump centres, metres
+FIELD_NOISE = 0.45             # booth-to-booth noise (standard deviation)
 BOOTH_W, BOOTH_D = 3.5, 3.0  # metres along and across the street
 PITCH = 6.5                  # metres between booth centres along a street
 MIN_GAP = 4.5                # minimum distance between booth centres
@@ -67,6 +82,26 @@ DISHES = [("臭豆腐", "Stinky Tofu"), ("大腸包小腸", "Sausage in Sticky R
 # real Feng Chia stalls named in the guides above; no mock name may contain these
 REAL_STALLS = ["官芝霖", "明倫", "旺伯", "一心", "日船", "繼光", "香香雞", "天使", "丹丹", "金桑", "阿華", "海邊小屋",
                "金牌", "御品元", "惡魔", "梁記", "駱記", "阿國", "陳董", "福州世祖"]
+
+
+def score_field(booths, rng):
+    """Bump centres for the score field: (x, y, signed amplitude, sigma), on booths spaced FIELD_SPACING apart."""
+    centres = []
+    signs = [1] * FIELD_PEAKS + [-1] * FIELD_PEAKS
+    rng.shuffle(signs)
+    for sign in signs:
+        for _ in range(1000):
+            b = rng.choice(booths)
+            if all(math.hypot(b["x"] - c[0], b["y"] - c[1]) >= FIELD_SPACING for c in centres):
+                centres.append((b["x"], b["y"], sign * rng.uniform(*FIELD_AMP), rng.uniform(*FIELD_SIGMA)))
+                break
+        else:
+            raise SystemExit("could not place the score-field centres; lower FIELD_SPACING")
+    return centres
+
+
+def field_at(x, y, centres):
+    return FIELD_BASE + sum(a * math.exp(-((x - cx) ** 2 + (y - cy) ** 2) / (2 * sg * sg)) for cx, cy, a, sg in centres)
 
 
 def mock_names(n, rng):
@@ -163,8 +198,11 @@ def main():
 
     rng = random.Random(SEED)
     names = mock_names(len(booths), random.Random(SEED + 1))
+    booths.sort(key=lambda b: (-b["y"], b["x"]))
+    centres = score_field(booths, rng)
     features = []
-    for i, b in enumerate(sorted(booths, key=lambda b: (-b["y"], b["x"])), 1):
+    for i, b in enumerate(booths, 1):
+        score = min(5.0, max(0.0, field_at(b["x"], b["y"], centres) + rng.gauss(0, FIELD_NOISE)))
         hw, hd = BOOTH_W / 2, BOOTH_D / 2
         corners = [(b["x"] + b["ux"] * sa * hw - b["uy"] * sb * hd, b["y"] + b["uy"] * sa * hw + b["ux"] * sb * hd)
                    for sa, sb in ((-1, -1), (1, -1), (1, 1), (-1, 1), (-1, -1))]
@@ -176,7 +214,7 @@ def main():
                 "name_en": names[i - 1][1],
                 "street_zh": b["street"],
                 "street_en": STREET_EN.get(b["street"], ""),
-                "boba_index": round(rng.randint(0, 50) / 10, 1),
+                "boba_index": round(score, 1),
                 "centre": list(to_deg(b["x"], b["y"])),
                 "bearing_deg": round(math.degrees(math.atan2(b["ux"], b["uy"])) % 180, 1),
             },
@@ -187,8 +225,10 @@ def main():
         "type": "FeatureCollection",
         "name": "fengjia_booths_mock",
         "mock": True,
-        "note": "MOCK DATA: booth positions are laid out along the market streets, names are invented and Boba Index scores are random (seed "
-                f"{SEED}); nothing here describes real booths.",
+        "note": "MOCK DATA: booth positions are laid out along the market streets, names are invented and Boba Index scores are random "
+                f"around invented hot and cold spots (seed {SEED}); nothing here describes real booths.",
+        "score_field": {"base": FIELD_BASE, "noise_sd": FIELD_NOISE, "centres": [
+            {"lonlat": list(to_deg(cx, cy)), "amplitude": round(a, 2), "sigma_m": round(sg, 1)} for cx, cy, a, sg in centres]},
         "booth_size_m": [BOOTH_W, BOOTH_D],
         "pitch_m": PITCH,
         "features": features,
