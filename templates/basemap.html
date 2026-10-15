@@ -735,7 +735,19 @@ h2 .zh.block { margin-top: 3px; }
 /* mock booths: true-size rectangles coloured by Boba Index; shown once they are a few pixels wide */
 .heat { opacity: 0.55; cursor: help; } /* see-through, so streets and booths show under it */
 .heat-key .ramp { opacity: 0.55; } /* the key at the map's opacity, so its colours match */
-.heat-key { margin-top: 12px; }
+.heat-key, .noise-key { margin-top: 12px; }
+.noise { opacity: 0.62; cursor: help; }
+.air { opacity: 0.55; cursor: help; }
+.map-legend .air-key { margin-top: 8px; font-size: var(--fs-xs); }
+.air-bands { display: grid; gap: 2px; margin: 4px 0 0; padding: 0; list-style: none; }
+.air-bands li { display: grid; grid-template-columns: 12px minmax(0, 1fr) auto; align-items: center; gap: 6px; }
+.air-bands .sw { width: 12px; height: 10px; border-radius: 2px; opacity: 0.75; }
+.air-bands .zh { font-size: 11px; }
+.air-bands .num { font-size: 11px; color: var(--ink-2); }
+.noise-key .ramp { opacity: 0.62; } /* the key at the map's opacity, so its colours match */
+.map-legend .noise-key { margin-top: 8px; font-size: var(--fs-xs); }
+.noise-key .ramp { margin: 4px 0 2px; height: 8px; border-radius: var(--r-sm); }
+.noise-key .ends { display: flex; justify-content: space-between; font: 500 12px var(--font-mono); color: var(--ink-2); }
 #booth-notes { margin-top: 10px; }
 .heat-ctrl { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 4px 10px; margin-top: 8px; font-size: var(--fs-xs); color: var(--ink-2); }
 .heat-ctrl input[type="range"] { width: 100%; accent-color: var(--accent); }
@@ -913,6 +925,8 @@ h2 .zh.block { margin-top: 3px; }
             <g id="g-dfill"></g>
             <g id="g-mkt-area"></g>
             <clipPath id="heat-clip"><path id="heat-clip-path"></path></clipPath>
+            <g id="g-air"></g>
+            <g id="g-noise"></g>
             <g id="g-heat"></g>
             <g id="g-booths"></g>
             <path class="route-halo" id="route-halo"></path>
@@ -966,6 +980,15 @@ h2 .zh.block { margin-top: 3px; }
           <div class="ramp" id="heat-ramp" aria-hidden="true"></div>
           <div class="ends"><span id="heat-min"></span><span id="heat-mid"></span><span id="heat-max"></span></div>
         </div>
+        <div class="noise-key" id="noise-key" hidden>
+          Noise level, dB(A)<span class="zh" lang="zh-Hant-TW">噪音</span>
+          <div class="ramp" id="noise-ramp" aria-hidden="true"></div>
+          <div class="ends"><span>55 quiet</span><span>67.5</span><span>80 loud</span></div>
+        </div>
+        <div class="air-key" id="air-key" hidden>
+          Air quality, PM2.5 µg/m³<span class="zh" lang="zh-Hant-TW">空氣品質</span>
+          <ul class="air-bands" id="air-bands"></ul>
+        </div>
       </details>
       <details class="map-find map-panel" id="map-find" open>
         <summary>Find<span class="zh" lang="zh-Hant-TW">查詢</span></summary>
@@ -1004,6 +1027,8 @@ h2 .zh.block { margin-top: 3px; }
           <label><input type="checkbox" id="lyr-fill" checked>District tint<span class="zh" lang="zh-Hant-TW">區底色</span></label>
           <label><input type="checkbox" id="lyr-area" checked>Night-market areas<span class="zh" lang="zh-Hant-TW">夜市範圍</span></label>
           <label id="lyr-booths-wrap" hidden><input type="checkbox" id="lyr-booths" checked>Booths<span class="zh" lang="zh-Hant-TW">攤位</span></label>
+          <label id="lyr-air-wrap" hidden><input type="checkbox" id="lyr-air">Air quality<span class="zh" lang="zh-Hant-TW">空氣品質</span></label>
+          <label id="lyr-noise-wrap" hidden><input type="checkbox" id="lyr-noise">Noise level<span class="zh" lang="zh-Hant-TW">噪音</span></label>
           <label id="lyr-heat-wrap" hidden><input type="checkbox" id="lyr-heat" checked>Boba Index heat map<span class="zh" lang="zh-Hant-TW">珍奶指數熱度圖</span></label>
           <label id="lyr-rx-wrap" hidden><input type="checkbox" id="lyr-rx" checked>Pharmacies<span class="zh" lang="zh-Hant-TW">藥局</span></label>
           <label id="lyr-wc-wrap" hidden><input type="checkbox" id="lyr-wc" checked>Stores with toilets<span class="zh" lang="zh-Hant-TW">有廁所的超商</span></label>
@@ -1262,6 +1287,7 @@ h2 .zh.block { margin-top: 3px; }
     drawPins();
     drawBooths();
     drawHeat();
+    drawSurfaces();
     drawTicks();
     drawScale();
     if (layers.osm) {
@@ -1594,7 +1620,8 @@ h2 .zh.block { margin-top: 3px; }
     const bn = e.target.__bin ?? null;
     const wc = e.target.__wc ?? null;
     const rx = e.target.__rx ?? null;
-    const d = mk || ht || bo != null || bn != null || wc != null || rx != null ? null : e.target.__d || null;
+    const sf = e.target.__surf || null;
+    const d = mk || ht || sf || bo != null || bn != null || wc != null || rx != null ? null : e.target.__d || null;
     setHot(d);
     if (e.pointerType === "touch") hideTip();
     else if (bo != null) showBoothTip(bo, e.clientX, e.clientY);
@@ -1602,6 +1629,7 @@ h2 .zh.block { margin-top: 3px; }
     else if (wc != null) showToiletTip(wc, e.clientX, e.clientY);
     else if (rx != null) showPharmacyTip(rx, e.clientX, e.clientY);
     else if (ht) showHeatTip(p, e.clientX, e.clientY);
+    else if (sf) showSurfaceTip(sf, p, e.clientX, e.clientY);
     else if (mk) showMarketTip(mk, e.clientX, e.clientY);
     else if (d) showDistrictTip(d, e.clientX, e.clientY);
     else hideTip();
@@ -1616,6 +1644,7 @@ h2 .zh.block { margin-top: 3px; }
       else if (t && t.__wc != null) showToiletTip(t.__wc, e.clientX, e.clientY);
       else if (t && t.__rx != null) showPharmacyTip(t.__rx, e.clientX, e.clientY);
       else if (t && t.__heat) showHeatTip(local(e), e.clientX, e.clientY);
+      else if (t && t.__surf) showSurfaceTip(t.__surf, local(e), e.clientX, e.clientY);
       else if (t && t.__mkt) showMarketTip(t.__mkt, e.clientX, e.clientY);
       else if (t && t.__d && e.pointerType === "touch") showDistrictTip(t.__d, e.clientX, e.clientY);
       else hideTip();
@@ -2081,6 +2110,107 @@ h2 .zh.block { margin-top: 3px; }
     placeTip(cx, cy);
   }
 
+  // ---------- sensor surfaces: noise level and air quality (mock readings) ----------
+  // A smoothed surface from point readings: Gaussian kernel, either a plain weighted mean or an energy mean
+  // (10 log10 of the weighted mean of 10^(L/10)), the way sound levels combine. Built the first time it is shown,
+  // drawn as an SVG image in world units, faded where readings are sparse and over the last 80 m of the grid.
+  function makeSurface({ rows, group, cls, bw, cellM = 5, energy = false, colour }) {
+    const pts = rows.map(([lon, lat, v]) => { const [x, y] = proj(lon, lat); return { x, y, v: energy ? 10 ** (v / 10) : v }; });
+    const size = (3 * bw) / GROUND, map = new Map();
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (const q of pts) {
+      const key = Math.floor(q.x / size) + "," + Math.floor(q.y / size);
+      if (!map.has(key)) map.set(key, []);
+      map.get(key).push(q);
+      x0 = Math.min(x0, q.x); y0 = Math.min(y0, q.y); x1 = Math.max(x1, q.x); y1 = Math.max(y1, q.y);
+    }
+    const at = (wx, wy) => {
+      const h = bw / GROUND, r2 = 9 * h * h, inv = 1 / (2 * h * h), gx = Math.floor(wx / size), gy = Math.floor(wy / size);
+      let sw = 0, sv = 0, n = 0;
+      for (let i = gx - 1; i <= gx + 1; i++) for (let j = gy - 1; j <= gy + 1; j++) {
+        for (const q of map.get(i + "," + j) || []) {
+          const dx = q.x - wx, dy = q.y - wy, d2 = dx * dx + dy * dy;
+          if (d2 > r2) continue;
+          const w = Math.exp(-d2 * inv);
+          sw += w; sv += w * q.v;
+          if (d2 <= h * h) n++;
+        }
+      }
+      const mean = sw ? sv / sw : null;
+      return { value: mean == null ? null : energy ? 10 * Math.log10(mean) : mean, weight: sw, n };
+    };
+    const surf = { at, img: null, ready: pts.length > 0 };
+    surf.build = () => {
+      if (surf.img || !pts.length) return;
+      const cell = cellM / GROUND, nx = Math.ceil((x1 - x0) / cell) + 1, ny = Math.ceil((y1 - y0) / cell) + 1;
+      const canvas = document.createElement("canvas");
+      canvas.width = nx; canvas.height = ny;
+      const ctx = canvas.getContext("2d"), img = ctx.createImageData(nx, ny);
+      for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
+        const { value, weight } = at(x0 + i * cell, y0 + j * cell);
+        if (value == null) continue;
+        const [r, g, bl] = colour(value), o = 4 * (j * nx + i);
+        const edge = Math.min(i, j, nx - 1 - i, ny - 1 - j) * cellM;
+        img.data[o] = r; img.data[o + 1] = g; img.data[o + 2] = bl;
+        img.data[o + 3] = Math.round(255 * Math.min(1, weight / 2) * Math.min(1, edge / 80));
+      }
+      ctx.putImageData(img, 0, 0);
+      surf.img = svgEl("image", { class: cls, preserveAspectRatio: "none", x: x0 - cell / 2, y: y0 - cell / 2,
+        width: nx * cell, height: ny * cell, href: canvas.toDataURL() }, group);
+      surf.img.__surf = surf;
+    };
+    return surf;
+  }
+  const surfaces = [];
+  function addSurface(surf, layerId, keyId) {
+    if (!surf.ready) return;
+    surf.layer = layerId; surf.key = keyId;
+    surfaces.push(surf);
+    $(`#${layerId}-wrap`).hidden = false;
+    $(`#${layerId}`).addEventListener("change", (e) => { if (e.target.checked) surf.build(); hideTip(); draw(); });
+  }
+  function drawSurfaces() {
+    for (const s of surfaces) {
+      const show = $(`#${s.layer}`).checked;
+      if (s.img) s.img.style.display = show ? "" : "none";
+      $(`#${s.key}`).hidden = !show;
+    }
+  }
+  function showSurfaceTip(surf, p, cx, cy) {
+    const { value, n } = surf.at((p.x - view.tx) / view.k, (p.y - view.ty) / view.k);
+    if (value == null) { hideTip(); return; }
+    tip.innerHTML = surf.tip(value, n);
+    placeTip(cx, cy);
+  }
+
+  // noise level, dB(A): energy mean, fixed 55-80 dB scale (decibels mean something on their own)
+  const NOISE_RAMP = ["#fed976", "#feb24c", "#fd8d3c", "#fc4e2a", "#e31a1c", "#bd0026", "#800026"]; // ColorBrewer YlOrRd
+  const NOISE_MIN = 55, NOISE_MAX = 80, NOISE_BW = 35; // bandwidth above the 30 m sensor spacing, so no grid pattern shows
+  $("#noise-ramp").style.background = `linear-gradient(to right, ${NOISE_RAMP.join(", ")})`;
+  const NOISE_BANDS = [[55, "Quiet, like a residential street at night"], [65, "Moderate, like normal conversation"],
+    [75, "Loud, like busy traffic"], [Infinity, "Very loud, like a crowded market lane"]];
+  const noiseSurf = makeSurface({ rows: DATA.noise ? DATA.noise.rows : [], group: $("#g-noise"), cls: "noise", bw: NOISE_BW, energy: true,
+    colour: (db) => rampAt(NOISE_RAMP, (db - NOISE_MIN) / (NOISE_MAX - NOISE_MIN)) });
+  noiseSurf.tip = (db, n) => `<b>Noise ≈ <span class="num">${Math.round(db)}</span> dB(A)</b>${zh("噪音")}<br>` +
+    `${NOISE_BANDS.find(([max]) => db < max)[1]}<br>Evening level from ${plural(n, "sensor")} within ${NOISE_BW} m`;
+  addSurface(noiseSurf, "lyr-noise", "noise-key");
+
+  // air quality, PM2.5 in µg/m³: plain mean, coloured in Taiwan's PM2.5 bands (the AQI colours), not a gradient
+  const AIR_BANDS = [
+    [15.4, "#6dbf6f", "Good", "良好"], [35.4, "#f2d44e", "Moderate", "普通"],
+    [54.4, "#f39c3d", "Unhealthy for sensitive groups", "對敏感族群不健康"], [150.4, "#e04848", "Unhealthy", "對所有族群不健康"],
+    [Infinity, "#8e44ad", "Very unhealthy", "非常不健康"]];
+  const AIR_BW = 35;
+  const airBand = (v) => AIR_BANDS.find(([max]) => v <= max);
+  $("#air-bands").innerHTML = AIR_BANDS.slice(0, 4).map(([max, c, en, zhName]) =>
+    `<li><span class="sw" style="background:${c}"></span><span>${en}${zh(zhName)}</span><span class="num">≤ ${max}</span></li>`).join("");
+  const airSurf = makeSurface({ rows: DATA.air ? DATA.air.rows : [], group: $("#g-air"), cls: "air", bw: AIR_BW,
+    colour: (v) => hexRgb(airBand(v)[1]) });
+  airSurf.tip = (v, n) => { const [, , en, zhName] = airBand(v);
+    return `<b>PM2.5 ≈ <span class="num">${Math.round(v)}</span> µg/m³</b>${zh("細懸浮微粒")}<br>${en}${zh(zhName)}<br>` +
+      `Evening level from ${plural(n, "sensor")} within ${AIR_BW} m`; };
+  addSurface(airSurf, "lyr-air", "air-key");
+
   // ---------- districts ----------
   const legend = $("#legend");
   for (const d of [...districts].sort((a, b) => b.nMarkets - a.nMarkets || a.i - b.i)) {
@@ -2246,7 +2376,9 @@ h2 .zh.block { margin-top: 3px; }
     ...(markets.length ? [`Markets: © ${osmLink} contributors, ODbL 1.0; fetched ${esc(DATA.markets.fetched || "")}. ${markets.length} marketplaces inside the eight districts, ${nightMarkets.length} of them night markets (named 夜市). Only markets mapped in OpenStreetMap appear; points are footprint centres where an outline is mapped, and night markets also show that outline.`] : []),
     ...(markets.some((m) => m.extent) ? ["The dashed Feng Chia extent is our approximation: OSM street centrelines of Wenhua Road, Fengjia Road, Fuxing Road and Fengjia Road Lane 20 (the streets <i>Business Today</i>, 2015, names as the market area), buffered by 15 m. No official boundary is published."] : []),
     ...(DATA.booths ? [`Feng Chia booths: ${DATA.booths.rows.length.toLocaleString("en-US")} booths of ${DATA.booths.size_m[0]} × ${DATA.booths.size_m[1]} m along both sides of the market streets, each with its Boba Index from 0.0 to 5.0 on the viridis scale. The heat map is the Gaussian-weighted mean of the booth scores around each 2 m cell (bandwidth set by the slider, default 25 m), clipped to the market extent and faded where booths are sparse, on the plasma scale stretched from its lowest to its highest value; it smooths away single-booth outliers, and its picture depends on the bandwidth.`,
-      `This is a demonstrator: the Feng Chia booth layout, names and scores are illustrative and do not describe actual stalls.`] : []),
+      `This is a demonstrator: the Feng Chia booth layout, names and scores are illustrative and do not describe actual stalls.`,
+      ...(DATA.noise ? [`Noise level: evening levels in dB(A) from a ${DATA.noise.grid_m} m grid of ${DATA.noise.rows.length.toLocaleString("en-US")} sensors around Feng Chia, averaged by sound energy with a ${NOISE_BW} m Gaussian kernel and coloured on a fixed 55–80 dB scale. In this demonstrator the readings are illustrative (modelled from the market streets and main roads), not measured.`] : []),
+      ...(DATA.air ? [`Air quality: evening PM2.5 in µg/m³ from the same ${DATA.air.grid_m} m sensor grid, smoothed with a ${AIR_BW} m Gaussian kernel and coloured in Taiwan's PM2.5 bands (good ≤ 15.4, moderate ≤ 35.4, unhealthy for sensitive groups ≤ 54.4, unhealthy ≤ 150.4). In this demonstrator the readings are illustrative (modelled from the regional background, traffic on the main roads and cooking at the booths), not measured.`] : [])] : []),
     ...(DATA.bins ? [`Garbage bins: © ${osmLink} contributors, ODbL 1.0; fetched ${esc(DATA.bins.fetched || "")}. ${bins.filter((b) => b.kind < 3).length} public bins, waste containers and recycling points mapped in OpenStreetMap inside the eight districts, plus ${bins.filter((b) => b.kind === 3).length} market bins placed by the Boba Index team at Feng Chia (orange), shown from street-level zooms. Public bins are rare in Taiwan, where household rubbish goes to the garbage trucks, and OSM coverage is patchy, so this shows what is mapped, not every bin.`] : []),
     ...(DATA.toilets ? [`Stores with toilets: © ${osmLink} contributors, ODbL 1.0; fetched ${esc(DATA.toilets.fetched || "")}. ${DATA.toilets.rows.length} convenience stores tagged toilets=yes in OpenStreetMap inside the eight districts, out of ${DATA.toilets.stores_total.toLocaleString("en-US")} stores fetched (Shopee parcel pick-up points left out). Most 7-Eleven and FamilyMart branches have customer toilets, but few stores carry the tag yet, so many stores with toilets are missing from this layer.`] : []),
     ...(DATA.pharmacies ? [`Pharmacies: © ${osmLink} contributors, ODbL 1.0; fetched ${esc(DATA.pharmacies.fetched || "")}. ${DATA.pharmacies.rows.length} pharmacies (amenity=pharmacy) mapped in OpenStreetMap inside the eight districts; drugstore chains tagged shop=chemist are not included. Opening hours are shown where mapped, which is rarely, and some pharmacies are missing.`] : []),

@@ -41,6 +41,10 @@ STORES = ROOT / "data" / "derived" / "convenience_stores_osm.geojson"
 PHARMACIES = ROOT / "data" / "derived" / "pharmacies_osm.geojson"
 # Hand-placed market bins (the team's own, not in OSM). Optional.
 CUSTOM_BINS = RAW / "custom_bins.csv"
+# MOCK noise readings around Feng Chia from scripts/mock_noise.py. Optional.
+NOISE = ROOT / "data" / "derived" / "fengjia_noise_mock.geojson"
+# MOCK PM2.5 readings around Feng Chia from scripts/mock_air.py. Optional.
+AIR = ROOT / "data" / "derived" / "fengjia_air_mock.geojson"
 # MOCK booths with random Boba Index scores from scripts/mock_booths.py. Optional.
 BOOTHS = ROOT / "data" / "derived" / "fengjia_booths_mock.geojson"
 EYEBROW = "#HackYourDistrict 2026 · Taichung · Night market prototype"
@@ -247,6 +251,24 @@ def load_pharmacies(districts):
     return {"fetched": fc.get("fetched"), "rows": rows}
 
 
+def load_noise():
+    """Mock noise readings as compact rows [lon, lat, dB(A)]."""
+    if not NOISE.exists():
+        return None
+    fc = read_json(NOISE)
+    return {"unit": fc.get("unit", "dB(A)"), "grid_m": fc.get("grid_m"),
+            "rows": [[*f["geometry"]["coordinates"], f["properties"]["db"]] for f in fc["features"]]}
+
+
+def load_air():
+    """Mock PM2.5 readings as compact rows [lon, lat, µg/m³]."""
+    if not AIR.exists():
+        return None
+    fc = read_json(AIR)
+    return {"unit": fc.get("unit", "µg/m³"), "grid_m": fc.get("grid_m"),
+            "rows": [[*f["geometry"]["coordinates"], f["properties"]["pm25"]] for f in fc["features"]]}
+
+
 def load_data():
     districts = read_geojson(DISTRICTS)
     markets = load_markets(districts)
@@ -259,7 +281,7 @@ def load_data():
     for f in districts["features"]:
         f["properties"] = {k: f["properties"][k] for k in keep}
     districts.pop("crs", None)
-    return {"districts": districts, "markets": markets, "booths": load_booths(), "bins": bins, "toilets": toilets, "pharmacies": pharmacies, "boundary_source": boundary_source}
+    return {"districts": districts, "markets": markets, "booths": load_booths(), "bins": bins, "toilets": toilets, "pharmacies": pharmacies, "noise": load_noise(), "air": load_air(), "boundary_source": boundary_source}
 
 
 def inline_json(obj):

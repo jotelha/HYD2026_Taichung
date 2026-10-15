@@ -20,6 +20,8 @@ The interface is English-first, with Chinese as the secondary language: labels a
 - **Find**: a collapsible panel on the map's left side, under the legend, with the booth and place searches (both panels start collapsed on small screens)
 - **Find a Booth**: search the mock booths by English or Chinese name, dish, street or number (e.g. `oden`, `阿明 臭豆腐`, `FJ-0316`; every word must match). Results show the score; picking one (or pressing Enter for the first) zooms to the booth, rings it and shows a card, switching Feng Chia and the booth layer on if needed. Clicking a booth on the map selects it too; `Esc` clears the selection
 - **Garbage bins**: public bins, waste containers and recycling points mapped in OpenStreetMap (70 in the eight districts), as small bin icons from street-level zooms; hover one for its type and OSM feature (see below)
+- **Noise level** (off by default): an evening noise heat map around Feng Chia in dB(A), on a fixed 55–80 dB yellow-to-red scale; hover for the level and an everyday comparison ("Loud, like busy traffic"). The readings are mock data (see below)
+- **Air quality** (off by default): evening PM2.5 around Feng Chia in µg/m³, coloured in Taiwan's PM2.5 bands (good, moderate, unhealthy for sensitive groups, unhealthy); hover for the level and its band. The readings are mock data (see below)
 - **Stores with toilets**: convenience stores tagged in OpenStreetMap as having a toilet (123 in the eight districts), as blue WC badges from street-level zooms; hover one for the store, branch and opening hours (see below)
 - **Pharmacies**: the pharmacies mapped in OpenStreetMap (324 in the eight districts), as green cross badges from street-level zooms; hover one for its name, branch and, where mapped, opening hours and whether it dispenses prescriptions (see below)
 - **Find a Place** and **Walking Route**: search any address or place around Taichung (Chinese or English), see it on the map, and use it as start (A) or destination (B); start from your own location, or send a booth there with **Walk here** on its card. The walking route is drawn on the map with its distance, time and turn-by-turn steps (click a step to zoom to it); see below
@@ -56,6 +58,22 @@ Both run in the browser against free public services built on OpenStreetMap data
 - **Walking routes**: [Valhalla](https://valhalla.github.io/valhalla/) on the FOSSGIS public server (`valhalla1.openstreetmap.de`), pedestrian costing, directions in English with street names as mapped in OSM (often Chinese). The route line, A/B pins and steps come from its response; views fitted to a route (and the opening view) leave room for the map legend.
 
 Both services are for light, fair use, fine for a demonstrator; a real launch should host its own Nominatim/Valhalla or use a paid provider. Search text and route points are sent to them, as the Data Notes say. Google's search and directions are not used: they need a paid key and their terms do not allow showing results on a non-Google map. Public transport routing would need Taiwan's TDX platform.
+
+### Mock noise levels (Feng Chia)
+
+There is no noise data yet, so `scripts/mock_noise.py` (standard library) models evening readings in dB(A) on a 30 m sensor grid around the market (the approximate extent padded by 200 m; 1,230 points). Each reading is the energetic sum of a 48 dB background, the market streets (76 dB at 5 m, falling 6 dB per doubling of distance: crowds and vendors) and the main roads from `roads_osm.geojson` (64–72 dB at 5 m by class, falling 3 dB per doubling: traffic), plus random sensor error (1.5 dB), from a fixed seed; it writes `data/derived/fengjia_noise_mock.geojson` (56–79 dB). The **Noise level** layer (off by default, so it does not sit under the Boba heat map unasked) averages the readings by sound energy with a 35 m Gaussian kernel, colours them on a fixed 55–80 dB scale (ColorBrewer YlOrRd, since decibels mean something on their own) and fades out at the edge of the grid. As with the booths, the page shows the layer like real data, and one Data Notes sentence says the readings are illustrative, modelled not measured.
+
+```sh
+python3 scripts/mock_noise.py   # then python3 scripts/build_map.py
+```
+
+### Mock air quality (Feng Chia)
+
+`scripts/mock_air.py` (standard library) models evening PM2.5 in µg/m³ on the same 30 m sensor grid as the noise readings: a 17 µg/m³ regional background, traffic on the main roads (4–9 µg/m³ at the kerb by road class, falling as exp(−d / 40 m)) and cooking at the mock booths, read from their names: the 225 of 399 booths that fry or grill (雞排, 鹽酥雞, 烤…, 臭豆腐, 蔥油餅…) add 6.5 µg/m³ at the stall in an 18 m Gaussian plume, the others 1. A log-normal sensor error (about ±12 %) and a fixed seed complete it; it writes `data/derived/fengjia_air_mock.geojson` (12–80 µg/m³). The **Air quality** layer (off by default) smooths the readings with a 35 m Gaussian kernel and colours them in Taiwan's PM2.5 bands (good ≤ 15.4, moderate ≤ 35.4, unhealthy for sensitive groups ≤ 54.4, unhealthy ≤ 150.4) with the usual AQI colours, as bands rather than a gradient; the market's core comes out as unhealthy for sensitive groups, the streets around it as moderate. The noise and air layers share one surface builder in the template. As with the booths, one Data Notes sentence says the readings are illustrative, modelled not measured.
+
+```sh
+python3 scripts/mock_air.py   # needs the mock booths; then python3 scripts/build_map.py
+```
 
 ### Garbage bins (OpenStreetMap)
 
@@ -136,6 +154,8 @@ Used by the map:
 | `data/derived/pharmacies_osm.geojson` | Pharmacies | `scripts/fetch_pharmacies.py`; OpenStreetMap, ODbL 1.0 |
 | `data/derived/convenience_stores_osm.geojson` | Convenience stores with their toilets tag | `scripts/fetch_stores.py`; OpenStreetMap, ODbL 1.0 |
 | `data/derived/waste_bins_osm.geojson` | Garbage bins, waste containers and recycling points | `scripts/fetch_bins.py`; OpenStreetMap, ODbL 1.0 |
+| `data/derived/fengjia_noise_mock.geojson` | **Mock** evening noise readings around Feng Chia, dB(A) | `scripts/mock_noise.py` |
+| `data/derived/fengjia_air_mock.geojson` | **Mock** evening PM2.5 readings around Feng Chia, µg/m³ | `scripts/mock_air.py` |
 | `data/derived/fengjia_booths_mock.geojson` | **Mock** Feng Chia booths with random Boba Index scores | `scripts/mock_booths.py` |
 
 Kept from the former-city and Shuinan research map, not shown on the page: village boundaries and attributes (`former_city_villages.*`, the old-downtown and Xitun–Beitun subsets), the Shuinan detailed plan (`Figure_7-1_Detailed_Plan_A3_English_CAD.dxf`, `shuinan_detailed_plan_traced.geojson`), zoning areas, major projects and their locations, reference points and the OSM road network, with the scripts that produce them (`georef_plan.py`, `register_plan.py`, `fetch_roads.py`, `locate_projects.py`). The git history has the earlier pages that used them.
@@ -155,6 +175,8 @@ scripts/fetch_stores.py    fetches OSM convenience stores and their toilets tag 
 scripts/fetch_pharmacies.py fetches OSM pharmacies (run by GitHub Actions)
 scripts/fengjia_extent.py  approximates the Feng Chia Night Market extent
 scripts/mock_booths.py     generates mock Feng Chia booths with random scores
+scripts/mock_noise.py      generates mock noise readings around Feng Chia
+scripts/mock_air.py        generates mock PM2.5 readings around Feng Chia
 scripts/check_basemap.mjs  checks the basemap in a browser (run by GitHub Actions)
 data/raw/                  source data
 data/derived/              OSM extracts and derived layers
@@ -183,6 +205,8 @@ img/                       brand assets (logo, banner, pearl scale, icons)
 - **Find**查詢：地圖左側、圖例下方可收合的面板，包含攤位與地點搜尋（小螢幕上兩個面板預設收合）
 - **Find a Booth**查詢攤位：可用中英文店名、品項、街道或編號搜尋模擬攤位（例如`oden`、`阿明 臭豆腐`、`FJ-0316`，每個詞都須符合）；結果列出分數，點選（或按Enter選第一筆）會移到該攤位、加上圓圈標示並顯示資訊卡，必要時自動開啟逢甲夜市與攤位圖層。在地圖上點攤位也會選取；按`Esc`取消
 - **垃圾桶**：OpenStreetMap上的公共垃圾桶、大型垃圾箱與資源回收點（八區內共70處），放大到街道層級後以垃圾桶圖示顯示，滑過可看類型與OSM地物（見下方說明）
+- **噪音**（預設關閉）：逢甲夜市周邊傍晚噪音的熱度圖，單位dB(A)，固定55–80 dB由黃到紅的色階；滑過可看數值與生活化比較（例如「Loud, like busy traffic」）。讀數為模擬資料（見下方說明）
+- **空氣品質**（預設關閉）：逢甲夜市周邊傍晚的PM2.5（µg/m³），依臺灣PM2.5分級著色（良好、普通、對敏感族群不健康、對所有族群不健康）；滑過可看數值與等級。讀數為模擬資料（見下方說明）
 - **有廁所的超商**：OpenStreetMap上標示有廁所的便利商店（八區內123家），放大到街道層級後以藍色WC標記顯示，滑過可看店名、分店與營業時間（見下方說明）
 - **藥局**：OpenStreetMap上的藥局（八區內324家），放大到街道層級後以綠色十字標記顯示，滑過可看店名、分店，以及有標示時的營業時間與是否可領處方箋（見下方說明）
 - **Find a Place**查詢地點與**Walking Route**步行路線：可用中英文搜尋臺中一帶的任何地址或地點，在地圖上查看，並設為起點（A）或終點（B）；也可從目前位置出發，或在攤位資訊卡按**Walk here**設為終點。步行路線會畫在地圖上，並列出距離、時間與逐步指引（點選步驟可放大到該處）；見下方說明
@@ -204,6 +228,10 @@ img/                       brand assets (logo, banner, pearl scale, icons)
 **藥局（OSM）**：`scripts/fetch_pharmacies.py`（標準函式庫）抓取原臺中市範圍內的`amenity=pharmacy`，輸出`data/derived/pharmacies_osm.geojson`（367家，包括丁丁、大樹等連鎖），`build_map.py`將八區內的324家放在**Pharmacies**圖層。標為`shop=chemist`的藥妝店（如屈臣氏、康是美）不在其中，但少數分店被標成藥局而會出現。OSM上只有28家標示營業時間、26家標示是否可領處方箋，也有藥局尚未繪製。「Fetch OSM road network」工作流程會一併更新。
 
 **地點搜尋與步行路線**：兩者都在瀏覽器中呼叫以OpenStreetMap資料為基礎的免費公共服務，不需API key。地點搜尋使用[Nominatim](https://nominatim.org/)，依其使用政策只在送出時查詢（每秒最多一次、不做即時建議），範圍限於臺灣及原臺中市周邊；路名與地標相當完整，門牌號碼僅部分收錄，精確地址有時只會定位到路段。步行路線使用FOSSGIS公共伺服器上的[Valhalla](https://valhalla.github.io/valhalla/)（行人模式），指引為英文、路名依OSM標示（多為中文）。這兩項服務僅供輕度合理使用，適合展示；正式上線應自行架設或改用付費服務。搜尋文字與路線點位會傳送給這些服務（資料說明中已註明）。未使用Google的搜尋與路線服務：需付費金鑰，且條款不允許在非Google地圖上顯示結果；大眾運輸路線則需要臺灣的TDX平台。
+
+**模擬噪音（逢甲夜市）**：目前沒有噪音資料，因此由`scripts/mock_noise.py`（標準函式庫）在夜市周邊（約略範圍外擴200公尺）每30公尺一個感測點（共1,230點）模擬傍晚的dB(A)讀數：以能量加總48 dB背景、夜市街道（距中心線5公尺處76 dB，距離每加倍減6 dB，代表人潮與攤販）與`roads_osm.geojson`中的主要道路（依道路等級5公尺處64–72 dB，距離每加倍減3 dB，代表車流），再加上1.5 dB的隨機誤差，使用固定亂數種子，輸出`data/derived/fengjia_noise_mock.geojson`（56–79 dB）。**Noise level**圖層（預設關閉，以免疊在珍奶指數熱度圖下方）以35公尺高斯核依聲音能量平均，使用固定的55–80 dB色階（ColorBrewer YlOrRd，因為分貝數值本身具有意義），並在感測網格邊緣淡出。與攤位相同，頁面上以真實資料的樣子呈現，資料說明中以一句話註明讀數為示意（模擬而非實測）。
+
+**模擬空氣品質（逢甲夜市）**：`scripts/mock_air.py`（標準函式庫）在與噪音相同的30公尺感測網格上模擬傍晚PM2.5（µg/m³）：17 µg/m³的區域背景、主要道路車流（依道路等級於路緣增加4–9 µg/m³，隨距離以exp(−d / 40 m)遞減），以及依店名判斷的攤位烹調：399攤中225攤為油炸或燒烤（雞排、鹽酥雞、烤…、臭豆腐、蔥油餅…），在攤位處以18公尺高斯分布增加6.5 µg/m³，其餘攤位增加1；再加上約±12%的對數常態誤差，使用固定亂數種子，輸出`data/derived/fengjia_air_mock.geojson`（12–80 µg/m³）。**Air quality**圖層（預設關閉）以35公尺高斯核平滑，依臺灣PM2.5分級（良好≤15.4、普通≤35.4、對敏感族群不健康≤54.4、對所有族群不健康≤150.4）以常見的AQI顏色分段著色；夜市核心區呈現「對敏感族群不健康」，周邊街道為「普通」。噪音與空氣品質圖層在模板中共用同一個面狀圖層產生器。與攤位相同，資料說明中以一句話註明讀數為示意（模擬而非實測）。
 
 **垃圾桶（OSM）**：`scripts/fetch_bins.py`（標準函式庫）抓取原臺中市範圍內的`amenity=waste_basket`（公共垃圾桶）、`amenity=waste_disposal`（大型垃圾箱）與`amenity=recycling`（不含資源回收場等設施），輸出`data/derived/waste_bins_osm.geojson`，`build_map.py`保留八區範圍內的點位。**Garbage bins**圖層以實心圖示表示垃圾桶與垃圾箱、空心圖示表示資源回收，放大到街道層級才顯示。臺灣公共垃圾桶不多（家戶垃圾交由垃圾車收運），OSM的繪製也不完整，因此只呈現已繪製的點位。「Fetch OSM road network」工作流程會一併更新。逢甲夜市另有四個由珍奶指數團隊放置的**夜市垃圾桶**，來自`data/raw/custom_bins.csv`（編號、中英文地點、經緯度、備註），位於逢甲路與文華路、福星路口、逢甲路20巷及文華路，以較大的品牌橘色圖示表示，提示中註明地點與由團隊放置；在CSV新增一列並重建即可增加。
 
