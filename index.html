@@ -595,6 +595,10 @@ h2 .zh.block { margin-top: 3px; }
 .btn-s:hover { border-color: var(--hl); }
 
 /* mock booths: true-size rectangles coloured by Boba Index; shown once they are a few pixels wide */
+.heat { opacity: 0.85; cursor: help; }
+.heat-ctrl { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 4px 10px; margin-top: 8px; font-size: var(--fs-xs); color: var(--ink-2); }
+.heat-ctrl input[type="range"] { width: 100%; accent-color: var(--accent); }
+.heat-ctrl output { font: 500 11px var(--font-mono); min-width: 3.5em; text-align: right; }
 .booth { stroke: var(--surface); stroke-width: 0.6; vector-effect: non-scaling-stroke; cursor: help; }
 #map.booths-on .mkt-area.booth-host { fill-opacity: 0.12; }
 #map.booths-on .mkt-extent.booth-host { fill-opacity: 0.06; }
@@ -678,6 +682,8 @@ h2 .zh.block { margin-top: 3px; }
           <g id="world">
             <g id="g-dfill"></g>
             <g id="g-mkt-area"></g>
+            <clipPath id="heat-clip"><path id="heat-clip-path"></path></clipPath>
+            <g id="g-heat"></g>
             <g id="g-booths"></g>
             <g id="g-d"></g>
             <path class="hover-outline" id="hover-outline"></path>
@@ -719,16 +725,23 @@ h2 .zh.block { margin-top: 3px; }
           <li><span class="line-key"></span>District boundary<span class="zh" lang="zh-Hant-TW">區界</span></li>
         </ul>
         <div class="booth-key" id="booth-key" hidden>
-          Booth Boba Index, Feng Chia<span class="zh" lang="zh-Hant-TW">攤位珍奶指數</span><span class="mock">Mock</span>
+          Boba Index, Feng Chia booths<span class="zh" lang="zh-Hant-TW">攤位珍奶指數</span><span class="mock">Mock</span>
           <div class="ramp" id="booth-ramp" aria-hidden="true"></div>
           <div class="ends"><span>0</span><span>2.5</span><span>5</span></div>
           <p class="note">Invented booth names and positions with random scores, for designing the map. Zoom in on Feng Chia to see the booths.</p>
+          <div class="heat-ctrl" id="heat-ctrl">
+            <label for="heat-bw">Heat map smoothing<span class="zh" lang="zh-Hant-TW">平滑半徑</span></label>
+            <input type="range" id="heat-bw" min="10" max="60" step="5" value="25">
+            <output id="heat-bw-v" for="heat-bw">25 m</output>
+          </div>
+          <p class="note">The heat map is the distance-weighted average of nearby booths' scores (Gaussian kernel of this width), clipped to the market extent and faded where booths are sparse.</p>
         </div>
         <div class="toggles" role="group" aria-label="Layers">
           <label id="lyr-osm-wrap" hidden><input type="checkbox" id="lyr-osm" checked>Basemap, English labels<span class="zh" lang="zh-Hant-TW">英文底圖</span></label>
           <label><input type="checkbox" id="lyr-fill" checked>District tint<span class="zh" lang="zh-Hant-TW">區底色</span></label>
           <label><input type="checkbox" id="lyr-area" checked>Night-market areas<span class="zh" lang="zh-Hant-TW">夜市範圍</span></label>
           <label id="lyr-booths-wrap" hidden><input type="checkbox" id="lyr-booths" checked>Mock booths<span class="zh" lang="zh-Hant-TW">模擬攤位</span></label>
+          <label id="lyr-heat-wrap" hidden><input type="checkbox" id="lyr-heat" checked>Boba Index heat map<span class="zh" lang="zh-Hant-TW">珍奶指數熱度圖</span><span class="mock">Mock</span></label>
           <label><input type="checkbox" id="lyr-mkt" checked>Other markets<span class="zh" lang="zh-Hant-TW">其他市場</span></label>
         </div>
         <p class="note" id="osm-msg" hidden></p>
@@ -938,6 +951,7 @@ h2 .zh.block { margin-top: 3px; }
     }
     drawMarkets();
     drawBooths();
+    drawHeat();
     drawTicks();
     drawScale();
     if (layers.osm) {
@@ -1264,10 +1278,12 @@ h2 .zh.block { margin-top: 3px; }
     updateCoord(p);
     const mk = e.target.__mkt || null;
     const bo = e.target.__booth ?? null;
-    const d = mk || bo != null ? null : e.target.__d || null;
+    const ht = e.target.__heat || null;
+    const d = mk || ht || bo != null ? null : e.target.__d || null;
     setHot(d);
     if (e.pointerType === "touch") hideTip();
     else if (bo != null) showBoothTip(bo, e.clientX, e.clientY);
+    else if (ht) showHeatTip(p, e.clientX, e.clientY);
     else if (mk) showMarketTip(mk, e.clientX, e.clientY);
     else if (d) showDistrictTip(d, e.clientX, e.clientY);
     else hideTip();
@@ -1278,6 +1294,7 @@ h2 .zh.block { margin-top: 3px; }
     if (drag && !drag.moved && e.type === "pointerup") {
       const t = drag.target;
       if (t && t.__booth != null) showBoothTip(t.__booth, e.clientX, e.clientY);
+      else if (t && t.__heat) showHeatTip(local(e), e.clientX, e.clientY);
       else if (t && t.__mkt) showMarketTip(t.__mkt, e.clientX, e.clientY);
       else if (t && t.__d && e.pointerType === "touch") showDistrictTip(t.__d, e.clientX, e.clientY);
       else hideTip();
@@ -1426,7 +1443,7 @@ h2 .zh.block { margin-top: 3px; }
       const el = svgEl("rect", { class: "booth", x: -bw / 2, y: -bd / 2, width: bw, height: bd,
         transform: `translate(${x.toFixed(2)} ${y.toFixed(2)}) rotate(${(bearing - 90).toFixed(1)})` }, gBooths);
       el.__booth = i;
-      booths.push({ id: BOOTHS.id_prefix + String(i + 1).padStart(4, "0"), score, street: BOOTHS.streets[si], nameZh, nameEn, el });
+      booths.push({ id: BOOTHS.id_prefix + String(i + 1).padStart(4, "0"), score, street: BOOTHS.streets[si], nameZh, nameEn, el, x, y });
     });
     for (const a of boothHost.areas) a.classList.add("booth-host");
     $("#booth-key").hidden = false;
@@ -1449,6 +1466,87 @@ h2 .zh.block { margin-top: 3px; }
     tip.innerHTML = `<b>${esc(b.nameEn)}</b>${zh(b.nameZh)} <span class="mock">Mock</span><br>` +
       `Booth ${esc(b.id)} · ${esc(b.street[1])}${zh(b.street[0])}<br>` +
       `Boba Index <span class="num">${b.score.toFixed(1)}</span> / 5<br>Invented name and position, random score`;
+    placeTip(cx, cy);
+  }
+
+  // ---------- Boba Index heat map: kernel-smoothed booth scores ----------
+  // Each cell shows the Gaussian-weighted mean of nearby booth scores (Nadaraya-Watson), not booth density and not the
+  // field the mock scores were generated from, so it works the same once real booth data arrives. Cells fade where the
+  // summed weight is low (few booths near), and the image is clipped to the market extent.
+  const gHeat = $("#g-heat");
+  const HEAT_CELL_M = 2;                    // grid cell, ground metres
+  const HEAT_FULL = 1.5;                    // summed kernel weight at which a cell is fully opaque
+  let heatImg = null, heatBw = 25, heatBuckets = null;
+  const kernelAt = (wx, wy, bwM) => {
+    // weighted mean at a world point; bwM in ground metres
+    const h = bwM / GROUND, r2 = 9 * h * h, inv = 1 / (2 * h * h), size = heatBuckets.size;
+    const gx = Math.floor(wx / size), gy = Math.floor(wy / size);
+    let sw = 0, sws = 0, n = 0;
+    for (let i = gx - 1; i <= gx + 1; i++) for (let j = gy - 1; j <= gy + 1; j++) {
+      for (const b of heatBuckets.map.get(i + "," + j) || []) {
+        const dx = b.x - wx, dy = b.y - wy, d2 = dx * dx + dy * dy;
+        if (d2 > r2) continue;
+        const w = Math.exp(-d2 * inv);
+        sw += w; sws += w * b.score;
+        if (d2 <= h * h) n++;
+      }
+    }
+    return { value: sw ? sws / sw : null, weight: sw, n };
+  };
+  function buildHeat() {
+    // buckets of 3 bandwidths so a cell only looks at its own bucket and the eight around it
+    const size = (3 * heatBw) / GROUND, map = new Map();
+    for (const b of booths) {
+      const key = Math.floor(b.x / size) + "," + Math.floor(b.y / size);
+      if (!map.has(key)) map.set(key, []);
+      map.get(key).push(b);
+    }
+    heatBuckets = { size, map };
+    const [x0, y0, x1, y1] = boothHost.box, cell = HEAT_CELL_M / GROUND;
+    const nx = Math.ceil((x1 - x0) / cell), ny = Math.ceil((y1 - y0) / cell);
+    const canvas = document.createElement("canvas");
+    canvas.width = nx; canvas.height = ny;
+    const ctx = canvas.getContext("2d"), img = ctx.createImageData(nx, ny);
+    const lut = Array.from({ length: 51 }, (_, i) => rampColor(RAMP, i / 10).match(/\d+/g).map(Number));
+    for (let j = 0; j < ny; j++) for (let i = 0; i < nx; i++) {
+      const { value, weight } = kernelAt(x0 + (i + 0.5) * cell, y0 + (j + 0.5) * cell, heatBw);
+      if (value == null) continue;
+      const [r, g, b] = lut[Math.round(Math.max(0, Math.min(5, value)) * 10)], o = 4 * (j * nx + i);
+      img.data[o] = r; img.data[o + 1] = g; img.data[o + 2] = b;
+      img.data[o + 3] = Math.round(255 * Math.min(1, weight / HEAT_FULL));
+    }
+    ctx.putImageData(img, 0, 0);
+    if (!heatImg) {
+      heatImg = svgEl("image", { class: "heat", preserveAspectRatio: "none", "clip-path": "url(#heat-clip)" }, gHeat);
+      heatImg.__heat = true;
+    }
+    heatImg.setAttribute("x", x0); heatImg.setAttribute("y", y0);
+    heatImg.setAttribute("width", nx * cell); heatImg.setAttribute("height", ny * cell);
+    heatImg.setAttribute("href", canvas.toDataURL());
+  }
+  if (booths.length) {
+    $("#heat-clip-path").setAttribute("d", polyD(boothHost.extent || boothHost.foot));
+    $("#lyr-heat-wrap").hidden = false;
+    $("#lyr-heat").addEventListener("change", () => { hideTip(); draw(); });
+    let pending = 0;
+    $("#heat-bw").addEventListener("input", (e) => {
+      heatBw = +e.target.value;
+      $("#heat-bw-v").textContent = heatBw + " m";
+      cancelAnimationFrame(pending);
+      pending = requestAnimationFrame(buildHeat); // one rebuild per frame while dragging
+    });
+    buildHeat();
+  } else {
+    $("#heat-ctrl").hidden = true;
+  }
+  function drawHeat() {
+    gHeat.style.display = booths.length && boothHost.on && $("#lyr-heat").checked ? "" : "none";
+  }
+  function showHeatTip(p, cx, cy) {
+    const { value, n } = kernelAt((p.x - view.tx) / view.k, (p.y - view.ty) / view.k, heatBw);
+    if (value == null) { hideTip(); return; }
+    tip.innerHTML = `<b>Boba Index ≈ <span class="num">${value.toFixed(1)}</span></b> <span class="mock">Mock</span><br>` +
+      `Smoothed over ${plural(n, "booth")} within ${heatBw} m<br>Feng Chia, mock scores`;
     placeTip(cx, cy);
   }
 
@@ -1480,7 +1578,7 @@ h2 .zh.block { margin-top: 3px; }
   $("#sources").innerHTML = [
     ...(markets.length ? [`Markets: © ${osmLink} contributors, ODbL 1.0; fetched ${esc(DATA.markets.fetched || "")}. ${markets.length} marketplaces inside the eight districts, ${nightMarkets.length} of them night markets (named 夜市). Only markets mapped in OpenStreetMap appear; points are footprint centres where an outline is mapped, and night markets also show that outline.`] : []),
     ...(markets.some((m) => m.extent) ? ["The dashed Feng Chia extent is our approximation: OSM street centrelines of Wenhua Road, Fengjia Road, Fuxing Road and Fengjia Road Lane 20 (the streets <i>Business Today</i>, 2015, names as the market area), buffered by 15 m. No official boundary is published."] : []),
-    ...(DATA.booths ? [`Feng Chia booths: <b>mock data</b>. ${DATA.booths.rows.length.toLocaleString("en-US")} booths of ${DATA.booths.size_m[0]} × ${DATA.booths.size_m[1]} m laid out every ${DATA.booths.pitch_m} m along both sides of the market streets, each with an invented name (typical stall-name patterns and dishes; no real stall names) and a random Boba Index from 0.0 to 5.0 that clusters around a few invented hot and cold spots (scripts/mock_booths.py, fixed seed), coloured on the viridis scale. They stand in for real booth data while the map is designed.`] : []),
+    ...(DATA.booths ? [`Feng Chia booths: <b>mock data</b>. ${DATA.booths.rows.length.toLocaleString("en-US")} booths of ${DATA.booths.size_m[0]} × ${DATA.booths.size_m[1]} m laid out every ${DATA.booths.pitch_m} m along both sides of the market streets, each with an invented name (typical stall-name patterns and dishes; no real stall names) and a random Boba Index from 0.0 to 5.0 that clusters around a few invented hot and cold spots (scripts/mock_booths.py, fixed seed), coloured on the viridis scale. They stand in for real booth data while the map is designed. The heat map is the Gaussian-weighted mean of the booth scores around each 2 m cell (bandwidth set by the slider, default 25 m), clipped to the market extent and faded where booths are sparse; it smooths away single-booth outliers, and its picture depends on the bandwidth.`] : []),
     `District boundaries: ${esc(DATA.boundary_source)}. Simplified; use them for orientation, not measurement. Areas come from the attribute table.`,
     `Coordinates: WGS84 (CRS84). The map uses Web Mercator to match the basemap; the scale bar uses the east-west scale at the center of the map.`,
     ...(BASEMAP ? [`Basemap: vector tiles from <a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> (© <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">OpenMapTiles</a>, data © ${osmLink} contributors), drawn with MapLibre GL JS. Labels show the English name (OSM name:en) where one is mapped, otherwise the local name. If the vector map cannot start, the standard OpenStreetMap tiles are used instead (labels in the local language), under the OSMF <a href="https://operations.osmfoundation.org/policies/tiles/" target="_blank" rel="noopener">tile usage policy</a>.`] : []),
