@@ -762,6 +762,7 @@ h2 .zh.block { margin-top: 3px; }
 .bin-hit { fill: transparent; cursor: help; }
 .bin-icon { fill: var(--ink); stroke: var(--surface); stroke-width: 1.5px; paint-order: stroke; stroke-linejoin: round; pointer-events: none; }
 .bin-g.recycle .bin-icon { fill: var(--surface); stroke: var(--ink); stroke-width: 1.3px; }
+.bin-g.market .bin-icon { fill: var(--hl); stroke: var(--ink); stroke-width: 1.2px; } /* the team's own bins, in the brand colour */
 .bin-key { width: 20px; display: flex; justify-content: center; }
 .bin-key svg { width: 12px; height: 14px; }
 .booth-sel { fill: none; stroke: var(--ink); stroke-width: 2.5px; pointer-events: none; }
@@ -867,6 +868,7 @@ h2 .zh.block { margin-top: 3px; }
           <li id="mkt-legend-extent" hidden><span class="mkt-key extent"></span>Feng Chia, approx. extent<span class="zh" lang="zh-Hant-TW">逢甲夜市約略範圍</span></li>
           <li><span class="line-key"></span>District boundary<span class="zh" lang="zh-Hant-TW">區界</span></li>
           <li class="bin-legend" hidden><span class="bin-key"><svg viewBox="-6 -7 12 14" aria-hidden="true"><path class="bin-icon" d="M-5 -4.5 H5 M-1.8 -4.5 V-6 H1.8 V-4.5 M-4 -3 L-3.2 6 H3.2 L4 -3 Z"/></svg></span>Garbage bin<span class="zh" lang="zh-Hant-TW">垃圾桶</span></li>
+          <li class="bin-legend" hidden><span class="bin-key bin-g market"><svg viewBox="-6 -7 12 14" aria-hidden="true"><path class="bin-icon" d="M-5 -4.5 H5 M-1.8 -4.5 V-6 H1.8 V-4.5 M-4 -3 L-3.2 6 H3.2 L4 -3 Z"/></svg></span>Market bin<span class="zh" lang="zh-Hant-TW">夜市垃圾桶</span></li>
           <li class="bin-legend" hidden><span class="bin-key bin-g recycle"><svg viewBox="-6 -7 12 14" aria-hidden="true"><path class="bin-icon" d="M-5 -4.5 H5 M-1.8 -4.5 V-6 H1.8 V-4.5 M-4 -3 L-3.2 6 H3.2 L4 -3 Z"/></svg></span>Recycling<span class="zh" lang="zh-Hant-TW">資源回收</span></li>
         </ul>
         <div class="booth-key" id="booth-key" hidden>
@@ -1841,14 +1843,15 @@ h2 .zh.block { margin-top: 3px; }
 
   // ---------- garbage bins (OpenStreetMap, fetched by scripts/fetch_bins.py) ----------
   const gBins = $("#g-bins");
-  const BIN_KIND = [["Garbage bin", "垃圾桶"], ["Waste container", "大型垃圾箱"], ["Recycling", "資源回收"]];
+  const BIN_KIND = [["Garbage bin", "垃圾桶"], ["Waste container", "大型垃圾箱"], ["Recycling", "資源回收"], ["Market bin", "夜市垃圾桶"]];
   const BIN_PATH = "M-5 -4.5 H5 M-1.8 -4.5 V-6 H1.8 V-4.5 M-4 -3 L-3.2 6 H3.2 L4 -3 Z"; // lid, handle, tapered body
-  const bins = (DATA.bins ? DATA.bins.rows : []).map(([lon, lat, kind, osm], i) => {
+  const bins = (DATA.bins ? DATA.bins.rows : []).map(([lon, lat, kind, osm, label], i) => {
     const [wx, wy] = proj(lon, lat);
-    const g = svgEl("g", { class: kind === 2 ? "bin-g recycle" : "bin-g" }, gBins);
+    const g = svgEl("g", { class: ["bin-g", "bin-g", "bin-g recycle", "bin-g market"][kind] }, gBins);
     svgEl("circle", { class: "bin-hit", r: 10 }, g).__bin = i;
-    svgEl("path", { class: "bin-icon", d: BIN_PATH, transform: "scale(1.15)" }, g);
-    return { lon, lat, kind, osm, wx, wy, g };
+    // the team's market bins a size up, so they stand out on the heat map
+    svgEl("path", { class: "bin-icon", d: BIN_PATH, transform: `scale(${kind === 3 ? 1.55 : 1.15})` }, g);
+    return { lon, lat, kind, osm, label, wx, wy, g };
   });
   if (bins.length) {
     $("#lyr-bins-wrap").hidden = false;
@@ -1865,7 +1868,9 @@ h2 .zh.block { margin-top: 3px; }
   }
   function showBinTip(i, cx, cy) {
     const b = bins[i], [en, zhName] = BIN_KIND[b.kind];
-    tip.innerHTML = `<b>${en}</b>${zh(zhName)}<br><span class="num">${b.lat.toFixed(5)}°N, ${b.lon.toFixed(5)}°E</span><br>OpenStreetMap ${esc(b.osm.replace("/", " "))}`;
+    const where = b.label ? `${esc(b.label[0])}${zh(b.label[1])}<br>` : "";
+    const source = b.kind === 3 ? `Placed by the Boba Index team · ${esc(b.osm)}` : `OpenStreetMap ${esc(b.osm.replace("/", " "))}`;
+    tip.innerHTML = `<b>${en}</b>${zh(zhName)}<br>${where}<span class="num">${b.lat.toFixed(5)}°N, ${b.lon.toFixed(5)}°E</span><br>${source}`;
     placeTip(cx, cy);
   }
 
@@ -1899,7 +1904,7 @@ h2 .zh.block { margin-top: 3px; }
     ...(markets.some((m) => m.extent) ? ["The dashed Feng Chia extent is our approximation: OSM street centrelines of Wenhua Road, Fengjia Road, Fuxing Road and Fengjia Road Lane 20 (the streets <i>Business Today</i>, 2015, names as the market area), buffered by 15 m. No official boundary is published."] : []),
     ...(DATA.booths ? [`Feng Chia booths: ${DATA.booths.rows.length.toLocaleString("en-US")} booths of ${DATA.booths.size_m[0]} × ${DATA.booths.size_m[1]} m along both sides of the market streets, each with its Boba Index from 0.0 to 5.0 on the viridis scale. The heat map is the Gaussian-weighted mean of the booth scores around each 2 m cell (bandwidth set by the slider, default 25 m), clipped to the market extent and faded where booths are sparse, on the plasma scale stretched from its lowest to its highest value; it smooths away single-booth outliers, and its picture depends on the bandwidth.`,
       `This is a demonstrator: the Feng Chia booth layout, names and scores are illustrative and do not describe actual stalls.`] : []),
-    ...(DATA.bins ? [`Garbage bins: © ${osmLink} contributors, ODbL 1.0; fetched ${esc(DATA.bins.fetched || "")}. ${DATA.bins.rows.length} public bins, waste containers and recycling points mapped in OpenStreetMap inside the eight districts, shown from street-level zooms. Public bins are rare in Taiwan, where household rubbish goes to the garbage trucks, and OSM coverage is patchy, so this shows what is mapped, not every bin.`] : []),
+    ...(DATA.bins ? [`Garbage bins: © ${osmLink} contributors, ODbL 1.0; fetched ${esc(DATA.bins.fetched || "")}. ${bins.filter((b) => b.kind < 3).length} public bins, waste containers and recycling points mapped in OpenStreetMap inside the eight districts, plus ${bins.filter((b) => b.kind === 3).length} market bins placed by the Boba Index team at Feng Chia (orange), shown from street-level zooms. Public bins are rare in Taiwan, where household rubbish goes to the garbage trucks, and OSM coverage is patchy, so this shows what is mapped, not every bin.`] : []),
     `District boundaries: ${esc(DATA.boundary_source)}. Simplified; use them for orientation, not measurement. Areas come from the attribute table.`,
     `Coordinates: WGS84 (CRS84). The map uses Web Mercator to match the basemap; the scale bar uses the east-west scale at the center of the map.`,
     ...(BASEMAP ? [`Basemap: vector tiles from <a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> (© <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">OpenMapTiles</a>, data © ${osmLink} contributors), drawn with MapLibre GL JS. Labels show the English name (OSM name:en) where one is mapped, otherwise the local name. If the vector map cannot start, the standard OpenStreetMap tiles are used instead (labels in the local language), under the OSMF <a href="https://operations.osmfoundation.org/policies/tiles/" target="_blank" rel="noopener">tile usage policy</a>.`] : []),

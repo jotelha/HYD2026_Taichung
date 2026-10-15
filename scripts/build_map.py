@@ -17,6 +17,7 @@ Standard library only.
 """
 
 import argparse
+import csv
 import json
 import math
 from pathlib import Path
@@ -34,6 +35,8 @@ LANDMARKS = ROOT / "data" / "derived" / "landmarks_osm.geojson"
 FENGJIA_EXTENT = ROOT / "data" / "derived" / "fengjia_night_market_extent.geojson"
 # OSM garbage bins and recycling points from scripts/fetch_bins.py. Optional.
 BINS = ROOT / "data" / "derived" / "waste_bins_osm.geojson"
+# Hand-placed market bins (the team's own, not in OSM). Optional.
+CUSTOM_BINS = RAW / "custom_bins.csv"
 # MOCK booths with random Boba Index scores from scripts/mock_booths.py. Optional.
 BOOTHS = ROOT / "data" / "derived" / "fengjia_booths_mock.geojson"
 EYEBROW = "#HackYourDistrict 2026 · Taichung · Night market prototype"
@@ -178,10 +181,11 @@ def load_booths():
 
 
 def load_bins(districts):
-    """OSM bins inside the eight districts as rows [lon, lat, kind, "type/id"]; kind 0 = bin, 1 = container, 2 = recycling."""
-    if not BINS.exists():
+    """Bins inside the eight districts as rows [lon, lat, kind, ref, label]: kind 0 = bin, 1 = container,
+    2 = recycling (all OSM, ref "type/id"), 3 = a hand-placed market bin from custom_bins.csv (ref = its id)."""
+    if not BINS.exists() and not CUSTOM_BINS.exists():
         return None
-    fc = read_json(BINS)
+    fc = read_json(BINS) if BINS.exists() else {"features": []}
     kinds = {"waste_basket": 0, "waste_disposal": 1, "recycling": 2}
     rows = []
     for f in fc["features"]:
@@ -189,7 +193,12 @@ def load_bins(districts):
         if not any(in_geom(lon, lat, d["geometry"]) for d in districts["features"]):
             continue
         p = f["properties"]
-        rows.append([lon, lat, kinds[p["tags"]["amenity"]], f"{p['osm_type']}/{p['osm_id']}"])
+        rows.append([lon, lat, kinds[p["tags"]["amenity"]], f"{p['osm_type']}/{p['osm_id']}", None])
+    # the team's own bins last, so they draw on top
+    if CUSTOM_BINS.exists():
+        with CUSTOM_BINS.open(encoding="utf-8-sig", newline="") as fh:
+            for r in csv.DictReader(fh):
+                rows.append([float(r["lon"]), float(r["lat"]), 3, r["id"], [r["name_en"], r["name_zh"]]])
     return {"fetched": fc.get("fetched"), "rows": rows}
 
 
