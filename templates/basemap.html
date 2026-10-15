@@ -50,6 +50,7 @@
   --pin-halo: var(--surface);
   --pin-halo-w: 2px;
   --pin-shadow: none;
+  --mkt-area: #d9480f;
   --r-sm: 2px;
   --r-md: 2px;
   --rule-strong: 2px solid var(--ink);
@@ -94,6 +95,7 @@
     --tile-filter: grayscale(1) invert(1) brightness(0.8) contrast(0.92);
     --neutral-fill: #4a4a47;
     --shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    --mkt-area: #ff8a4c;
     color-scheme: dark;
   }
 }
@@ -144,6 +146,7 @@
   --tile-filter: grayscale(1) invert(1) brightness(0.8) contrast(0.92);
   --neutral-fill: #4a4a47;
   --shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --mkt-area: #ff8a4c;
   color-scheme: dark;
 }
 /* program style (after the HYD Taichung program page); these rules come after the deck's so they win ties */
@@ -833,6 +836,9 @@ h2 .zh.block { margin-top: 3px; }
   pointer-events: none;
 }
 #map.aligning { cursor: move; }
+.mkt-area, .mkt-extent { fill: var(--mkt-area); stroke: var(--mkt-area); vector-effect: non-scaling-stroke; stroke-linejoin: round; cursor: help; }
+.mkt-area { fill-opacity: 0.45; stroke-width: 1.5; }
+.mkt-extent { fill-opacity: 0.16; stroke-width: 1.25; stroke-dasharray: 5 3; }
 .mkt-hit { fill: transparent; cursor: help; }
 .mkt-dot { fill: var(--surface); stroke: var(--ink-2); stroke-width: 1.5px; pointer-events: none; }
 .mkt-g.night .mkt-dot { fill: var(--ink); stroke: var(--surface); stroke-width: 2px; paint-order: stroke; }
@@ -849,6 +855,8 @@ h2 .zh.block { margin-top: 3px; }
 .mkt-key { width: 26px; display: flex; justify-content: center; }
 .mkt-key::before { content: ""; width: 7px; height: 7px; border-radius: 50%; box-sizing: border-box; border: 1.5px solid var(--ink-2); background: var(--surface); }
 .mkt-key.night::before { width: 9px; height: 9px; border: 0; background: var(--ink); }
+.mkt-key.area::before, .mkt-key.extent::before { width: 18px; height: 10px; border-radius: 0; border: 1.5px solid var(--mkt-area); background: color-mix(in srgb, var(--mkt-area) 45%, transparent); }
+.mkt-key.extent::before { border-style: dashed; background: color-mix(in srgb, var(--mkt-area) 16%, transparent); }
 .ref-hit { fill: transparent; cursor: help; }
 .ref-dia { fill: var(--ink); stroke: var(--surface); stroke-width: 2px; paint-order: stroke; pointer-events: none; }
 .ref-label {
@@ -957,6 +965,7 @@ h3.mini .zh { text-transform: none; letter-spacing: 0.02em; }
             <g id="g-v"></g>
             <g id="g-plan"></g>
             <g id="g-roads"></g>
+            <g id="g-mkt-area"></g>
             <g id="g-old"></g>
             <g id="g-d"></g>
             <g id="g-roadlabels"></g>
@@ -1005,6 +1014,8 @@ h3.mini .zh { text-transform: none; letter-spacing: 0.02em; }
         <ul class="legend-lines" id="mkt-legend" hidden>
           <li><span class="mkt-key night"></span>Night market<span class="zh" lang="zh-Hant-TW">夜市</span></li>
           <li><span class="mkt-key"></span>Market<span class="zh" lang="zh-Hant-TW">市場</span></li>
+          <li><span class="mkt-key area"></span>Night market, mapped area<span class="zh" lang="zh-Hant-TW">夜市範圍（OSM）</span></li>
+          <li id="mkt-legend-extent" hidden><span class="mkt-key extent"></span>Feng Chia, approx. full extent<span class="zh" lang="zh-Hant-TW">逢甲夜市約略範圍</span></li>
         </ul>
         <div class="toggles" role="group" aria-label="Layers">
           <label id="lyr-osm-wrap" hidden><input type="checkbox" id="lyr-osm" checked>Basemap, English labels<span class="zh" lang="zh-Hant-TW">英文底圖</span></label>
@@ -2060,7 +2071,8 @@ h3.mini .zh { text-transform: none; letter-spacing: 0.02em; }
 
   // ---------- markets (OpenStreetMap, fetched by scripts/fetch_landmarks.py) ----------
   // build_map.py keeps marketplaces and night markets inside the eight districts and drops duplicates.
-  const gMkt = $("#g-mkt");
+  const gMkt = $("#g-mkt"), gMktArea = $("#g-mkt-area");
+  const polyD = (polys) => polys.map((poly) => poly.map((ring) => lineD(ring) + "Z").join("")).join("");
   const markets = (DATA.markets ? DATA.markets.features : []).map((m) => {
     const [wx, wy] = proj(m.lon, m.lat);
     const g = svgEl("g", { class: m.night ? "mkt-g night" : "mkt-g" }, gMkt);
@@ -2070,15 +2082,19 @@ h3.mini .zh { text-transform: none; letter-spacing: 0.02em; }
     label.textContent = m.en || m.zh;
     const mk = { ...m, wx, wy, g, label };
     hit.__mkt = mk;
+    // the street-based extent sits under the mapped outline
+    if (m.extent) svgEl("path", { class: "mkt-extent", d: polyD(m.extent) }, gMktArea).__mkt = mk;
+    if (m.foot) svgEl("path", { class: "mkt-area", d: polyD(m.foot) }, gMktArea).__mkt = mk;
     return mk;
   });
   if (markets.length) {
     $("#lyr-mkt-wrap").hidden = false;
     $("#mkt-legend").hidden = false;
+    $("#mkt-legend-extent").hidden = !markets.some((m) => m.extent);
   }
   function drawMarkets() {
     const show = markets.length && $("#lyr-mkt").checked;
-    gMkt.style.display = show ? "" : "none";
+    gMkt.style.display = gMktArea.style.display = show ? "" : "none";
     if (!show) return;
     // night markets are named sooner; the many neighbourhood markets only close in
     const kNight = fitK * 2, kMarket = fitK * 5;
@@ -2092,6 +2108,7 @@ h3.mini .zh { text-transform: none; letter-spacing: 0.02em; }
     const kind = m.night ? "Night market" : "Market";
     const head = m.en ? `<b>${esc(m.en)}</b>${zh(m.zh)}` : m.zh ? `<b>${zh(m.zh, "")}</b>` : `<b>Unnamed market</b>`;
     tip.innerHTML = `${head}<br>${kind}, ${esc(m.district_en)}${m.ha ? ` · ${m.ha} ha mapped` : ""}<br>` +
+      (m.extent ? `Approx. full extent ${m.extent_ha} ha (dashed): ${esc(m.extent_note)}<br>` : "") +
       `<span class="num">${m.lat.toFixed(5)}°N, ${m.lon.toFixed(5)}°E</span><br>OpenStreetMap ${esc(m.osm.replace("/", " "))}`;
     placeTip(cx, cy);
   }
@@ -2283,7 +2300,7 @@ h3.mini .zh { text-transform: none; letter-spacing: 0.02em; }
     `Reference points: coordinates as published by the sources listed with each point (Wikipedia infoboxes, OurAirports).`,
     ...(DATA.project_locations ? [`Major project locations: OpenStreetMap features (© OpenStreetMap contributors, ODbL 1.0; fetched ${esc(DATA.project_locations.landmarks_fetched || "")}), matched by name and type; Central Park from the traced plan. Mapped footprints may differ from official site areas.`] : []),
     ...(DATA.roads ? [`Road network: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors, ODbL 1.0; fetched ${esc(DATA.roads.fetched)} via the Overpass API and simplified to ${DATA.roads.simplify_tolerance_m} m. Local streets cover the Shuinan area only.`] : []),
-    ...(markets.length ? [`Markets: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors, ODbL 1.0; fetched ${esc(DATA.markets.fetched || "")}. ${markets.length} marketplaces inside the eight districts, ${markets.filter((m) => m.night).length} of them night markets (named 夜市). Only markets mapped in OpenStreetMap appear; points are footprint centres where an outline is mapped.`] : []),
+    ...(markets.length ? [`Markets: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors, ODbL 1.0; fetched ${esc(DATA.markets.fetched || "")}. ${markets.length} marketplaces inside the eight districts, ${markets.filter((m) => m.night).length} of them night markets (named 夜市). Only markets mapped in OpenStreetMap appear; points are footprint centres where an outline is mapped, and night markets also show that outline.${markets.some((m) => m.extent) ? " The dashed Feng Chia extent is our approximation: OSM street centrelines of Wenhua Road, Fengjia Road, Fuxing Road and Fengjia Road Lane 20 (the streets <i>Business Today</i>, 2015, names as the market area), buffered by 15 m. No official boundary is published." : ""}`] : []),
     `Major projects: sources are listed with each entry. The Open / Upcoming chips are our grouping of the status text.`,
     `Coordinates: WGS84 (CRS84). The map uses Web Mercator to match the OpenStreetMap tiles; the scale bar uses the east-west scale at the center of the study area.`,
     ...(BASEMAP ? [`Basemap: vector tiles from <a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> (© <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">OpenMapTiles</a>, data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors), drawn with MapLibre GL JS. Labels show the English name (OSM name:en) where one is mapped, otherwise the local name. If the vector map cannot start, the standard OpenStreetMap tiles are used instead (labels in the local language), under the OSMF <a href="https://operations.osmfoundation.org/policies/tiles/" target="_blank" rel="noopener">tile usage policy</a>.`] : []),

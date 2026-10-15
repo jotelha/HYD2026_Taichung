@@ -85,6 +85,8 @@ The **Road network** layer covers motorways down to tertiary roads, rail and met
 
 The **Markets** layer shows the 62 marketplaces mapped in OpenStreetMap inside the eight districts. The 7 night markets (named 夜市, e.g. Feng Chia Night Market) get filled dots and are labelled sooner as you zoom in. `scripts/fetch_landmarks.py` fetches them across the former city. `build_map.py` keeps `amenity=marketplace` features and untagged features named …夜市, drops sub-areas and duplicate points, and clips to the district boundaries. Markets that nobody has mapped in OSM are missing.
 
+Night markets also show their mapped OSM outline as a coloured area. For Feng Chia that outline covers only Wenhua Road and Fengjia Road Lane 20, so the map adds a dashed **approximate full extent** (6.28 ha): the OSM centrelines of Wenhua Road, Fengjia Road, Fuxing Road and Fengjia Road Lane 20 (the streets [Business Today, 2015](https://www.businesstoday.com.tw/article/category/80392/post/201507160040/) names as the market area), clipped to the stretches set in `scripts/fengjia_extent.py`, buffered by 15 m and merged. No official boundary is published; treat it as an approximation. Regenerate with `python3 scripts/fengjia_extent.py` (needs `pip install shapely` and Overpass access).
+
 This build environment cannot reach the Overpass API, so a GitHub Actions workflow fetches the data: **Actions → Fetch OSM road network → Run workflow** runs `scripts/fetch_roads.py`, `scripts/fetch_landmarks.py` and `scripts/locate_projects.py`, rebuilds the site and commits the results. Run it again to refresh. The data is licensed under the ODbL 1.0 and must be credited "© OpenStreetMap contributors".
 
 ## Basemap (English labels)
@@ -147,6 +149,7 @@ The script uses only the Python standard library. It inlines the GeoJSON and CSV
 | `data/derived/roads_osm.geojson` | Road and rail network | OpenStreetMap, ODbL 1.0 |
 | `data/derived/landmarks_osm.geojson` | Named landmarks near the site, and markets (e.g. Feng Chia Night Market) across the former city | OpenStreetMap, ODbL 1.0 |
 | `data/derived/project_locations.geojson` | Major project locations with method and source | `scripts/locate_projects.py` |
+| `data/derived/fengjia_night_market_extent.geojson` | Feng Chia Night Market, approximate full extent (our approximation) | `scripts/fengjia_extent.py`; OpenStreetMap, ODbL 1.0 |
 
 Notes:
 
@@ -167,6 +170,7 @@ scripts/register_plan.py  fits the plan trace to OSM roads
 scripts/fetch_roads.py    fetches OSM roads (run by GitHub Actions)
 scripts/fetch_landmarks.py fetches OSM landmarks (run by GitHub Actions)
 scripts/locate_projects.py places the major projects
+scripts/fengjia_extent.py approximates the Feng Chia Night Market extent
 scripts/check_basemap.mjs checks the basemap in a browser (run by GitHub Actions)
 data/raw/                 source data
 data/derived/             fitted plan trace, OSM roads and landmarks, project locations
@@ -215,7 +219,7 @@ DXF是畫在A3圖紙上的描圖（單位mm），本身沒有地理座標；檔�
 
 ### 路網與地標（OSM）
 
-路網涵蓋原臺中市範圍的國道到區道、鐵路與捷運，以及水湳周邊巷道（放大後顯示）。**市場**圖層顯示OSM上八區範圍內的62處市場，其中7處夜市（如逢甲夜市）以實心點標示，放大後較早顯示名稱。`fetch_landmarks.py`抓取原臺中市範圍的市場，`build_map.py`保留`amenity=marketplace`及名稱以「夜市」結尾的地物，去除分區與重複點位，並以區界裁切；OSM未繪製的市場不會出現。本環境連不到Overpass API，因此由GitHub Actions抓取：**Actions → Fetch OSM road network → Run workflow**，會依序執行`fetch_roads.py`、`fetch_landmarks.py`、`locate_projects.py`，重建網站並commit結果。資料授權為ODbL 1.0，須標示「© OpenStreetMap contributors」。
+路網涵蓋原臺中市範圍的國道到區道、鐵路與捷運，以及水湳周邊巷道（放大後顯示）。**市場**圖層顯示OSM上八區範圍內的62處市場，其中7處夜市（如逢甲夜市）以實心點標示，放大後較早顯示名稱。`fetch_landmarks.py`抓取原臺中市範圍的市場，`build_map.py`保留`amenity=marketplace`及名稱以「夜市」結尾的地物，去除分區與重複點位，並以區界裁切；OSM未繪製的市場不會出現。夜市另以色塊顯示OSM上的範圍；逢甲夜市在OSM上只畫了文華路與逢甲路20巷，因此另以虛線標示**約略全範圍**（6.28公頃）：取文華路、逢甲路、福星路、逢甲路20巷（[商業周刊2015年報導](https://www.businesstoday.com.tw/article/category/80392/post/201507160040/)所列範圍）的OSM道路中心線，依`scripts/fengjia_extent.py`設定的路段裁切，兩側各外擴15 m後合併。官方未公布範圍，僅供參考。重建：`python3 scripts/fengjia_extent.py`（需`pip install shapely`及Overpass連線）。本環境連不到Overpass API，因此由GitHub Actions抓取：**Actions → Fetch OSM road network → Run workflow**，會依序執行`fetch_roads.py`、`fetch_landmarks.py`、`locate_projects.py`，重建網站並commit結果。資料授權為ODbL 1.0，須標示「© OpenStreetMap contributors」。
 
 ### 底圖（英文標註）
 

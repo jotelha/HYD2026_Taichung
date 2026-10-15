@@ -50,6 +50,8 @@ ROADS = ROOT / "data" / "derived" / "roads_osm.geojson"
 PROJECT_LOC = ROOT / "data" / "derived" / "project_locations.geojson"
 # OSM landmarks, including markets, from scripts/fetch_landmarks.py. Optional.
 LANDMARKS = ROOT / "data" / "derived" / "landmarks_osm.geojson"
+# Approximate full extent of the Feng Chia Night Market from scripts/fengjia_extent.py. Optional.
+FENGJIA_EXTENT = ROOT / "data" / "derived" / "fengjia_night_market_extent.geojson"
 
 # Status chip per project, keyed by project_zh in shuinan_major_projects_2026.csv:
 # "open" = opened / in use / in service / existing, "pending" = not yet open.
@@ -83,6 +85,7 @@ DOWNLOADS = [
     (REFS, "Reference point coordinates and sources", "參考點座標與出處"),
     (ROADS, "Road and rail network from OpenStreetMap (ODbL)", "OSM路網（ODbL授權）"),
     (PROJECT_LOC, "Major project locations with method and source", "重大建設位置與定位依據"),
+    (FENGJIA_EXTENT, "Feng Chia Night Market, approximate full extent (our approximation)", "逢甲夜市約略範圍（推估）"),
 ]
 
 DATE_RE = re.compile(r"\d{4}-\d{2}-\d{2}")
@@ -172,6 +175,8 @@ def load_markets(districts):
     name are dropped). A feature whose point lies inside another market's
     footprint (stalls zones, a node on top of the outline) or that repeats a
     nearby market's name is a duplicate. Markets outside the eight districts go.
+    Night markets carry their mapped outline; Feng Chia also gets the street-based
+    extent from scripts/fengjia_extent.py.
     """
     if not LANDMARKS.exists():
         return None
@@ -204,10 +209,12 @@ def load_markets(districts):
             continue
         t, p = f["properties"]["tags"], f["properties"]
         name = t.get("name", "")
+        night = "夜市" in name or "night market" in t.get("name:en", "").lower()
         out.append({
             "zh": name,
             "en": t.get("name:en", ""),
-            "night": "夜市" in name or "night market" in t.get("name:en", "").lower(),
+            "night": night,
+            "foot": round_rings(f["geometry"]) if night and f["geometry"]["type"] != "Point" else None,
             "lon": lon,
             "lat": lat,
             "ha": round(p["area_m2"] / 10000, 2) if p.get("area_m2") else None,
@@ -215,8 +222,20 @@ def load_markets(districts):
             "district_zh": dist["properties"]["district_zh"],
             "osm": f"{p['osm_type']}/{p['osm_id']}",
         })
+    if FENGJIA_EXTENT.exists():
+        ext = read_json(FENGJIA_EXTENT)["features"][0]
+        for m in out:
+            if m["osm"] == ext["properties"]["osm_market"]:
+                m["extent"] = round_rings(ext["geometry"])
+                m["extent_ha"] = ext["properties"]["area_ha"]
+                m["extent_note"] = ext["properties"]["source"]
     out.sort(key=lambda m: (not m["night"], m["lat"]))
     return {"fetched": lm.get("fetched"), "features": out}
+
+
+def round_rings(geom):
+    """Polygon rings as a list of polygons (lists of rings), coordinates rounded to ~10 cm."""
+    return [[[[round(x, 6), round(y, 6)] for x, y in ring] for ring in poly] for poly in rings(geom)]
 
 
 def load_data():

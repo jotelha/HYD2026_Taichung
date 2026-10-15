@@ -14,6 +14,7 @@ python3 scripts/build_map.py --fragment f.html  # also write a body-only map fra
 python3 scripts/georef_plan.py               # DXF plan trace -> data/derived/shuinan_detailed_plan_traced.geojson
 python3 scripts/register_plan.py             # refit plan to OSM roads (needs numpy scipy shapely)
 python3 scripts/locate_projects.py           # -> data/derived/project_locations.geojson
+python3 scripts/fengjia_extent.py            # -> data/derived/fengjia_night_market_extent.geojson (needs shapely + Overpass)
 python3 -m http.server 8000                  # local preview (tiles often fail from file://)
 node scripts/check_basemap.mjs http://localhost:8000/map/index.html  # Playwright smoke test of the basemap
 ```
@@ -28,7 +29,7 @@ node scripts/check_basemap.mjs http://localhost:8000/map/index.html  # Playwrigh
 - DXF plan trace (A3 sheet mm, no CRS) → `georef_plan.py` applies a similarity transform (`SCALE`, `ROTATION_DEG`, `TRANSLATION_M` constants) → plan GeoJSON. Those constants come from `register_plan.py` (fit to OSM road centrelines) or from the map's "Adjust position → Copy parameters" panel.
 - `locate_projects.py` places each row of `shuinan_major_projects_2026.csv` using, in order: a typed OSM landmark match, a named road junction, a traced plan block, then a `reference_points.csv` coordinate. Per-project rules live in its `RULES` dict.
 - `build_map.py` treats the old-downtown and Xitun–Beitun files as subsets of the former-city files: it reads only the former-city files and warns if a subset drifts. Old downtown = districts flagged `old_downtown`. Per-project impact notes come from `shuinan_project_impacts.csv` (long format: one row per project × impact key in `IMPACT_KEYS`; titles live in the template's `IMPACTS` list). Project status chips come from `PROJECT_PHASE` (keyed by `project_zh`); the landing-page download table from `DOWNLOADS`.
-- Markets come from `landmarks_osm.geojson`: `load_markets()` in `build_map.py` filters, de-duplicates and clips them to the districts into the `markets` payload.
+- Markets come from `landmarks_osm.geojson`: `load_markets()` in `build_map.py` filters, de-duplicates and clips them to the districts into the `markets` payload; the Feng Chia entry also gets the street-buffer extent from `fengjia_extent.py` (one-off, not in CI).
 
 **Map page (`templates/basemap.html`).** Hand-rolled SVG overlay in Web Mercator (districts, villages, roads, plan, projects) layered over a MapLibre GL vector basemap (OpenFreeMap `positron`, labels switched to `name:en`), with a raster OSM tile fallback. The SVG and MapLibre must stay aligned within a pixel; `window.__hydBasemap` exposes mode/map for the smoke test. Basemap sources are `VECTOR_STYLE` / `TILE_URL`; keep the on-map attribution when changing them.
 
@@ -38,5 +39,5 @@ node scripts/check_basemap.mjs http://localhost:8000/map/index.html  # Playwrigh
 
 - UI is English-first with Chinese secondary; Chinese text goes in spans with `lang="zh-Hant-TW"`.
 - Coordinates are WGS84 lon/lat (CRS84). Village boundaries are simplified — areas come from the attribute CSV, not geometry. Futai Village (富台里) has no geometry and is drawn as a dashed circle by design.
-- Python scripts that ship in the build/CI path use only the standard library (`register_plan.py` is the exception).
+- Python scripts that ship in the build/CI path use only the standard library (`register_plan.py` and `fengjia_extent.py`, both run by hand, are the exceptions).
 - OSM data is ODbL: keep "© OpenStreetMap contributors" credits.
