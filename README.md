@@ -66,7 +66,7 @@ The logo, banner and pearl scale in `img/` were made by the Boba Index team and 
 | `img/boba-index-banner.jpg` | Wide banner (1395 × 752), used as the link-preview image (`og:image`, absolute URL from `SITE_URL` in `build_map.py`) |
 | `img/boba-index-pearl-scale.jpg` | The pearl scale: cups filling with pearls. The page redraws it as the **pearl meter**, one cup whose nine pearls fill from the bottom with the Boba Index (5 = full), shown in booth tooltips, the booth card, search results and the legend |
 
-Brand colours, sampled from the logo: orange `#fd9f02`, cream `#f7f0d6`, brown `#42200f`. The **Boba** style uses them for the page; the map's data colours (viridis booths, plasma heat map) stay the same in every style so the data reads the same.
+Brand colours, sampled from the logo: orange `#fd9f02`, cream `#f7f0d6`, brown `#42200f`. The team's "Boba Fengjia" concept poster adds two supporting colours, deep green `#183c30` and terracotta (`#cc6048` on the poster, `#b8523b` on the page for contrast; lighter versions in dark mode), which the Boba style uses for headings, the eyebrow line, section rules, the selected-booth ring and small notes. From the poster also come the line "Taste a deeper Taichung" (header and link preview), "Not just a score — a story." (booth card) and the note on the Feng Chia entry that the market is named after Feng Chia University, itself named for the poet and educator Qiu Fengjia 丘逢甲 (1864–1912). The poster's figures (founding year, student numbers, stall count, visit time) are not used until they are checked. The **Boba** style uses them for the page; the map's data colours (viridis booths, plasma heat map) stay the same in every style so the data reads the same.
 
 ## Basemap (English labels)
 
@@ -180,7 +180,7 @@ img/                       brand assets (logo, banner, pearl scale, icons)
 
 ### 品牌
 
-`img/`中的標誌、橫幅與珍珠刻度由珍奶指數團隊製作，隨網站公開：方形標誌（地圖標記造型的珍奶杯）縮成頁首標誌、網站圖示與主畫面圖示；橫幅作為連結預覽圖（`og:image`）；珍珠刻度在頁面上重繪為**珍珠計量杯**：一個杯子，九顆珍珠依珍奶指數由下往上填滿（5分為全滿），用於攤位提示、資訊卡、搜尋結果與圖例。品牌色取自標誌：橘`#fd9f02`、米`#f7f0d6`、棕`#42200f`；**Boba**風格以這些顏色裝飾頁面，地圖上的資料色彩（攤位viridis、熱度圖plasma）在各風格中保持不變。
+`img/`中的標誌、橫幅與珍珠刻度由珍奶指數團隊製作，隨網站公開：方形標誌（地圖標記造型的珍奶杯）縮成頁首標誌、網站圖示與主畫面圖示；橫幅作為連結預覽圖（`og:image`）；珍珠刻度在頁面上重繪為**珍珠計量杯**：一個杯子，九顆珍珠依珍奶指數由下往上填滿（5分為全滿），用於攤位提示、資訊卡、搜尋結果與圖例。品牌色取自標誌：橘`#fd9f02`、米`#f7f0d6`、棕`#42200f`；團隊的「Boba Fengjia」概念海報另提供兩個輔助色：深綠`#183c30`與赭紅（海報為`#cc6048`，頁面為對比改用`#b8523b`，深色模式使用較亮的版本），Boba風格用於標題、眉標、分隔線、選取攤位的圓圈與小註記。頁首與連結預覽的「Taste a deeper Taichung／品味更深的臺中」、攤位資訊卡的「Not just a score — a story.／不只是分數，更是故事。」，以及逢甲夜市名稱來源的註記（得名自逢甲大學，校名紀念詩人與教育家丘逢甲，1864–1912）也取自海報。海報上的數字（創立年份、學生數、攤位數、建議停留時間）尚未查證，因此未使用；**Boba**風格以這些顏色裝飾頁面，地圖上的資料色彩（攤位viridis、熱度圖plasma）在各風格中保持不變。
 
 ### 底圖（英文標註）
 

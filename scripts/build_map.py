@@ -42,8 +42,8 @@ BOOTHS = ROOT / "data" / "derived" / "fengjia_booths_mock.geojson"
 EYEBROW = "#HackYourDistrict 2026 · Taichung · Night market prototype"
 # Public address of the site (GitHub Pages); social previews need absolute image URLs.
 SITE_URL = "https://jotelha.github.io/HYD2026_Taichung/"
-DESCRIPTION = ("Boba Index (Built On Belonging and Authenticity): a map rating Taichung's night markets, "
-               "down to the booths of Feng Chia.")
+DESCRIPTION = ("Taste a deeper Taichung. Boba Index (Built On Belonging and Authenticity): a map rating Taichung's "
+               "night markets, down to the booths of Feng Chia.")
 # Brand assets in img/ (made by the team): favicon, home-screen icon and the banner used for link previews.
 HEAD_LINKS = f"""<meta name="description" content="{DESCRIPTION}">
 <meta name="theme-color" content="#fd9f02">

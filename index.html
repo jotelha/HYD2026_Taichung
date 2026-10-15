@@ -4,13 +4,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="referrer" content="strict-origin-when-cross-origin">
-<meta name="description" content="Boba Index (Built On Belonging and Authenticity): a map rating Taichung's night markets, down to the booths of Feng Chia.">
+<meta name="description" content="Taste a deeper Taichung. Boba Index (Built On Belonging and Authenticity): a map rating Taichung's night markets, down to the booths of Feng Chia.">
 <meta name="theme-color" content="#fd9f02">
 <link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32.png">
 <link rel="apple-touch-icon" href="img/apple-touch-icon.png">
 <meta property="og:type" content="website">
 <meta property="og:title" content="Boba Index · Built On Belonging and Authenticity">
-<meta property="og:description" content="Boba Index (Built On Belonging and Authenticity): a map rating Taichung's night markets, down to the booths of Feng Chia.">
+<meta property="og:description" content="Taste a deeper Taichung. Boba Index (Built On Belonging and Authenticity): a map rating Taichung's night markets, down to the booths of Feng Chia.">
 <meta property="og:url" content="https://jotelha.github.io/HYD2026_Taichung/">
 <meta property="og:image" content="https://jotelha.github.io/HYD2026_Taichung/img/boba-index-banner.jpg">
 <meta property="og:image:width" content="1395">
@@ -250,6 +250,9 @@
   --shadow: 0 8px 24px rgba(66, 32, 15, 0.16);
   --hl: #fd9f02;
   --hl-text: #9a5a00;
+  /* supporting colours from the Boba Fengjia concept poster: deep green and terracotta */
+  --brand-green: #183c30;
+  --brand-terracotta: #b8523b;
   color-scheme: light;
   --r-sm: 8px;
   --r-md: 14px;
@@ -286,6 +289,8 @@
     --shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
     --hl: #fd9f02;
     --hl-text: #fdb64a;
+    --brand-green: #8fc2a8;
+    --brand-terracotta: #ec8a70;
     color-scheme: dark;
   }
 }
@@ -311,6 +316,8 @@
   --shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
   --hl: #fd9f02;
   --hl-text: #fdb64a;
+  --brand-green: #8fc2a8;
+  --brand-terracotta: #ec8a70;
   color-scheme: dark;
 }
 
@@ -373,6 +380,8 @@ h1 i { font-style: italic; }
 .brand { display: flex; align-items: center; gap: 14px; }
 .brand .logo { flex: none; width: 56px; height: 56px; border-radius: 13px; }
 @media (max-width: 640px) { .brand .logo { width: 44px; height: 44px; border-radius: 10px; } }
+.subtag { margin: 1px 0 0; font: italic 500 var(--fs-sm)/1.3 var(--font-body); color: var(--ink-2); }
+.subtag .zh { margin-left: 0.6em; font-style: normal; }
 .tagline { margin: 2px 0 0; font-size: var(--fs-sm); color: var(--ink-2); }
 .tagline b { font-weight: 700; color: var(--ink); }
 .tagline .zh { margin-left: 0.6em; }
@@ -750,6 +759,8 @@ h2 .zh.block { margin-top: 3px; }
 .nm-list .zh { font-size: var(--fs-sm); white-space: nowrap; } /* never split a Chinese name */
 .nm-list .meta { grid-column: 2; margin: 0; font-size: var(--fs-xs); color: var(--ink-2); }
 .nm-list .btn-s { grid-column: 3; grid-row: 1 / span 2; padding: 2px 8px; font-size: var(--fs-xs); }
+.nm-list .nm-note { grid-column: 2; margin: 2px 0 0; font-size: var(--fs-xs); font-style: italic; color: var(--muted); }
+:root[data-style="boba"] .nm-list .nm-note { color: var(--brand-green); }
 .nm-list li.is-off h3, .nm-list li.is-off .meta { color: var(--muted); }
 .nm-all { display: flex; align-items: center; gap: 6px; margin: 0 0 10px; font-size: var(--fs-xs); color: var(--muted); }
 .nm-all .btn-s { padding: 2px 8px; font-size: var(--fs-xs); }
@@ -768,6 +779,9 @@ h2 .zh.block { margin-top: 3px; }
 .booth-card { margin-top: 10px; padding: 8px 10px; border: 1px solid var(--rule); border-radius: var(--r-sm); font-size: var(--fs-sm); }
 .booth-card h3 { margin: 0; font-size: var(--fs-md); }
 .booth-card p { margin: 2px 0 0; color: var(--ink-2); }
+.booth-card .slogan { margin-top: 6px; font-style: italic; font-size: var(--fs-xs); color: var(--muted); }
+.booth-card .slogan .zh { font-style: normal; }
+:root[data-style="boba"] .booth-card .slogan { color: var(--brand-terracotta); }
 .booth-card .score { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
 .cup { display: inline-block; vertical-align: -4px; flex: none; }
 .cup .c-line { fill: none; stroke: currentColor; stroke-width: 1.3; stroke-linejoin: round; stroke-linecap: round; }
@@ -799,6 +813,11 @@ h2 .zh.block { margin-top: 3px; }
 :root:is([data-style="program"], [data-style="boba"]) .dlabel .l2 { font-family: var(--font-zh); font-weight: 600; letter-spacing: 0.2em; }
 :root:is([data-style="program"], [data-style="boba"]) .eyebrow { letter-spacing: 0.08em; }
 :root:is([data-style="program"], [data-style="boba"]) .eyebrow a { color: var(--hl-text); }
+:root[data-style="boba"] h2 { color: var(--brand-green); }
+:root[data-style="boba"] .eyebrow { color: var(--brand-terracotta); }
+:root[data-style="boba"] .aside section { border-top-color: var(--brand-terracotta); }
+:root[data-style="boba"] .booth-sel:not(.halo) { stroke: var(--brand-green); }
+:root[data-style="boba"] .subtag { color: var(--brand-green); }
 :root:is([data-style="program"], [data-style="boba"]) .facts { padding: 3px 9px; background: var(--surface); border: 1px solid var(--rule); border-radius: 4px; }
 :root:is([data-style="program"], [data-style="boba"]) .legend-dist { background: var(--surface); }
 :root:is([data-style="program"], [data-style="boba"]) .legend-dist:hover { background: var(--surface); border-color: var(--hl); }
@@ -826,6 +845,7 @@ h2 .zh.block { margin-top: 3px; }
       <p class="eyebrow">#HackYourDistrict 2026 · Taichung · Night market prototype</p>
       <h1>Boba <i>Index</i><span class="zh" lang="zh-Hant-TW">珍奶指數</span></h1>
       <p class="tagline"><b>B</b>uilt <b>O</b>n <b>B</b>elonging and <b>A</b>uthenticity<span class="zh" lang="zh-Hant-TW">以歸屬感與道地為本</span></p>
+      <p class="subtag">Taste a deeper Taichung<span class="zh" lang="zh-Hant-TW">品味更深的臺中</span></p>
       </div>
     </div>
     <div class="top-r">
@@ -1595,6 +1615,10 @@ h2 .zh.block { margin-top: 3px; }
     placeTip(cx, cy);
   }
 
+  // short notes on a market's name, by OSM id
+  const NM_NOTES = {
+    "way/450771065": `Named after Feng Chia University, which in turn is named for the poet and educator Qiu Fengjia${zh("丘逢甲")} (1864–1912).`,
+  };
   // night-market list, largest mapped area first
   const byArea = [...nightMarkets].sort((a, b) => (b.extent_ha || b.ha || 0) - (a.extent_ha || a.ha || 0));
   $("#nm-list").innerHTML = byArea.map((m, i) => {
@@ -1605,6 +1629,7 @@ h2 .zh.block { margin-top: 3px; }
         <input type="checkbox" id="nm-on-${i}" data-on="${i}" checked aria-label="Show ${esc(m.en || m.zh)} on the map">
         <label for="nm-on-${i}"><h3>${esc(m.en || m.zh)}${m.en ? zh(m.zh) : ""}</h3></label>
         <p class="meta">${esc(m.district_en)} · ${area}</p>
+        ${NM_NOTES[m.osm] ? `<p class="nm-note">${NM_NOTES[m.osm]}</p>` : ""}
         <button type="button" class="btn-s" data-nm="${i}">Show on map</button>
       </li>`;
   }).join("");
@@ -1722,7 +1747,8 @@ h2 .zh.block { margin-top: 3px; }
     card.hidden = false;
     card.innerHTML = `<h3>${esc(b.nameEn)}${zh(b.nameZh)}</h3>` +
       `<p>Booth ${esc(b.id)} · ${esc(b.street[1])}${zh(b.street[0])}</p>` +
-      `<p class="score">${cup(b.score, 34)}${swatch(b.score)}Boba Index <span class="num">${b.score.toFixed(1)}</span> / 5</p>`;
+      `<p class="score">${cup(b.score, 34)}${swatch(b.score)}Boba Index <span class="num">${b.score.toFixed(1)}</span> / 5</p>` +
+      `<p class="slogan">Not just a score — a story.<span class="zh" lang="zh-Hant-TW">不只是分數，更是故事。</span></p>`;
     if (zoom) {
       const h = 30 / GROUND; // about 30 m around the booth
       zoomTo([b.x - h, b.y - h, b.x + h, b.y + h], 40, kMax);
