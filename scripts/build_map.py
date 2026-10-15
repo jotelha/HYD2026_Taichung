@@ -153,7 +153,7 @@ def load_booths():
         if key not in streets:
             streets.append(key)
         rows.append([*p["centre"], p["bearing_deg"], p["boba_index"], streets.index(key)])
-    return {"market": "way/450771065", "note": fc["note"], "size_m": fc["booth_size_m"],
+    return {"market": "way/450771065", "note": fc["note"], "size_m": fc["booth_size_m"], "pitch_m": fc["pitch_m"],
             "id_prefix": "FJ-", "streets": streets, "rows": rows}
 
 

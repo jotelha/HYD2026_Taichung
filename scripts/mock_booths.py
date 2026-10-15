@@ -26,9 +26,9 @@ EXTENT = ROOT / "data" / "derived" / "fengjia_night_market_extent.geojson"
 OUT = ROOT / "data" / "derived" / "fengjia_booths_mock.geojson"
 
 SEED = 2026
-BOOTH_W, BOOTH_D = 2.5, 2.0  # metres along and across the street
-PITCH = 3.0                  # metres between booth centres along a street
-MIN_GAP = 2.6                # minimum distance between booth centres
+BOOTH_W, BOOTH_D = 3.5, 3.0  # metres along and across the street
+PITCH = 6.5                  # metres between booth centres along a street
+MIN_GAP = 4.5                # minimum distance between booth centres
 # half-width of the carriageway (metres) by OSM highway class; booths stand behind it
 CARRIAGEWAY = {"tertiary": 6.0, "residential": 4.5, "service": 2.5}
 STREET_EN = {"文華路": "Wenhua Road", "逢甲路": "Fengjia Road", "福星路": "Fuxing Road", "逢甲路20巷": "Fengjia Road Lane 20"}
@@ -137,6 +137,7 @@ def main():
         "note": "MOCK DATA: booth positions are laid out along the market streets and Boba Index scores are random (seed "
                 f"{SEED}); nothing here describes real booths.",
         "booth_size_m": [BOOTH_W, BOOTH_D],
+        "pitch_m": PITCH,
         "features": features,
     }
     OUT.write_text(json.dumps(out, ensure_ascii=False, separators=(",", ":")), encoding="utf-8")
