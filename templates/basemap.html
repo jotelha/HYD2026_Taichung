@@ -1,10 +1,10 @@
-<title>Taichung Base Map</title>
+<title>Boba Index</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Instrument+Sans:wght@400..700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@500;600&display=swap">
 <style>
 /* Layout: a survey-sheet map inside a hairline neatline with coordinate ticks in the margin (left),
-   a reference column of legend, lookup and plan figures (right); stacks to one column under 960px.
+   a side column with the night-market list, legend and data notes (right); stacks to one column under 960px.
    Palette and type follow the HYD Healthy City Workshop deck: warm greys on #f4f4f2 with ink #1c1c1c,
    2px ink rules between blocks, Instrument Serif / Instrument Sans / JetBrains Mono, Noto TC for Chinese.
    Two header switches set attributes on <html>:
@@ -21,35 +21,22 @@
   --ink-2: #3f3f3c;
   --muted: #6b6b67;
   --rule: #d2d2ce;
-  --line-vil: #8f8f8b;
   --line-admin: #1c1c1c;
   --accent: #1c1c1c;
-  --accent-ink: #f2f2ef;
   --tip-bg: #1c1c1c;
   --tip-ink: #f2f2ef;
   --tip-muted: #a3a3a0;
   /* districts: two steps of the deck's grey ramp, one step darker on hover / selection */
-  --d0-fill: #c9c9c5;
-  --d0-hot: #b5b5b1;
   --d1-fill: #e4e4e0;
   --d1-hot: #d2d2ce;
   /* over the greyscale OSM tiles the same districts become ink washes */
-  --d0-wash: 0.16;
-  --d0-wash-hot: 0.3;
   --d1-wash: 0.05;
   --d1-wash-hot: 0.18;
   --tile-filter: grayscale(1) contrast(0.92) brightness(1.03);
-  --neutral-fill: #c9c9c5;
   --shadow: 0 8px 24px rgba(28, 28, 28, 0.18);
   /* highlight: ink in the monochrome deck, sun yellow in the program style */
   --hl: var(--ink);
-  --on-hl: var(--bg);
   --hl-text: var(--ink);
-  --d0-wash-fill: var(--ink);
-  --old-band: color-mix(in srgb, var(--ink) 20%, transparent);
-  --pin-halo: var(--surface);
-  --pin-halo-w: 2px;
-  --pin-shadow: none;
   --mkt-area: #d9480f;
   --r-sm: 2px;
   --r-md: 2px;
@@ -77,23 +64,16 @@
     --ink-2: #d2d2ce;
     --muted: #a3a3a0;
     --rule: #3f3f3c;
-    --line-vil: #6b6b67;
     --line-admin: #f2f2ef;
     --accent: #f2f2ef;
-    --accent-ink: #1c1c1c;
     --tip-bg: #f2f2ef;
     --tip-ink: #1c1c1c;
     --tip-muted: #6b6b67;
-    --d0-fill: #4a4a47;
-    --d0-hot: #5c5c58;
     --d1-fill: #2c2c2a;
     --d1-hot: #3a3a37;
-    --d0-wash: 0.2;
-    --d0-wash-hot: 0.34;
     --d1-wash: 0.07;
     --d1-wash-hot: 0.2;
     --tile-filter: grayscale(1) invert(1) brightness(0.8) contrast(0.92);
-    --neutral-fill: #4a4a47;
     --shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
     --mkt-area: #ff8a4c;
     color-scheme: dark;
@@ -105,17 +85,11 @@
   --field: #f6f6f4;
   --ground: #ffffff;
   --rule: #dcdcd8;
-  --line-vil: #9b9b97;
-  --d0-fill: #d5d5d1;
-  --d0-hot: #c3c3bf;
   --d1-fill: #ececea;
   --d1-hot: #dededa;
-  --d0-wash: 0.13;
-  --d0-wash-hot: 0.26;
   --d1-wash: 0.04;
   --d1-wash-hot: 0.16;
   --tile-filter: grayscale(1) contrast(0.9) brightness(1.08);
-  --neutral-fill: #d5d5d1;
   --shadow: 0 8px 24px rgba(28, 28, 28, 0.14);
   color-scheme: light;
 }
@@ -128,23 +102,16 @@
   --ink-2: #d2d2ce;
   --muted: #a3a3a0;
   --rule: #3f3f3c;
-  --line-vil: #6b6b67;
   --line-admin: #f2f2ef;
   --accent: #f2f2ef;
-  --accent-ink: #1c1c1c;
   --tip-bg: #f2f2ef;
   --tip-ink: #1c1c1c;
   --tip-muted: #6b6b67;
-  --d0-fill: #4a4a47;
-  --d0-hot: #5c5c58;
   --d1-fill: #2c2c2a;
   --d1-hot: #3a3a37;
-  --d0-wash: 0.2;
-  --d0-wash-hot: 0.34;
   --d1-wash: 0.07;
   --d1-wash-hot: 0.2;
   --tile-filter: grayscale(1) invert(1) brightness(0.8) contrast(0.92);
-  --neutral-fill: #4a4a47;
   --shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
   --mkt-area: #ff8a4c;
   color-scheme: dark;
@@ -159,33 +126,20 @@
   --ink-2: #34384c;
   --muted: #5a5f70;
   --rule: #dcdfe7;
-  --line-vil: #b9bdca;
   --line-admin: #16182a;
   --accent: #16182a;
-  --accent-ink: #ffffff;
   --tip-bg: #16182a;
   --tip-ink: #eeeff3;
   --tip-muted: #a3a7b7;
-  --d0-fill: #fff4cc;
-  --d0-hot: #ffe79a;
   --d1-fill: #ffffff;
   --d1-hot: #f0f2f7;
-  --d0-wash: 0.28;
-  --d0-wash-hot: 0.45;
   --d1-wash: 0.02;
   --d1-wash-hot: 0.1;
   --tile-filter: grayscale(1) contrast(0.9) brightness(1.04);
-  --neutral-fill: #c9ccd6;
   --shadow: 0 8px 24px rgba(22, 24, 42, 0.16);
   --hl: #f2b705;
-  --on-hl: #16182a;
   --hl-text: #7e5c00;
-  --d0-wash-fill: #f2b705;
-  --old-band: color-mix(in srgb, #f2b705 75%, transparent);
   color-scheme: light;
-  --pin-halo: #16182a;
-  --pin-halo-w: 3px;
-  --pin-shadow: drop-shadow(0 1px 1.5px rgba(0, 0, 0, 0.45));
   --r-sm: 6px;
   --r-md: 12px;
   --rule-strong: 1px solid var(--rule);
@@ -209,29 +163,19 @@
     --ink-2: #cdd0da;
     --muted: #a3a7b7;
     --rule: #2c2f40;
-    --line-vil: #454960;
     --line-admin: #eeeff3;
     --accent: #eeeff3;
-    --accent-ink: #11121a;
     --tip-bg: #eeeff3;
     --tip-ink: #16182a;
     --tip-muted: #5a5f70;
-    --d0-fill: #2e2914;
-    --d0-hot: #3d361a;
     --d1-fill: #1e2130;
     --d1-hot: #272b3d;
-    --d0-wash: 0.22;
-    --d0-wash-hot: 0.36;
     --d1-wash: 0.04;
     --d1-wash-hot: 0.14;
     --tile-filter: grayscale(1) invert(1) brightness(0.78) contrast(0.95);
-    --neutral-fill: #3a3d4e;
     --shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
     --hl: #f5c02a;
-    --on-hl: #16182a;
     --hl-text: #f5c02a;
-    --d0-wash-fill: #f5c02a;
-    --old-band: color-mix(in srgb, #f5c02a 60%, transparent);
     color-scheme: dark;
   }
 }
@@ -244,29 +188,19 @@
   --ink-2: #cdd0da;
   --muted: #a3a7b7;
   --rule: #2c2f40;
-  --line-vil: #454960;
   --line-admin: #eeeff3;
   --accent: #eeeff3;
-  --accent-ink: #11121a;
   --tip-bg: #eeeff3;
   --tip-ink: #16182a;
   --tip-muted: #5a5f70;
-  --d0-fill: #2e2914;
-  --d0-hot: #3d361a;
   --d1-fill: #1e2130;
   --d1-hot: #272b3d;
-  --d0-wash: 0.22;
-  --d0-wash-hot: 0.36;
   --d1-wash: 0.04;
   --d1-wash-hot: 0.14;
   --tile-filter: grayscale(1) invert(1) brightness(0.78) contrast(0.95);
-  --neutral-fill: #3a3d4e;
   --shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
   --hl: #f5c02a;
-  --on-hl: #16182a;
   --hl-text: #f5c02a;
-  --d0-wash-fill: #f5c02a;
-  --old-band: color-mix(in srgb, #f5c02a 60%, transparent);
   color-scheme: dark;
 }
 
@@ -396,22 +330,11 @@ h1 .zh { margin-left: 0.5em; font-family: "Noto Serif TC", "Songti TC", serif; f
 .ground { fill: var(--ground); }
 .neatline { fill: none; stroke: var(--line-admin); stroke-width: 1; }
 
-.vil {
-  stroke: var(--line-vil);
-  stroke-width: 0.7;
-  vector-effect: non-scaling-stroke;
-  stroke-linejoin: round;
-  cursor: pointer;
-}
-.vil { fill-rule: evenodd; }
-.vil.approx { stroke: var(--ink-2); stroke-dasharray: 3 2; }
-.vil.d0 { fill: var(--d0-fill); }
-.vil.d1 { fill: var(--d1-fill); }
-.vil.d0.is-hot, .vil.d0.is-sel { fill: var(--d0-hot); }
-.vil.d1.is-hot, .vil.d1.is-sel { fill: var(--d1-hot); }
-#map.no-fill .vil { fill: var(--surface); }
-#map.no-fill .vil.is-hot, #map.no-fill .vil.is-sel { fill: color-mix(in srgb, var(--ink) 8%, var(--surface)); }
-#map.no-vline .vil { stroke: none; }
+.dfill { fill: var(--d1-fill); stroke: none; }
+.dfill.is-hot { fill: var(--d1-hot); }
+#map.no-fill .dfill { fill: transparent; }
+#map.no-fill .dfill.is-hot { fill: color-mix(in srgb, var(--ink) 8%, transparent); }
+
 
 /* basemap: OpenFreeMap vector tiles (MapLibre) or, as a fallback, OSM raster tiles, in HTML layers under the svg */
 .tiles {
@@ -437,12 +360,10 @@ h1 .zh { margin-left: 0.5em; font-family: "Noto Serif TC", "Songti TC", serif; f
 }
 .vbase > div { width: 100%; height: 100%; }
 #map.has-tiles .ground { fill: none; }
-#map.has-tiles .vil.d0 { fill: var(--d0-wash-fill); fill-opacity: var(--d0-wash); }
-#map.has-tiles .vil.d1 { fill: var(--ink); fill-opacity: var(--d1-wash); }
-#map.has-tiles .vil.d0.is-hot, #map.has-tiles .vil.d0.is-sel { fill-opacity: var(--d0-wash-hot); }
-#map.has-tiles .vil.d1.is-hot, #map.has-tiles .vil.d1.is-sel { fill-opacity: var(--d1-wash-hot); }
-#map.has-tiles.no-fill .vil { fill-opacity: 0; }
-#map.has-tiles.no-fill .vil.is-hot, #map.has-tiles.no-fill .vil.is-sel { fill: var(--ink); fill-opacity: 0.1; }
+#map.has-tiles .dfill { fill: var(--ink); fill-opacity: var(--d1-wash); }
+#map.has-tiles .dfill.is-hot { fill-opacity: var(--d1-wash-hot); }
+#map.has-tiles.no-fill .dfill { fill-opacity: 0; }
+#map.has-tiles.no-fill .dfill.is-hot { fill-opacity: 0.1; }
 
 .dist {
   fill: none;
@@ -452,26 +373,16 @@ h1 .zh { margin-left: 0.5em; font-family: "Noto Serif TC", "Songti TC", serif; f
   stroke-linejoin: round;
   pointer-events: none;
 }
-.old-outline {
-  fill: none;
-  stroke: var(--old-band);
-  stroke-width: 8;
-  vector-effect: non-scaling-stroke;
-  stroke-linejoin: round;
-  pointer-events: none;
-}
-#map.no-old .old-outline { display: none; }
-.hover-outline, .sel-outline {
+.hover-outline {
   fill: none;
   vector-effect: non-scaling-stroke;
   stroke-linejoin: round;
   pointer-events: none;
 }
 .hover-outline { stroke: var(--ink-2); stroke-width: 1.4; }
-.sel-outline { stroke: var(--ink); stroke-width: 2.6; }
 
 /* map labels: English line first, Chinese line beneath */
-.vlabel, .dlabel {
+.dlabel {
   paint-order: stroke;
   stroke: var(--surface);
   stroke-linejoin: round;
@@ -479,11 +390,6 @@ h1 .zh { margin-left: 0.5em; font-family: "Noto Serif TC", "Songti TC", serif; f
   dominant-baseline: central;
   pointer-events: none;
 }
-.vlabel { stroke-width: 3px; }
-.vlabel .l1 { font: 600 11.5px var(--font-body); fill: var(--ink-2); }
-.vlabel .l2 { font: 400 9.5px var(--font-zh); fill: var(--muted); }
-.vlabel.is-sel .l1 { font-weight: 700; font-size: 13px; fill: var(--ink); }
-.vlabel.is-sel .l2 { font-size: 10.5px; fill: var(--ink-2); }
 .dlabel { stroke-width: 4px; }
 .dlabel .l1 { font: italic 400 21px var(--font-display); letter-spacing: -0.2px; fill: var(--ink); }
 .dlabel .l2 { font: 500 11.5px "Noto Serif TC", "Songti TC", serif; letter-spacing: 0.3em; fill: var(--ink-2); }
@@ -618,9 +524,8 @@ h2 .zh.block { margin-top: 3px; }
   width: 22px;
   height: 16px;
   border: 1.5px solid var(--line-admin);
+  background: var(--d1-fill);
 }
-.swatch.d0 { background: var(--d0-fill); }
-.swatch.d1 { background: var(--d1-fill); }
 .legend-lines {
   display: flex;
   flex-wrap: wrap;
@@ -633,8 +538,6 @@ h2 .zh.block { margin-top: 3px; }
 }
 .legend-lines li { display: flex; align-items: center; gap: 8px; }
 .line-key { width: 26px; height: 0; border-top: 2px solid var(--line-admin); }
-.line-key.thin { border-top: 1px solid var(--line-vil); }
-.line-key.band { height: 8px; border-top: 0; background: var(--old-band); }
 .toggles {
   display: flex;
   flex-wrap: wrap;
@@ -646,196 +549,12 @@ h2 .zh.block { margin-top: 3px; }
 .toggles .zh { margin-left: 0.1em; }
 .toggles input { accent-color: var(--accent); width: 15px; height: 15px; margin: 0; }
 
-/* lookup */
-.search { display: flex; gap: 6px; }
-.search input {
-  flex: 1;
-  min-width: 0;
-  padding: 7px 10px;
-  background: var(--field);
-  border: 1px solid var(--rule);
-  border-radius: var(--r-sm);
-}
-.search button {
-  padding: 7px 14px;
-  background: var(--accent);
-  color: var(--accent-ink);
-  border: 0;
-  border-radius: var(--r-sm);
-  font-weight: 600;
-  cursor: pointer;
-}
-.search-msg { margin: 6px 0 0; font-size: var(--fs-xs); color: var(--ink-2); min-height: 1em; }
-.sel-card { margin-top: 8px; }
-.hint { margin: 0; font-size: var(--fs-sm); color: var(--muted); }
-.sel-head { display: flex; align-items: flex-start; gap: 10px; }
-.sel-head .swatch { margin-top: 6px; flex: none; }
-.sel-head h3 { margin: 0; font: 400 24px/1.15 var(--font-display); letter-spacing: -0.3px; }
-.sel-head .zh.block { margin-top: 1px; font-size: var(--fs-sm); }
-.sel-head .clear {
-  margin-left: auto;
-  padding: 2px 8px;
-  background: transparent;
-  border: 1px solid var(--rule);
-  border-radius: var(--r-sm);
-  font-size: var(--fs-xs);
-  color: var(--ink-2);
-  cursor: pointer;
-}
-.kv {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 4px 14px;
-  margin: 10px 0 0;
-  font-size: var(--fs-sm);
-}
-.kv dt { color: var(--muted); }
-.kv dd { margin: 0; }
 
-/* plan land-use chart */
-.split { display: flex; gap: 2px; height: 14px; }
-.split span { display: block; height: 100%; }
-.split .zones { background: var(--hl); border-radius: 4px 0 0 4px; }
-.split .pub { background: var(--neutral-fill); border-radius: 0 4px 4px 0; }
-.split-legend {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-  margin: 8px 0 14px;
-  padding: 0;
-  list-style: none;
-  font-size: var(--fs-sm);
-}
-.split-legend li { display: grid; grid-template-columns: 10px 1fr; gap: 0 6px; align-items: baseline; }
-.split-legend .key { width: 10px; height: 10px; border-radius: 2px; }
-.split-legend .zh, .split-legend .v { grid-column: 2; margin-left: 0; }
-.split-legend .v { color: var(--ink-2); font-size: var(--fs-xs); }
-.zbars { display: grid; gap: 2px; font-size: var(--fs-sm); }
-.zrow {
-  display: grid;
-  grid-template-columns: minmax(0, 1.45fr) minmax(0, 1fr) 3.3em 3.7em;
-  align-items: center;
-  gap: 8px;
-  padding-block: 4px;
-}
-.zrow.zhead { font: 500 10.5px var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); padding-block: 0 4px; border-bottom: 1px solid var(--rule); }
-.zrow .r { text-align: right; }
-.zname { line-height: 1.25; }
-.zname .zh { font-size: var(--fs-xs); }
-.ztrack { position: relative; height: 10px; }
-.zbar {
-  display: block;
-  height: 100%;
-  min-width: 2px;
-  background: var(--hl);
-  border-radius: 0 4px 4px 0;
-}
-.zrow:not(.zhead):hover { background: color-mix(in srgb, var(--hl) 9%, transparent); }
-
-/* projects */
-.projects { display: grid; gap: 13px; margin: 0; padding: 0; list-style: none; }
-.projects li { display: grid; gap: 1px; }
-.p-head { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 8px; }
-.p-head h3 { margin: 0; font-size: var(--fs-md); font-weight: 700; }
-.p-zh { margin: 0; }
-.p-zh .zh { margin-left: 0; font-size: var(--fs-sm); }
-.p-flag { font-size: var(--fs-xs); color: var(--muted); font-style: italic; }
-.p-status { margin: 3px 0 0; font-size: var(--fs-sm); }
-.p-fig { margin: 0; font-size: var(--fs-sm); color: var(--ink-2); }
-.p-src { margin: 0; font-size: var(--fs-xs); color: var(--muted); }
-.chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 0 8px;
-  border: 1px solid var(--rule);
-  border-radius: 999px;
-  font: 500 10.5px/1.9 var(--font-mono);
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--ink-2);
-  white-space: nowrap;
-}
-.chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; box-sizing: border-box; border: 1.5px dashed var(--muted); }
-.chip.open::before { background: var(--hl); border: 0; }
-.chip.pending::before { background: transparent; border: 1.5px solid var(--ink); }
 
 .sources { margin: 0; padding-left: 1.1em; font-size: var(--fs-xs); color: var(--ink-2); display: grid; gap: 6px; }
 .sources a { color: inherit; text-underline-offset: 2px; }
 
-/* road network (OSM): one path per class, ink weights by hierarchy */
-.road { fill: none; vector-effect: non-scaling-stroke; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
-.road.motorway { stroke: var(--ink); stroke-width: 4; }
-.road.motorway-in { stroke: var(--surface); stroke-width: 1.6; }
-.road.trunk { stroke: var(--ink); stroke-width: 3; }
-.road.primary { stroke: var(--ink); stroke-width: 2.2; }
-.road.secondary { stroke: var(--ink-2); stroke-width: 1.5; }
-.road.tertiary { stroke: var(--ink-2); stroke-width: 1; }
-.road.link { stroke: var(--ink-2); stroke-width: 1; }
-.road.minor { stroke: var(--muted); stroke-width: 0.6; }
-.road.rail { stroke: var(--ink); stroke-width: 1.3; stroke-dasharray: 7 3; stroke-linecap: butt; }
-.road.metro { stroke: var(--ink); stroke-width: 2; stroke-dasharray: 2 3; stroke-linecap: butt; }
-#map:not(.zoom-detail) .road.minor { display: none; }
-#map.has-tiles .road { stroke-opacity: 0.85; }
-.road-label {
-  font-family: var(--font-body);
-  font-weight: 600;
-  fill: var(--ink);
-  stroke: var(--surface);
-  paint-order: stroke;
-  stroke-linejoin: round;
-  dominant-baseline: central;
-  pointer-events: none;
-}
-.road-label .zh { font-family: var(--font-zh); font-weight: 400; fill: var(--muted); }
-.line-key.road-k { border-top-width: 2px; }
-.line-key.road-motorway { border-top: 4px double var(--ink); height: 4px; }
-.line-key.road-primary { border-top: 2px solid var(--ink); }
-.line-key.road-secondary { border-top: 1.5px solid var(--ink-2); }
-.line-key.road-minor { border-top: 1px solid var(--muted); }
-.line-key.road-metro { border-top: 2px dotted var(--ink); }
-.line-key.road-rail { border-top: 2px dashed var(--ink); }
-
-/* major projects: numbered markers, dashed footprint on hover / selection */
-.proj-hit { fill: transparent; cursor: pointer; }
-.proj-dot { fill: var(--hl); stroke: var(--pin-halo); stroke-width: var(--pin-halo-w); paint-order: stroke; filter: var(--pin-shadow); pointer-events: none; }
-.proj-num { font: 700 10px var(--font-mono); fill: var(--on-hl); text-anchor: middle; dominant-baseline: central; pointer-events: none; }
-.proj-g.is-sel .proj-dot { stroke: var(--ink); stroke-width: 6px; stroke-opacity: 0.25; }
-.proj-foot {
-  fill: var(--ink);
-  fill-opacity: 0.08;
-  stroke: var(--ink);
-  stroke-width: 1.6;
-  stroke-dasharray: 5 3;
-  vector-effect: non-scaling-stroke;
-  pointer-events: none;
-}
-.pnum {
-  display: inline-grid;
-  place-items: center;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: var(--hl);
-  color: var(--on-hl);
-  font: 700 10.5px var(--font-mono);
-  flex: none;
-}
-.pnum.none { background: transparent; color: var(--muted); border: 1px dashed var(--muted); }
-.projects li.is-sel { outline: 1px solid var(--ink); outline-offset: 6px; }
-.p-loc { margin: 2px 0 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; font-size: var(--fs-xs); color: var(--muted); }
-.p-loc .btn-s { padding: 2px 8px; font-size: var(--fs-xs); }
-
-/* detailed plan overlay + reference points */
-.plan-patch {
-  stroke: var(--ink);
-  stroke-opacity: 0.55;
-  stroke-width: 0.5;
-  vector-effect: non-scaling-stroke;
-  stroke-linejoin: round;
-  pointer-events: none;
-}
-#map.aligning { cursor: move; }
+/* markets: dots and labels on screen, night-market areas in world units */
 .mkt-area, .mkt-extent { fill: var(--mkt-area); stroke: var(--mkt-area); vector-effect: non-scaling-stroke; stroke-linejoin: round; cursor: help; }
 .mkt-area { fill-opacity: 0.45; stroke-width: 1.5; }
 .mkt-extent { fill-opacity: 0.16; stroke-width: 1.25; stroke-dasharray: 5 3; }
@@ -857,34 +576,6 @@ h2 .zh.block { margin-top: 3px; }
 .mkt-key.night::before { width: 9px; height: 9px; border: 0; background: var(--ink); }
 .mkt-key.area::before, .mkt-key.extent::before { width: 18px; height: 10px; border-radius: 0; border: 1.5px solid var(--mkt-area); background: color-mix(in srgb, var(--mkt-area) 45%, transparent); }
 .mkt-key.extent::before { border-style: dashed; background: color-mix(in srgb, var(--mkt-area) 16%, transparent); }
-.ref-hit { fill: transparent; cursor: help; }
-.ref-dia { fill: var(--ink); stroke: var(--surface); stroke-width: 2px; paint-order: stroke; pointer-events: none; }
-.ref-label {
-  font: 600 11px var(--font-body);
-  fill: var(--ink);
-  paint-order: stroke;
-  stroke: var(--surface);
-  stroke-width: 3px;
-  stroke-linejoin: round;
-  pointer-events: none;
-}
-.plan-legend {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 5px 12px;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  font-size: var(--fs-xs);
-  line-height: 1.3;
-}
-.plan-legend li { display: grid; grid-template-columns: 14px 1fr; gap: 0 6px; align-items: start; }
-.plan-legend .sw { width: 14px; height: 10px; margin-top: 2px; border: 1px solid var(--ink); opacity: 0.85; }
-.plan-legend .zh { grid-column: 2; margin-left: 0; }
-.plan-ctrl { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 4px 10px; margin-top: 12px; font-size: var(--fs-sm); }
-.plan-ctrl input[type="range"] { width: 100%; accent-color: var(--accent); }
-.plan-ctrl output { font: 500 11px var(--font-mono); color: var(--ink-2); min-width: 4.5em; text-align: right; }
-.btn-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
 .btn-s {
   padding: 5px 11px;
   background: var(--field);
@@ -894,12 +585,15 @@ h2 .zh.block { margin-top: 3px; }
   cursor: pointer;
 }
 .btn-s:hover { border-color: var(--hl); }
-.btn-s[aria-pressed="true"] { background: var(--hl); color: var(--on-hl); border-color: var(--hl); }
-#adj-out { width: 100%; min-height: 9em; margin-top: 8px; padding: 6px; font: 11px/1.4 var(--font-mono); background: var(--field); color: var(--ink); border: 1px solid var(--rule); }
-h3.mini { margin: 16px 0 6px; font: 500 10.5px var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
-h3.mini .zh { text-transform: none; letter-spacing: 0.02em; }
-.refs { display: grid; gap: 7px; margin: 0; padding: 0; list-style: none; font-size: var(--fs-sm); }
-.refs .src { font-size: var(--fs-xs); color: var(--muted); }
+
+/* night-market list */
+.intro { margin: 0 0 14px; font-size: var(--fs-sm); color: var(--ink-2); line-height: 1.5; }
+.nm-list { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.nm-list li { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 2px 10px; }
+.nm-list h3 { margin: 0; font-size: var(--fs-md); font-weight: 700; }
+.nm-list .zh { font-size: var(--fs-sm); }
+.nm-list .meta { grid-column: 1; margin: 0; font-size: var(--fs-xs); color: var(--ink-2); }
+.nm-list .btn-s { grid-column: 2; grid-row: 1 / span 2; padding: 2px 8px; font-size: var(--fs-xs); }
 
 /* ---------- program style: type and details ---------- */
 :root[data-style="program"] h1 { font-weight: 800; font-size: 29px; letter-spacing: -0.02em; }
@@ -907,7 +601,6 @@ h3.mini .zh { text-transform: none; letter-spacing: 0.02em; }
 :root[data-style="program"] h1 i { font-style: normal; }
 :root[data-style="program"] h1 .zh { font-family: var(--font-zh); font-size: 0.55em; font-weight: 600; letter-spacing: 0.04em; }
 :root[data-style="program"] h2 { font-weight: 800; font-size: 21px; letter-spacing: -0.01em; }
-:root[data-style="program"] .sel-head h3 { font-weight: 800; font-size: 22px; letter-spacing: -0.01em; }
 :root[data-style="program"] .dlabel .l1 { font-style: normal; font-weight: 800; font-size: 17px; letter-spacing: -0.01em; }
 :root[data-style="program"] .dlabel .l2 { font-family: var(--font-zh); font-weight: 600; letter-spacing: 0.2em; }
 :root[data-style="program"] .eyebrow { letter-spacing: 0.08em; }
@@ -915,7 +608,6 @@ h3.mini .zh { text-transform: none; letter-spacing: 0.02em; }
 :root[data-style="program"] .facts { padding: 3px 9px; background: var(--surface); border: 1px solid var(--rule); border-radius: 4px; }
 :root[data-style="program"] .legend-dist { background: var(--surface); }
 :root[data-style="program"] .legend-dist:hover { background: var(--surface); border-color: var(--hl); }
-:root[data-style="program"] .search button:hover { background: var(--hl); color: var(--on-hl); }
 :root[data-style="program"] .map-ctrl button { background: var(--surface); box-shadow: 0 1px 2px rgba(22, 24, 42, 0.14); }
 :root[data-style="program"] .swatch { border-radius: 3px; }
 
@@ -935,7 +627,7 @@ h3.mini .zh { text-transform: none; letter-spacing: 0.02em; }
   <header class="top">
     <div>
       <p class="eyebrow"><!--__EYEBROW__--></p>
-      <h1>Former Taichung City <i>Base Map</i><span class="zh" lang="zh-Hant-TW">原臺中市基本圖</span></h1>
+      <h1>Boba <i>Index</i><span class="zh" lang="zh-Hant-TW">珍奶指數</span></h1>
     </div>
     <div class="top-r">
       <div class="switches">
@@ -957,26 +649,18 @@ h3.mini .zh { text-transform: none; letter-spacing: 0.02em; }
     <div class="mapframe" id="mapframe">
       <div class="vbase" id="vbase" aria-hidden="true" hidden><div id="vmap"></div></div>
       <div class="tiles" id="tiles" aria-hidden="true" hidden></div>
-      <svg id="map" tabindex="0" role="img" aria-label="Map of district and village boundaries in the former Taichung City, with the old downtown marked. Drag to pan, scroll or pinch to zoom. Arrow keys pan, plus and minus zoom, 0 shows the full extent.">
-        <defs><clipPath id="clip"><rect id="cliprect"></rect></clipPath><g id="road-label-paths"></g></defs>
+      <svg id="map" tabindex="0" role="img" aria-label="Map of the markets and night markets in the eight districts of the former Taichung City. Drag to pan, scroll or pinch to zoom. Arrow keys pan, plus and minus zoom, 0 shows the full extent.">
+        <defs><clipPath id="clip"><rect id="cliprect"></rect></clipPath></defs>
         <rect class="ground" id="groundrect"></rect>
         <g clip-path="url(#clip)">
           <g id="world">
-            <g id="g-v"></g>
-            <g id="g-plan"></g>
-            <g id="g-roads"></g>
+            <g id="g-dfill"></g>
             <g id="g-mkt-area"></g>
-            <g id="g-old"></g>
             <g id="g-d"></g>
-            <g id="g-roadlabels"></g>
-            <path class="proj-foot" id="proj-foot"></path>
             <path class="hover-outline" id="hover-outline"></path>
-            <path class="sel-outline" id="sel-outline"></path>
           </g>
           <g id="g-labels"></g>
           <g id="g-mkt"></g>
-          <g id="g-refs"></g>
-          <g id="g-proj"></g>
         </g>
         <rect class="neatline" id="neatline"></rect>
         <g id="g-ticks"></g>
@@ -995,108 +679,29 @@ h3.mini .zh { text-transform: none; letter-spacing: 0.02em; }
     </div>
 
     <aside class="aside">
+      <section aria-labelledby="h-nm">
+        <h2 id="h-nm">Night Markets<span class="zh" lang="zh-Hant-TW">夜市</span></h2>
+        <p class="intro">A prototype for rating how authentic Taichung's night markets are. No scores yet: the map shows the markets mapped in OpenStreetMap.</p>
+        <ul class="nm-list" id="nm-list"></ul>
+      </section>
+
       <section aria-labelledby="h-legend">
         <h2 id="h-legend">Legend<span class="zh" lang="zh-Hant-TW">圖例</span></h2>
-        <ul class="legend" id="legend"></ul>
-        <ul class="legend-lines">
-          <li><span class="line-key"></span>District boundary<span class="zh" lang="zh-Hant-TW">區界</span></li>
-          <li><span class="line-key thin"></span>Village boundary<span class="zh" lang="zh-Hant-TW">里界</span></li>
-          <li><span class="line-key band"></span>Old downtown<span class="zh" lang="zh-Hant-TW">舊市區範圍</span></li>
-        </ul>
-        <ul class="legend-lines" id="road-legend" hidden>
-          <li><span class="line-key road-motorway"></span>Freeway<span class="zh" lang="zh-Hant-TW">國道、快速道路</span></li>
-          <li><span class="line-key road-primary"></span>Arterial<span class="zh" lang="zh-Hant-TW">主要道路</span></li>
-          <li><span class="line-key road-secondary"></span>Collector<span class="zh" lang="zh-Hant-TW">次要道路</span></li>
-          <li><span class="line-key road-minor"></span>Local street<span class="zh" lang="zh-Hant-TW">巷道（水湳周邊）</span></li>
-          <li><span class="line-key road-metro"></span>Metro<span class="zh" lang="zh-Hant-TW">捷運</span></li>
-          <li><span class="line-key road-rail"></span>Railway<span class="zh" lang="zh-Hant-TW">鐵路</span></li>
-        </ul>
-        <ul class="legend-lines" id="mkt-legend" hidden>
+        <ul class="legend-lines" id="mkt-legend">
           <li><span class="mkt-key night"></span>Night market<span class="zh" lang="zh-Hant-TW">夜市</span></li>
           <li><span class="mkt-key"></span>Market<span class="zh" lang="zh-Hant-TW">市場</span></li>
           <li><span class="mkt-key area"></span>Night market, mapped area<span class="zh" lang="zh-Hant-TW">夜市範圍（OSM）</span></li>
           <li id="mkt-legend-extent" hidden><span class="mkt-key extent"></span>Feng Chia, approx. full extent<span class="zh" lang="zh-Hant-TW">逢甲夜市約略範圍</span></li>
+          <li><span class="line-key"></span>District boundary<span class="zh" lang="zh-Hant-TW">區界</span></li>
         </ul>
         <div class="toggles" role="group" aria-label="Layers">
           <label id="lyr-osm-wrap" hidden><input type="checkbox" id="lyr-osm" checked>Basemap, English labels<span class="zh" lang="zh-Hant-TW">英文底圖</span></label>
           <label><input type="checkbox" id="lyr-fill" checked>District tint<span class="zh" lang="zh-Hant-TW">區底色</span></label>
-          <label><input type="checkbox" id="lyr-old" checked>Old downtown outline<span class="zh" lang="zh-Hant-TW">舊市區範圍</span></label>
-          <label><input type="checkbox" id="lyr-vline" checked>Village lines<span class="zh" lang="zh-Hant-TW">里界</span></label>
-          <label><input type="checkbox" id="lyr-vlabel" checked>Village names<span class="zh" lang="zh-Hant-TW">里名</span></label>
-          <label id="lyr-roads-wrap" hidden><input type="checkbox" id="lyr-roads" checked>Road network<span class="zh" lang="zh-Hant-TW">路網</span></label>
-          <label id="lyr-mkt-wrap" hidden><input type="checkbox" id="lyr-mkt" checked>Markets<span class="zh" lang="zh-Hant-TW">市場、夜市</span></label>
-          <label><input type="checkbox" id="lyr-plan" checked>Detailed plan<span class="zh" lang="zh-Hant-TW">細部計畫</span></label>
-          <label><input type="checkbox" id="lyr-proj" checked>Major projects<span class="zh" lang="zh-Hant-TW">重大建設</span></label>
-          <label><input type="checkbox" id="lyr-refs" checked>Reference points<span class="zh" lang="zh-Hant-TW">參考點</span></label>
+          <label><input type="checkbox" id="lyr-mkt" checked>Markets<span class="zh" lang="zh-Hant-TW">市場、夜市</span></label>
         </div>
         <p class="note" id="osm-msg" hidden></p>
-        <p class="note">The former Taichung City: the five old-downtown districts plus Xitun, Nantun and Beitun. Click a district in the legend to zoom to it. Village names appear as you zoom in.</p>
-      </section>
-
-      <section aria-labelledby="h-find">
-        <h2 id="h-find">Find a Village<span class="zh" lang="zh-Hant-TW">查詢里別</span></h2>
-        <form class="search" id="search-form" autocomplete="off">
-          <label for="vsearch" hidden>Village name</label>
-          <input id="vsearch" list="vlist" placeholder="e.g. Gangwei or 港尾里">
-          <datalist id="vlist"></datalist>
-          <button type="submit">Locate</button>
-        </form>
-        <p class="search-msg" id="search-msg" role="status"></p>
-        <div class="sel-card" id="sel-card" aria-live="polite">
-          <p class="hint">Click any village on the map, or search above, to see its area and code.</p>
-        </div>
-      </section>
-
-      <section aria-labelledby="h-plan">
-        <h2 id="h-plan">Detailed Plan Overlay<span class="zh block" lang="zh-Hant-TW">細部計畫疊圖</span></h2>
-        <p class="sub">Traced from Figure 7-1 of the second comprehensive review (unofficial English reference) and fitted to OpenStreetMap road centrelines. Block edges now sit a median 11 m from the nearest road, so expect errors of a few tens of metres.</p>
-        <ul class="plan-legend" id="plan-legend"></ul>
-        <p class="note">* Matched by area against the plan's land-use table. Park, drainage and blue patches follow colour conventions only.</p>
-        <div class="plan-ctrl">
-          <label for="plan-opacity">Opacity</label>
-          <input type="range" id="plan-opacity" min="0.1" max="1" step="0.05" value="0.7">
-          <output id="plan-opacity-v" for="plan-opacity">70%</output>
-        </div>
-        <dl class="kv">
-          <dt>Plan centre</dt><dd class="mono" id="plan-centre"></dd>
-          <dt>Scale</dt><dd class="mono" id="plan-scale"></dd>
-          <dt>Rotation</dt><dd class="mono" id="plan-rot"></dd>
-        </dl>
-        <div class="btn-row">
-          <button type="button" class="btn-s" id="adj-toggle" aria-pressed="false">Adjust position</button>
-          <button type="button" class="btn-s" id="adj-reset">Reset</button>
-          <button type="button" class="btn-s" id="adj-copy">Copy parameters</button>
-        </div>
-        <div id="adj-panel" hidden>
-          <p class="note">Drag the map to move the overlay, then rotate and scale until its roads and park edges sit on the basemap.</p>
-          <div class="plan-ctrl">
-            <label for="adj-rot">Rotate</label>
-            <input type="range" id="adj-rot" min="-10" max="10" step="0.1" value="0">
-            <output id="adj-rot-v" for="adj-rot">0.0°</output>
-            <label for="adj-scale">Scale</label>
-            <input type="range" id="adj-scale" min="85" max="115" step="0.1" value="100">
-            <output id="adj-scale-v" for="adj-scale">100.0%</output>
-          </div>
-        </div>
-        <p class="note" id="adj-msg" role="status"></p>
-        <textarea id="adj-out" hidden readonly aria-label="Overlay parameters"></textarea>
-        <h3 class="mini">Reference points<span class="zh" lang="zh-Hant-TW">參考點</span></h3>
-        <ul class="refs" id="refs-list"></ul>
-      </section>
-
-      <section aria-labelledby="h-zoning">
-        <h2 id="h-zoning">Shuinan Airport Site Detailed Plan: Land Use<span class="zh block" lang="zh-Hant-TW">水湳機場原址細部計畫：土地使用面積</span></h2>
-        <p class="sub" id="zoning-sub"></p>
-        <div class="split" id="split" role="img"></div>
-        <ul class="split-legend" id="split-legend"></ul>
-        <div class="zbars" id="zbars" role="table" aria-label="Area by land-use zone"></div>
-        <p class="note">Bars are drawn to scale by area. Shares are of the total plan area.</p>
-      </section>
-
-      <section aria-labelledby="h-proj">
-        <h2 id="h-proj">Major Projects in the Park<span class="zh block" lang="zh-Hant-TW">園區重大建設進度</span></h2>
-        <ul class="projects" id="projects"></ul>
-        <p class="note" id="proj-note"></p>
+        <ul class="legend" id="legend"></ul>
+        <p class="note">The eight districts of the former Taichung City. Click a district to zoom to it.</p>
       </section>
 
       <section aria-labelledby="h-src">
@@ -1124,7 +729,7 @@ h3.mini .zh { text-transform: none; letter-spacing: 0.02em; }
   const clean = (s) => String(s ?? "").replace(/\s+/g, " ").trim();
   const zh = (s, cls = "zh") => `<span class="${cls}" lang="zh-Hant-TW">${esc(s)}</span>`;
   const fmt = (n, d = 2) => n.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
-  const ordinal = (n) => { const s = ["th", "st", "nd", "rd"], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); };
+  const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   // ---------- projection ----------
@@ -1149,13 +754,14 @@ h3.mini .zh { text-transform: none; letter-spacing: 0.02em; }
   const proj = (lon, lat) => [mercX(lon) - X0, Y0 - mercY(lat)];
   const unproj = (x, y) => [(x + X0) / R / RAD, (2 * Math.atan(Math.exp((Y0 - y) / R)) - Math.PI / 2) / RAD];
 
-  const geomPath = (g) => rings(g).map((poly) => poly.map((ring) => ring.map(([lon, lat], i) => {
+  const lineD = (coords) => coords.map(([lon, lat], i) => {
     const [x, y] = proj(lon, lat);
     return (i ? "L" : "M") + x.toFixed(1) + " " + y.toFixed(1);
-  }).join("") + "Z").join("")).join("");
-  const geomBox = (g) => {
+  }).join("");
+  const polyD = (polys) => polys.map((poly) => poly.map((ring) => lineD(ring) + "Z").join("")).join("");
+  const boxOf = (polys) => {
     let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
-    for (const poly of rings(g)) for (const ring of poly) for (const [lon, lat] of ring) {
+    for (const poly of polys) for (const ring of poly) for (const [lon, lat] of ring) {
       const [x, y] = proj(lon, lat);
       if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y;
     }
@@ -1163,54 +769,32 @@ h3.mini .zh { text-transform: none; letter-spacing: 0.02em; }
   };
 
   // ---------- model ----------
+  const markets = (DATA.markets ? DATA.markets.features : []).map((m) => {
+    const [wx, wy] = proj(m.lon, m.lat);
+    const shape = m.extent || m.foot;
+    return { ...m, wx, wy, box: shape ? boxOf(shape) : [wx - 250, wy - 250, wx + 250, wy + 250] };
+  });
+  const nightMarkets = markets.filter((m) => m.night);
   const districts = DATA.districts.features.map((f, i) => {
     const p = f.properties;
     const [lx, ly] = proj(p.label_lon, p.label_lat);
-    // g: tint group, 0 = old downtown (five central districts), 1 = the outer districts of the former city
-    return { p, i, g: p.old_downtown ? 0 : 1, en: clean(p.district_en), zh: clean(p.district_zh), short: clean(p.district_en).replace(/\s*District$/i, ""),
-      d: geomPath(f.geometry), box: geomBox(f.geometry), lx, ly };
+    const en = clean(p.district_en);
+    const mine = markets.filter((m) => m.district_en === en);
+    return { p, i, en, zh: clean(p.district_zh), short: en.replace(/\s*District$/i, ""),
+      d: polyD(rings(f.geometry)), box: boxOf(rings(f.geometry)), lx, ly,
+      nMarkets: mine.length, nNight: mine.filter((m) => m.night).length };
   });
-  const distByCode = new Map(districts.map((d) => [d.p.district_code, d]));
-  const villages = DATA.villages.features.map((f) => {
-    const p = f.properties;
-    const dist = distByCode.get(p.district_code);
-    const [lx, ly] = proj(p.label_lon, p.label_lat);
-    const en = clean(p.village_en), zhName = clean(p.village_zh);
-    const short = en.replace(/\s*Vil\.?$/i, "");
-    let d, box, approx = false;
-    if (f.geometry) {
-      d = geomPath(f.geometry); box = geomBox(f.geometry);
-    } else {
-      // no boundary in the source file: a circle of the same area at the label point
-      approx = true;
-      const r = Math.sqrt((p.area_km2 * 1e6) / Math.PI) / GROUND, rs = r.toFixed(1);
-      d = `M${(lx - r).toFixed(1)} ${ly.toFixed(1)}a${rs} ${rs} 0 1 0 ${(2 * r).toFixed(1)} 0a${rs} ${rs} 0 1 0 ${(-2 * r).toFixed(1)} 0Z`;
-      box = [lx - r, ly - r, lx + r, ly + r];
-    }
-    return {
-      p, dist, en, short, zh: zhName, approx,
-      d, box, lx, ly,
-      side: Math.sqrt(p.area_km2 * 1e6) / GROUND,
-      // rough label width in px: English line vs Chinese line, whichever is wider
-      need: Math.max(short.length * 6.4, [...zhName].length * 10) + 12,
-    };
-  });
-  for (const d of districts) {
-    const mine = villages.filter((v) => v.dist === d).sort((a, b) => b.p.area_km2 - a.p.area_km2);
-    mine.forEach((v, i) => { v.rank = i + 1; v.of = mine.length; });
-  }
   const totalBox = districts.reduce((b, d) => [Math.min(b[0], d.box[0]), Math.min(b[1], d.box[1]), Math.max(b[2], d.box[2]), Math.max(b[3], d.box[3])], [Infinity, Infinity, -Infinity, -Infinity]);
-  const totalArea = districts.reduce((s, d) => s + d.p.area_km2, 0);
 
   $("#facts").textContent =
-    `${districts.length} districts · ${villages.length} villages · ${fmt(totalArea)} km² | WGS84`;
+    `${plural(nightMarkets.length, "night market")} · ${plural(markets.length - nightMarkets.length, "other market")} · ${districts.length} districts | WGS84`;
 
   // ---------- svg scaffolding ----------
   const svg = $("#map");
   const frame = $("#mapframe");
-  const gWorld = $("#world"), gV = $("#g-v"), gD = $("#g-d"), gLabels = $("#g-labels");
+  const gWorld = $("#world"), gLabels = $("#g-labels");
   const gTicks = $("#g-ticks"), gNorth = $("#g-north"), gScale = $("#g-scale");
-  const hoverOutline = $("#hover-outline"), selOutline = $("#sel-outline");
+  const hoverOutline = $("#hover-outline");
   const tip = $("#tip"), coord = $("#coord");
   const M = { l: 22, r: 8, t: 8, b: 22 }; // margin outside the neatline, for coordinate labels
 
@@ -1227,15 +811,10 @@ h3.mini .zh { text-transform: none; letter-spacing: 0.02em; }
     b.setAttribute("x", x); b.setAttribute("y", y + down);
   };
 
-  for (const v of villages) {
-    v.el = svgEl("path", { d: v.d, class: "vil d" + v.dist.g + (v.approx ? " approx" : "") }, gV);
-    v.el.__v = v;
-  }
-  for (const d of districts) svgEl("path", { d: d.d, class: "dist" }, gD);
-  if (DATA.old_downtown_outline) {
-    svgEl("path", { class: "old-outline", d: geomPath({ type: "Polygon", coordinates: DATA.old_downtown_outline }) }, $("#g-old"));
-  }
   for (const d of districts) {
+    d.el = svgEl("path", { d: d.d, class: "dfill" }, $("#g-dfill"));
+    d.el.__d = d;
+    svgEl("path", { d: d.d, class: "dist" }, $("#g-d"));
     d.full = d.en;
     d.compact = d.short;
     d.labelEl = makeLabel("dlabel", d.full, d.zh);
@@ -1244,15 +823,14 @@ h3.mini .zh { text-transform: none; letter-spacing: 0.02em; }
   const readDistChar = () => { DIST_CHAR = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--dist-char")) || 8.5; };
   readDistChar();
   const distByArea = [...districts].sort((a, b) => b.p.area_km2 - a.p.area_km2);
-  for (const v of villages) v.labelEl = makeLabel("vlabel", v.short, v.zh);
 
   // ---------- view state ----------
   let W = 0, H = 0, fitK = 1, kMin = 0.5, kMax = 10;
   let view = { k: 1, tx: 0, ty: 0 };
   let interacted = false;
-  let selected = null, hot = null;
+  let hot = null;
   const BASEMAP = /*__BASEMAP__*/true; // false where external tiles are blocked (e.g. the Claude artifact build)
-  const layers = { osm: BASEMAP, fill: true, old: true, vline: true, vlabel: true };
+  const layers = { osm: BASEMAP };
 
   const inner = () => ({ x0: M.l, y0: M.t, x1: W - M.r, y1: H - M.b });
   function fitView(box, pad, cap, clamp = true) {
@@ -1305,7 +883,7 @@ h3.mini .zh { text-transform: none; letter-spacing: 0.02em; }
     const innerW = W - M.l - M.r;
     for (const d of distByArea) {
       const wPx = (d.box[2] - d.box[0]) * k;
-      // overview zooms, plus small districts until they fill half the frame (the old downtown)
+      // overview zooms, plus small districts until they fill half the frame
       let show = k < fitK * 2.4 || wPx < innerW * 0.5;
       if (show) {
         const sx = k * d.lx + tx, sy = k * d.ly + ty;
@@ -1324,23 +902,7 @@ h3.mini .zh { text-transform: none; letter-spacing: 0.02em; }
       }
       d.labelEl.style.display = show ? "" : "none";
     }
-    for (const v of villages) {
-      const isSel = v === selected;
-      const sx = k * v.lx + tx, sy = k * v.ly + ty;
-      let vis = isSel || (layers.vlabel && v.side * k > v.need);
-      if (vis && !isSel) {
-        const x0 = sx - v.need / 2, x1 = sx + v.need / 2, y0 = sy - 14, y1 = sy + 14;
-        vis = !hits([x0, y0, x1, y1]);
-      }
-      v.labelEl.style.display = vis ? "" : "none";
-      v.labelEl.classList.toggle("is-sel", isSel);
-      if (vis) placeLabel(v.labelEl, sx, sy, isSel ? 7 : 6, isSel ? 8 : 7);
-    }
-    svg.classList.toggle("zoom-detail", k > fitK * 2.5);
-    drawRoadLabels();
     drawMarkets();
-    drawRefs();
-    drawProjects();
     drawTicks();
     drawScale();
     if (layers.osm) {
@@ -1543,8 +1105,8 @@ h3.mini .zh { text-transform: none; letter-spacing: 0.02em; }
     wanted = new Set();
   }
   function setAttrib() {
-    const roads = DATA.roads && $("#lyr-roads").checked;
-    attrib.hidden = !layers.osm && !roads;
+    // the market layer is OSM data too, so the credit stays while it is shown
+    attrib.hidden = !layers.osm && !(markets.length && $("#lyr-mkt").checked);
     attrib.innerHTML = layers.osm && !rasterMode ? ATTRIB.vector : ATTRIB.osm;
   }
   function setBasemap(on, redraw = true) {
@@ -1592,6 +1154,7 @@ h3.mini .zh { text-transform: none; letter-spacing: 0.02em; }
   }
   const zoomCenter = (factor) => zoomAt(factor, (M.l + W - M.r) / 2, (M.t + H - M.b) / 2, true);
   const resetView = () => { interacted = false; setView(fitView(totalBox, 18), true); };
+  const zoomTo = (box, pad, cap) => { interacted = true; setView(fitView(box, pad, cap), true); };
 
   $("#zin").addEventListener("click", () => zoomCenter(1.6));
   $("#zout").addEventListener("click", () => zoomCenter(1 / 1.6));
@@ -1614,7 +1177,7 @@ h3.mini .zh { text-transform: none; letter-spacing: 0.02em; }
     } else if (e.key === "+" || e.key === "=") { e.preventDefault(); zoomCenter(1.6); }
     else if (e.key === "-" || e.key === "_") { e.preventDefault(); zoomCenter(1 / 1.6); }
     else if (e.key === "0") { e.preventDefault(); resetView(); }
-    else if (e.key === "Escape") { select(null); }
+    else if (e.key === "Escape") { hideTip(); }
   });
 
   // ---------- pointer: pan, pinch, hover, click ----------
@@ -1633,8 +1196,7 @@ h3.mini .zh { text-transform: none; letter-spacing: 0.02em; }
     ptrs.set(e.pointerId, p);
     svg.setPointerCapture(e.pointerId);
     if (ptrs.size === 1) {
-      drag = { x0: p.x, y0: p.y, tx0: view.tx, ty0: view.ty, moved: false, target: e.target,
-        align: aligning, adx: adj.dx, ady: adj.dy };
+      drag = { x0: p.x, y0: p.y, tx0: view.tx, ty0: view.ty, moved: false, target: e.target };
     } else if (ptrs.size === 2) {
       startPinch();
     }
@@ -1657,52 +1219,30 @@ h3.mini .zh { text-transform: none; letter-spacing: 0.02em; }
       const dx = p.x - drag.x0, dy = p.y - drag.y0;
       if (!drag.moved && Math.hypot(dx, dy) > 4) { drag.moved = true; svg.classList.add("dragging"); hideTip(); setHot(null); }
       if (drag.moved) {
-        if (drag.align) {
-          // align mode: the drag moves the plan overlay, not the map
-          adj.dx = drag.adx + dx / view.k;
-          adj.dy = drag.ady + dy / view.k;
-          applyAdj();
-        } else {
-          interacted = true;
-          view = { k: view.k, tx: drag.tx0 + dx, ty: drag.ty0 + dy };
-          draw();
-        }
+        interacted = true;
+        view = { k: view.k, tx: drag.tx0 + dx, ty: drag.ty0 + dy };
+        draw();
       }
       return;
     }
     // plain hover (mouse / pen)
     updateCoord(p);
-    const ref = e.target.__ref || null;
-    const pj = e.target.__proj || null;
     const mk = e.target.__mkt || null;
-    const v = ref || pj || mk || aligning ? null : e.target.__v || null;
-    setHot(v);
-    if (!pj) showFoot(selProject);
+    const d = mk ? null : e.target.__d || null;
+    setHot(d);
     if (e.pointerType === "touch") hideTip();
-    else if (pj) showProjTip(pj, e.clientX, e.clientY);
-    else if (ref) showRefTip(ref, e.clientX, e.clientY);
     else if (mk) showMarketTip(mk, e.clientX, e.clientY);
-    else if (v) showVillageTip(v, e.clientX, e.clientY);
+    else if (d) showDistrictTip(d, e.clientX, e.clientY);
     else hideTip();
   });
   const endPointer = (e) => {
     if (!ptrs.has(e.pointerId)) return;
     ptrs.delete(e.pointerId);
-    if (drag && !drag.moved && e.type === "pointerup" && !drag.align) {
-      if (drag.target && drag.target.__proj) {
-        const pr = drag.target.__proj;
-        selectProject(selProject === pr ? null : pr, false);
-        const li = document.getElementById(`proj-${pr.n}`);
-        if (li && selProject) li.scrollIntoView({ block: "nearest", behavior: reduceMotion ? "auto" : "smooth" });
-        if (selProject) showProjTip(pr, e.clientX, e.clientY);
-      } else if (drag.target && drag.target.__ref) {
-        showRefTip(drag.target.__ref, e.clientX, e.clientY);
-      } else if (drag.target && drag.target.__mkt) {
-        showMarketTip(drag.target.__mkt, e.clientX, e.clientY);
-      } else {
-        const v = drag.target && drag.target.__v;
-        select(v && v !== selected ? v : null);
-      }
+    if (drag && !drag.moved && e.type === "pointerup") {
+      const t = drag.target;
+      if (t && t.__mkt) showMarketTip(t.__mkt, e.clientX, e.clientY);
+      else if (t && t.__d && e.pointerType === "touch") showDistrictTip(t.__d, e.clientX, e.clientY);
+      else hideTip();
     }
     svg.classList.remove("dragging");
     if (ptrs.size === 1 && pinch) {
@@ -1725,10 +1265,10 @@ h3.mini .zh { text-transform: none; letter-spacing: 0.02em; }
     coord.hidden = false;
   }
 
-  function setHot(v) {
-    if (v === hot) return;
+  function setHot(d) {
+    if (d === hot) return;
     if (hot) hot.el.classList.remove("is-hot");
-    hot = v;
+    hot = d;
     if (hot) { hot.el.classList.add("is-hot"); hoverOutline.setAttribute("d", hot.d); }
     else hoverOutline.removeAttribute("d");
   }
@@ -1743,355 +1283,27 @@ h3.mini .zh { text-transform: none; letter-spacing: 0.02em; }
     tip.style.left = Math.max(8, x) + "px";
     tip.style.top = Math.max(8, y) + "px";
   }
-  function showVillageTip(v, cx, cy) {
-    tip.innerHTML = `<b>${esc(v.en)}</b>${zh(v.zh)}<br>` +
-      `${esc(v.dist.en)}${v.dist.g === 0 ? " (old downtown)" : ""} · <span class="num">${fmt(v.p.area_km2)} km²</span>` +
-      (v.approx ? `<br>Boundary missing in the source: approximate` : "");
-    placeTip(cx, cy);
-  }
   const hideTip = () => { tip.hidden = true; };
-
-  // ---------- selection ----------
-  const card = $("#sel-card");
-  const hintHTML = card.innerHTML;
-  function select(v, zoom) {
-    if (selected) selected.el.classList.remove("is-sel");
-    selected = v;
-    if (v) {
-      v.el.classList.add("is-sel");
-      selOutline.setAttribute("d", v.d);
-      const d = v.dist;
-      card.innerHTML = `
-        <div class="sel-head">
-          <span class="swatch d${d.g}" aria-hidden="true"></span>
-          <div><h3>${esc(v.en)}</h3>${zh(v.zh, "zh block")}</div>
-          <button type="button" class="clear" id="sel-clear">Clear</button>
-        </div>
-        <dl class="kv">
-          <dt>District</dt><dd>${esc(d.en)}${zh(d.zh)}</dd>
-          <dt>Area group</dt><dd>${d.g === 0 ? `Old downtown${zh("舊市區")}` : `Outer district${zh("原臺中市外圍區")}`}</dd>
-          <dt>Area</dt><dd><span class="num">${fmt(v.p.area_km2)} km²</span> (<span class="num">${fmt(v.p.area_km2 * 100, 1)}</span> ha)</dd>
-          <dt>Share of district</dt><dd><span class="num">${fmt((v.p.area_km2 / d.p.area_km2) * 100, 1)}%</span></dd>
-          <dt>Area rank</dt><dd>${ordinal(v.rank)} largest of ${v.of} in ${esc(d.en)}</dd>
-          <dt>Village code</dt><dd class="mono">${esc(v.p.village_code)}</dd>
-        </dl>
-        ${v.approx ? `<p class="note">The source file has no boundary for this village. The dashed circle has the same area and sits at its label point.</p>` : ""}`;
-      $("#sel-clear").addEventListener("click", () => select(null));
-      if (zoom) {
-        interacted = true;
-        setView(fitView(v.box, 60, fitK * 7), true);
-      } else {
-        draw();
-      }
-    } else {
-      selOutline.removeAttribute("d");
-      card.innerHTML = hintHTML;
-      draw();
-    }
-  }
-
-  // ---------- legend ----------
-  const legend = $("#legend");
-  const GROUPS = [
-    ["Old downtown", "舊市區"],
-    ["Outer districts", "原臺中市外圍區"],
-  ];
-  for (const d of [...districts].sort((a, b) => a.g - b.g || a.i - b.i)) {
-    if (!legend.querySelector(`[data-group="${d.g}"]`)) {
-      const n = districts.filter((x) => x.g === d.g).length;
-      const head = document.createElement("li");
-      head.className = "legend-group";
-      head.dataset.group = d.g;
-      head.innerHTML = `${GROUPS[d.g][0]} · ${n}${zh(GROUPS[d.g][1])}`;
-      legend.appendChild(head);
-    }
-    const li = document.createElement("li");
-    li.innerHTML = `
-      <button type="button" class="legend-dist" aria-label="Zoom to ${esc(d.en)}">
-        <span class="swatch d${d.g}" aria-hidden="true"></span>
-        <span><span class="nm">${esc(d.en)}</span>${zh(d.zh)}</span>
-        <span class="meta num">${fmt(d.p.area_km2)} km² · ${d.p.village_count} vil.</span>
-      </button>`;
-    li.querySelector("button").addEventListener("click", () => {
-      interacted = true;
-      setView(fitView(d.box, 24), true);
-    });
-    legend.appendChild(li);
-  }
-  const bindLayer = (id, key, cls) => {
-    $(id).addEventListener("change", (e) => {
-      layers[key] = e.target.checked;
-      if (cls) svg.classList.toggle(cls, !e.target.checked);
-      draw();
-    });
-  };
-  $("#lyr-osm-wrap").hidden = !BASEMAP;
-  $("#lyr-osm").addEventListener("change", (e) => {
-    osmMsg.hidden = true;
-    tileErrors = 0;
-    setBasemap(e.target.checked);
-  });
-  bindLayer("#lyr-fill", "fill", "no-fill");
-  bindLayer("#lyr-old", "old", "no-old");
-  bindLayer("#lyr-vline", "vline", "no-vline");
-  bindLayer("#lyr-vlabel", "vlabel", null);
-
-  // ---------- road network (OpenStreetMap, fetched by scripts/fetch_roads.py) ----------
-  const ROADS = DATA.roads;
-  const gRoads = $("#g-roads"), gRoadLabels = $("#g-roadlabels"), roadPathDefs = $("#road-label-paths");
-  const lineD = (coords) => coords.map(([lon, lat], i) => {
-    const [x, y] = proj(lon, lat);
-    return (i ? "L" : "M") + x.toFixed(1) + " " + y.toFixed(1);
-  }).join("");
-  const roadLabels = [];
-  if (ROADS) {
-    $("#lyr-roads-wrap").hidden = false;
-    $("#road-legend").hidden = false;
-    // one <path> per class keeps thousands of ways cheap to pan and zoom
-    const CLASS = { motorway: "motorway", trunk: "trunk", primary: "primary", secondary: "secondary", tertiary: "tertiary", minor: "minor", rail: "rail", metro: "metro" };
-    const byClass = {};
-    for (const f of ROADS.features) {
-      const kind = f.properties.kind;
-      const cls = kind.endsWith("_link") ? "link" : CLASS[kind] || "minor";
-      (byClass[cls] = byClass[cls] || []).push(lineD(f.geometry.coordinates));
-    }
-    for (const cls of ["minor", "tertiary", "link", "secondary", "primary", "trunk", "motorway", "rail", "metro"]) {
-      if (!byClass[cls]) continue;
-      const d = byClass[cls].join("");
-      svgEl("path", { class: "road " + cls, d }, gRoads);
-      if (cls === "motorway") svgEl("path", { class: "road motorway-in", d }, gRoads);
-    }
-    // labels: the longest way of each named arterial or collector, set left to right along the line
-    // OSM English names come as "Section 3, Wenxin Road" or "Wenxin Road Section 3"
-    const abbr = (n) => {
-      let base = n, sec = null, m;
-      if ((m = n.match(/^Section (\d+),\s*(.+)$/i))) [base, sec] = [m[2], m[1]];
-      else if ((m = n.match(/^(.+?),?\s+Section (\d+)$/i))) [base, sec] = [m[1], m[2]];
-      base = base.replace(/\bRoad\b/g, "Rd").replace(/\bStreet\b/g, "St").replace(/\bBoulevard\b/g, "Blvd").replace(/\bAvenue\b/g, "Ave");
-      return sec ? `${base} Sec. ${sec}` : base;
-    };
-    const best = new Map();
-    for (const f of ROADS.features) {
-      const pr = f.properties;
-      if (!["motorway", "trunk", "primary", "secondary"].includes(pr.kind)) continue;
-      const key = pr.name || pr.ref;
-      if (!key) continue;
-      const pts = f.geometry.coordinates.map(([lon, lat]) => proj(lon, lat));
-      let len = 0;
-      for (let i = 1; i < pts.length; i++) len += Math.hypot(pts[i][0] - pts[i - 1][0], pts[i][1] - pts[i - 1][1]);
-      const prev = best.get(key);
-      if (!prev || len > prev.len) best.set(key, { pr, pts, len });
-    }
-    let n = 0;
-    for (const { pr, pts, len } of best.values()) {
-      if (pts[pts.length - 1][0] < pts[0][0]) pts.reverse(); // keep text upright
-      const id = `rlp${n++}`;
-      svgEl("path", { id, d: pts.map(([x, y], i) => (i ? "L" : "M") + x.toFixed(1) + " " + y.toFixed(1)).join("") }, roadPathDefs);
-      const text = svgEl("text", { class: "road-label" }, gRoadLabels);
-      const tp = svgEl("textPath", { href: `#${id}`, startOffset: "50%", "text-anchor": "middle" }, text);
-      const en = pr.name_en ? abbr(pr.name_en) : "";
-      if (en) svgEl("tspan", {}, tp).textContent = en;
-      if (pr.name) {
-        const z = svgEl("tspan", { class: "zh", lang: "zh-Hant-TW", dx: en ? "0.4em" : "0" }, tp);
-        z.textContent = pr.name;
-      } else if (!en) {
-        svgEl("tspan", {}, tp).textContent = pr.ref;
-      }
-      // rough on-screen width of the label in px at 11px type
-      const need = (en.length * 6.2 + (pr.name || "").length * 10 + 30);
-      roadLabels.push({ text, len, need });
-    }
-    $("#lyr-roads").addEventListener("change", (e) => {
-      gRoads.style.display = gRoadLabels.style.display = e.target.checked ? "" : "none";
-      setAttrib();
-    });
-  }
-  function drawRoadLabels() {
-    if (!roadLabels.length) return;
-    const k = view.k, on = k > fitK * 1.8;
-    gRoadLabels.style.visibility = on ? "" : "hidden";
-    if (!on) return;
-    // labels live in world units, so counter-scale the type and halo
-    gRoadLabels.setAttribute("font-size", (11 / k).toFixed(3));
-    gRoadLabels.setAttribute("stroke-width", (3 / k).toFixed(3));
-    for (const r of roadLabels) r.text.style.display = r.len * k > r.need ? "" : "none";
-  }
-
-  // ---------- detailed plan overlay ----------
-  // Patches come georeferenced from scripts/georef_plan.py. A viewer can nudge them
-  // (move / rotate / scale about the plan centre) and copy the result back.
-  const PLAN = DATA.plan, G = PLAN.georeference;
-  const gPlan = $("#g-plan");
-  for (const f of PLAN.features) svgEl("path", { d: geomPath(f.geometry), class: "plan-patch", fill: f.properties.fill }, gPlan);
-  const [pcx, pcy] = proj((G.bbox[0] + G.bbox[2]) / 2, (G.bbox[1] + G.bbox[3]) / 2);
-  const ADJ_KEY = "shuinan-plan-adjust-v1";
-  const ADJ0 = { dx: 0, dy: 0, rot: 0, scale: 1 };
-  let adj = { ...ADJ0 };
-  let aligning = false;
-  try {
-    const saved = JSON.parse(localStorage.getItem(ADJ_KEY) || "null");
-    if (saved && ["dx", "dy", "rot", "scale"].every((key) => Number.isFinite(saved[key]))) adj = saved;
-  } catch (err) { /* storage unavailable: start from the estimate */ }
-  const isAdjusted = () => adj.dx !== 0 || adj.dy !== 0 || adj.rot !== 0 || adj.scale !== 1;
-
-  // drawing mm -> lon/lat with the stored georeference, then the viewer's adjustment
-  const fromDrawing = (x, y) => {
-    const c = Math.cos(G.rotation_deg * RAD), s = Math.sin(G.rotation_deg * RAD);
-    const gx = G.scale_m_per_mm * (c * x - s * y) + G.translation_m[0];
-    const gy = G.scale_m_per_mm * (s * x + c * y) + G.translation_m[1];
-    return [G.local_origin[0] + gx / G.m_per_deg[0], G.local_origin[1] + gy / G.m_per_deg[1]];
-  };
-  const adjusted = (lon, lat) => {
-    let [x, y] = proj(lon, lat);
-    x = (x - pcx) * adj.scale; y = (y - pcy) * adj.scale;
-    const r = -adj.rot * RAD; // svg y points down, so a counter-clockwise turn is negative
-    return unproj(x * Math.cos(r) - y * Math.sin(r) + pcx + adj.dx, x * Math.sin(r) + y * Math.cos(r) + pcy + adj.dy);
-  };
-  const adjMsg = $("#adj-msg");
-  function applyAdj(save = true) {
-    gPlan.setAttribute("transform", `translate(${pcx + adj.dx} ${pcy + adj.dy}) rotate(${-adj.rot}) scale(${adj.scale}) translate(${-pcx} ${-pcy})`);
-    const [lon, lat] = unproj(pcx + adj.dx, pcy + adj.dy);
-    const scale = G.scale_m_per_mm * adj.scale;
-    $("#plan-centre").textContent = `${lat.toFixed(5)}°N, ${lon.toFixed(5)}°E`;
-    $("#plan-scale").textContent = `${scale.toFixed(2)} m per drawing mm (≈1:${Math.round(scale * 1000).toLocaleString("en-US")} on A3)`;
-    $("#plan-rot").textContent = `${(G.rotation_deg + adj.rot).toFixed(1)}° from north-up`;
-    $("#adj-rot").value = adj.rot;
-    $("#adj-scale").value = (adj.scale * 100).toFixed(1);
-    $("#adj-rot-v").textContent = `${adj.rot.toFixed(1)}°`;
-    $("#adj-scale-v").textContent = `${(adj.scale * 100).toFixed(1)}%`;
-    if (save) {
-      try { if (isAdjusted()) localStorage.setItem(ADJ_KEY, JSON.stringify(adj)); else localStorage.removeItem(ADJ_KEY); }
-      catch (err) { /* not persisted */ }
-    }
-  }
-  $("#plan-legend").innerHTML = Object.values(PLAN.classes).map((c) =>
-    `<li><span class="sw" style="background:${esc(c.swatch)}"></span><span>${esc(c.en)}${c.matched_by_area ? "*" : ""}</span>${zh(c.zh)}</li>`).join("");
-  const opacity = $("#plan-opacity");
-  const setOpacity = () => { gPlan.style.opacity = opacity.value; $("#plan-opacity-v").textContent = `${Math.round(opacity.value * 100)}%`; };
-  opacity.addEventListener("input", setOpacity);
-  setOpacity();
-  $("#lyr-plan").addEventListener("change", (e) => { gPlan.style.display = e.target.checked ? "" : "none"; });
-
-  function setAligning(on) {
-    aligning = on;
-    $("#adj-toggle").setAttribute("aria-pressed", String(on));
-    $("#adj-toggle").textContent = on ? "Done adjusting" : "Adjust position";
-    $("#adj-panel").hidden = !on;
-    svg.classList.toggle("aligning", on);
-    if (on) {
-      $("#lyr-plan").checked = true;
-      gPlan.style.display = "";
-      setHot(null);
-    }
-  }
-  $("#adj-toggle").addEventListener("click", () => setAligning(!aligning));
-  $("#adj-rot").addEventListener("input", (e) => { adj.rot = +e.target.value; applyAdj(); });
-  $("#adj-scale").addEventListener("input", (e) => { adj.scale = +e.target.value / 100; applyAdj(); });
-  $("#adj-reset").addEventListener("click", () => {
-    adj = { ...ADJ0 };
-    applyAdj();
-    adjMsg.textContent = "Back to the estimated position.";
-  });
-  function exportParams() {
-    const [lon, lat] = unproj(pcx + adj.dx, pcy + adj.dy);
-    // drawing points spread over the plan; their adjusted positions pin down the new transform
-    const pins = [[158, 221], [175, 115], [40, 175], [215, 80]];
-    // the adjusted position of the drawing origin is the new translation in the local plane
-    const [olon, olat] = adjusted(...fromDrawing(0, 0));
-    return {
-      for: "scripts/georef_plan.py (SCALE, ROTATION_DEG, TRANSLATION_M)",
-      scale_m_per_mm: +(G.scale_m_per_mm * adj.scale).toFixed(3),
-      rotation_deg: +(G.rotation_deg + adj.rot).toFixed(2),
-      translation_m: [+((olon - G.local_origin[0]) * G.m_per_deg[0]).toFixed(1), +((olat - G.local_origin[1]) * G.m_per_deg[1]).toFixed(1)],
-      pins: pins.map(([x, y]) => {
-        const [plon, plat] = adjusted(...fromDrawing(x, y));
-        return { drawing_mm: [x, y], lon: +plon.toFixed(7), lat: +plat.toFixed(7) };
-      }),
-      plan_centre: { lat: +lat.toFixed(6), lon: +lon.toFixed(6) },
-    };
-  }
-  $("#adj-copy").addEventListener("click", () => {
-    const text = JSON.stringify(exportParams(), null, 2);
-    const out = $("#adj-out");
-    const showText = () => {
-      out.hidden = false;
-      out.value = text;
-      out.focus();
-      out.select();
-      adjMsg.textContent = "Copy the parameters below and send them back to update the overlay data.";
-    };
-    try {
-      navigator.clipboard.writeText(text).then(() => {
-        out.hidden = true;
-        adjMsg.textContent = "Parameters copied. Send them back to update the overlay data.";
-      }, showText);
-    } catch (err) { showText(); }
-  });
-  applyAdj(false);
-  if (isAdjusted()) adjMsg.textContent = "Showing the adjustment saved in this browser. Reset returns to the estimate.";
-
-  // ---------- reference points ----------
-  const gRefs = $("#g-refs");
-  const refs = DATA.refs.map((r) => {
-    const lon = +r.lon, lat = +r.lat;
-    const [wx, wy] = proj(lon, lat);
-    const g = svgEl("g", {}, gRefs);
-    const hit = svgEl("circle", { class: "ref-hit", r: 10 }, g);
-    svgEl("path", { class: "ref-dia", d: "M0 -5.5 L5.5 0 L0 5.5 L-5.5 0 Z" }, g);
-    const label = svgEl("text", { class: "ref-label", x: 9, y: 4 }, g);
-    label.textContent = r.name_en.replace(/^MRT Green Line, /, "");
-    const ref = { ...r, lon, lat, wx, wy, g, label };
-    hit.__ref = ref;
-    return ref;
-  });
-  function drawRefs() {
-    const show = $("#lyr-refs").checked;
-    gRefs.style.display = show ? "" : "none";
-    if (!show) return;
-    const showLabels = view.k > fitK * 3.5;
-    const projectsShown = $("#lyr-proj").checked;
-    for (const r of refs) {
-      // a project marker already stands for this place
-      const dup = projectsShown && r.project_zh && locatedProjects.has(r.project_zh);
-      r.g.style.display = dup ? "none" : "";
-      if (dup) continue;
-      r.g.setAttribute("transform", `translate(${view.k * r.wx + view.tx} ${view.k * r.wy + view.ty})`);
-      r.label.style.display = showLabels ? "" : "none";
-    }
-  }
-  $("#lyr-refs").addEventListener("change", draw);
-  function showRefTip(r, cx, cy) {
-    tip.innerHTML = `<b>${esc(r.name_en)}</b>${zh(r.name_zh)}<br>` +
-      `<span class="num">${r.lat.toFixed(5)}°N, ${r.lon.toFixed(5)}°E</span><br>${esc(r.source)}`;
+  const marketCount = (d) => `${plural(d.nNight, "night market")}, ${plural(d.nMarkets - d.nNight, "other market")}`;
+  function showDistrictTip(d, cx, cy) {
+    tip.innerHTML = `<b>${esc(d.en)}</b>${zh(d.zh)}<br><span class="num">${fmt(d.p.area_km2)} km²</span> · ${marketCount(d)}`;
     placeTip(cx, cy);
   }
-  $("#refs-list").innerHTML = refs.map((r) =>
-    `<li><b>${esc(r.name_en)}</b>${zh(r.name_zh)}<br><span class="mono">${r.lat.toFixed(5)}°N, ${r.lon.toFixed(5)}°E</span>` +
-    `<span class="src"> · ${esc(r.source)}</span></li>`).join("");
 
   // ---------- markets (OpenStreetMap, fetched by scripts/fetch_landmarks.py) ----------
   // build_map.py keeps marketplaces and night markets inside the eight districts and drops duplicates.
   const gMkt = $("#g-mkt"), gMktArea = $("#g-mkt-area");
-  const polyD = (polys) => polys.map((poly) => poly.map((ring) => lineD(ring) + "Z").join("")).join("");
-  const markets = (DATA.markets ? DATA.markets.features : []).map((m) => {
-    const [wx, wy] = proj(m.lon, m.lat);
-    const g = svgEl("g", { class: m.night ? "mkt-g night" : "mkt-g" }, gMkt);
-    const hit = svgEl("circle", { class: "mkt-hit", r: 9 }, g);
-    svgEl("circle", { class: "mkt-dot", r: m.night ? 4.5 : 3.5 }, g);
-    const label = svgEl("text", { class: "mkt-label", x: 7, y: 4 }, g);
-    label.textContent = m.en || m.zh;
-    const mk = { ...m, wx, wy, g, label };
-    hit.__mkt = mk;
+  for (const m of markets) {
+    m.g = svgEl("g", { class: m.night ? "mkt-g night" : "mkt-g" }, gMkt);
+    svgEl("circle", { class: "mkt-hit", r: 9 }, m.g).__mkt = m;
+    svgEl("circle", { class: "mkt-dot", r: m.night ? 4.5 : 3.5 }, m.g);
+    m.label = svgEl("text", { class: "mkt-label", x: 7, y: 4 }, m.g);
+    m.label.textContent = m.en || m.zh;
     // the street-based extent sits under the mapped outline
-    if (m.extent) svgEl("path", { class: "mkt-extent", d: polyD(m.extent) }, gMktArea).__mkt = mk;
-    if (m.foot) svgEl("path", { class: "mkt-area", d: polyD(m.foot) }, gMktArea).__mkt = mk;
-    return mk;
-  });
-  if (markets.length) {
-    $("#lyr-mkt-wrap").hidden = false;
-    $("#mkt-legend").hidden = false;
-    $("#mkt-legend-extent").hidden = !markets.some((m) => m.extent);
+    if (m.extent) svgEl("path", { class: "mkt-extent", d: polyD(m.extent) }, gMktArea).__mkt = m;
+    if (m.foot) svgEl("path", { class: "mkt-area", d: polyD(m.foot) }, gMktArea).__mkt = m;
   }
+  $("#mkt-legend-extent").hidden = !markets.some((m) => m.extent);
   function drawMarkets() {
     const show = markets.length && $("#lyr-mkt").checked;
     gMkt.style.display = gMktArea.style.display = show ? "" : "none";
@@ -2103,7 +1315,7 @@ h3.mini .zh { text-transform: none; letter-spacing: 0.02em; }
       m.label.style.display = view.k > (m.night ? kNight : kMarket) ? "" : "none";
     }
   }
-  $("#lyr-mkt").addEventListener("change", draw);
+  $("#lyr-mkt").addEventListener("change", () => { setAttrib(); draw(); });
   function showMarketTip(m, cx, cy) {
     const kind = m.night ? "Night market" : "Market";
     const head = m.en ? `<b>${esc(m.en)}</b>${zh(m.zh)}` : m.zh ? `<b>${zh(m.zh, "")}</b>` : `<b>Unnamed market</b>`;
@@ -2113,201 +1325,59 @@ h3.mini .zh { text-transform: none; letter-spacing: 0.02em; }
     placeTip(cx, cy);
   }
 
-  // ---------- village lookup ----------
-  const optLabel = (v) => `${v.en} ${v.zh} (${v.dist.short})`;
-  const dl = $("#vlist");
-  for (const v of [...villages].sort((a, b) => a.dist.i - b.dist.i || a.short.localeCompare(b.short, "en"))) {
-    const o = document.createElement("option");
-    o.value = optLabel(v);
-    dl.appendChild(o);
-  }
-  const msg = $("#search-msg");
-  const norm = (s) => clean(s).toLowerCase().replace(/[’'`]/g, "'");
-  function findVillage(q) {
-    q = clean(q);
-    if (!q) return null;
-    const exact = villages.find((v) => optLabel(v) === q);
-    if (exact) return exact;
-    const n = norm(q).replace(/\s*vil(lage)?\.?$/, "");
-    const byName = villages.filter((v) => v.zh === q || v.zh === q + "里" || norm(v.short) === n);
-    if (byName.length === 1) return byName[0];
-    const partial = villages.filter((v) => v.zh.includes(q) || norm(v.short).includes(n));
-    return partial.length === 1 ? partial[0] : (partial.length ? partial : null);
-  }
-  function runSearch() {
-    const q = $("#vsearch").value;
-    const hit = findVillage(q);
-    if (!hit) {
-      msg.textContent = q.trim() ? `No village matches “${clean(q)}”. Try an English or Chinese name, e.g. Gangwei or 港尾里.` : "";
-      return;
-    }
-    if (Array.isArray(hit)) {
-      msg.textContent = `${hit.length} villages match. Pick one from the list: ${hit.slice(0, 6).map((v) => v.short).join(", ")}${hit.length > 6 ? "…" : ""}`;
-      return;
-    }
-    msg.textContent = "";
-    $("#vsearch").value = optLabel(hit);
-    select(hit, true);
-  }
-  $("#search-form").addEventListener("submit", (e) => { e.preventDefault(); runSearch(); });
-  $("#vsearch").addEventListener("change", () => {
-    if (villages.some((v) => optLabel(v) === $("#vsearch").value)) runSearch();
-  });
-
-  // ---------- plan land-use chart ----------
-  const Z = DATA.zoning;
-  const total = Z.find((z) => z.zh === "計畫面積");
-  const subtotal = Z.find((z) => z.zh === "分區小計");
-  const pub = Z.find((z) => z.zh === "公共設施用地");
-  const zones = Z.filter((z) => ![total, subtotal, pub].includes(z)).sort((a, b) => b.ha - a.ha);
-  const src = (total || Z[0]).source;
-  const dateMatch = src.match(/\d{4}-\d{2}-\d{2}/);
-  const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
-  $("#zoning-sub").innerHTML =
-    `Plan area <span class="num">${fmt(total.ha)}</span> ha | 2nd comprehensive review, public briefing${dateMatch ? ` <span class="nowrap">(${dateMatch[0]})</span>` : ""}`;
-  const split = $("#split");
-  split.setAttribute("aria-label", `Land-use zones ${fmt(subtotal.pct)}%, public facility land ${fmt(pub.pct)}%`);
-  split.innerHTML = `<span class="zones" style="flex:${subtotal.ha} 1 0"></span><span class="pub" style="flex:${pub.ha} 1 0"></span>`;
-  $("#split-legend").innerHTML = `
-    <li><span class="key" style="background:var(--hl)"></span><span>Land-use zones</span>${zh("土地使用分區")}<span class="v num">${fmt(subtotal.ha)} ha · ${fmt(subtotal.pct)}%</span></li>
-    <li><span class="key" style="background:var(--neutral-fill)"></span><span>${esc(cap(pub.en))}</span>${zh(pub.zh)}<span class="v num">${fmt(pub.ha)} ha · ${fmt(pub.pct)}%</span></li>`;
-  const maxHa = Math.max(...zones.map((z) => z.ha));
-  const zbars = $("#zbars");
-  zbars.innerHTML =
-    `<div class="zrow zhead" role="row"><span role="columnheader">Zone</span><span role="columnheader" aria-label="Area bar"></span><span class="r" role="columnheader">ha</span><span class="r" role="columnheader">Share</span></div>` +
-    zones.map((z, i) => `
-      <div class="zrow" role="row" data-i="${i}">
-        <span class="zname" role="cell">${esc(cap(z.en))}${zh(z.zh, "zh block")}</span>
-        <span class="ztrack" role="cell" aria-hidden="true"><span class="zbar" style="width:${(z.ha / maxHa) * 100}%"></span></span>
-        <span class="r num" role="cell">${fmt(z.ha)}</span>
-        <span class="r num" role="cell">${fmt(z.pct)}%</span>
-      </div>`).join("");
-  zbars.addEventListener("pointermove", (e) => {
-    const row = e.target.closest(".zrow[data-i]");
-    if (!row) { hideTip(); return; }
-    const z = zones[+row.dataset.i];
-    tip.innerHTML = `<b>${esc(cap(z.en))}</b>${zh(z.zh)}<br>` +
-      `<span class="num">${fmt(z.ha)} ha</span>, <span class="num">${fmt(z.pct)}%</span> of the plan area, <span class="num">${fmt((z.ha / subtotal.ha) * 100, 1)}%</span> of zoned land`;
-    placeTip(e.clientX, e.clientY);
-  });
-  zbars.addEventListener("pointerleave", hideTip);
-
-  // ---------- projects: list + numbered markers ----------
-  // Locations come from scripts/locate_projects.py (OSM features, a road junction or a traced plan block).
-  const chip = { open: ["open", "Open"], pending: ["pending", "Upcoming"], unknown: ["", "Unclassified"] };
-  const METHOD = { osm: "OpenStreetMap", intersection: "Road junction", plan_block: "Traced plan", ref: "Published coordinate" };
-  const locByZh = new Map((DATA.project_locations ? DATA.project_locations.features : []).map((f) => [f.properties.project_zh, f]));
-  const projects = DATA.projects.map((p, i) => {
-    const f = locByZh.get(p.zh);
-    const pr = { ...p, n: i + 1, loc: f && f.geometry ? f : null };
-    if (pr.loc) {
-      const [lon, lat] = pr.loc.geometry.coordinates;
-      pr.lon = lon; pr.lat = lat;
-      [pr.wx, pr.wy] = proj(lon, lat);
-      const fp = pr.loc.properties.footprint;
-      if (fp) {
-        const polys = pr.loc.properties.footprint_multi ? fp : [fp];
-        pr.footD = polys.map((poly) => poly.map((ring) => lineD(ring) + "Z").join("")).join("");
-        let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
-        for (const poly of polys) for (const ring of poly) for (const [lo, la] of ring) {
-          const [x, y] = proj(lo, la);
-          x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y);
-        }
-        pr.box = [x0, y0, x1, y1];
-      }
-    }
-    return pr;
-  });
-  const locatedProjects = new Set(projects.filter((p) => p.loc).map((p) => p.zh));
-  const gProj = $("#g-proj"), projFoot = $("#proj-foot");
-  let selProject = null;
-  for (const pr of projects) {
-    if (!pr.loc) continue;
-    pr.g = svgEl("g", { class: "proj-g" }, gProj);
-    const hit = svgEl("circle", { class: "proj-hit", r: 13 }, pr.g);
-    svgEl("circle", { class: "proj-dot", r: 9 }, pr.g);
-    svgEl("text", { class: "proj-num" }, pr.g).textContent = pr.n;
-    hit.__proj = pr;
-  }
-  function drawProjects() {
-    const show = $("#lyr-proj").checked;
-    gProj.style.display = show ? "" : "none";
-    projFoot.style.display = show ? "" : "none";
-    if (!show) return;
-    for (const pr of projects) {
-      if (pr.g) pr.g.setAttribute("transform", `translate(${view.k * pr.wx + view.tx} ${view.k * pr.wy + view.ty})`);
-    }
-  }
-  const showFoot = (pr) => { if (pr && pr.footD) projFoot.setAttribute("d", pr.footD); else projFoot.removeAttribute("d"); };
-  // each source string already names its kind (OpenStreetMap feature, traced plan block, ...)
-  const locText = (pr) => pr.loc.properties.source;
-  function showProjTip(pr, cx, cy) {
-    tip.innerHTML = `<b>${pr.n} · ${esc(pr.en)}</b>${zh(pr.zh)}<br>${esc(pr.status)}<br>` +
-      `<span class="num">${pr.lat.toFixed(5)}°N, ${pr.lon.toFixed(5)}°E</span><br>${esc(locText(pr))}`;
-    placeTip(cx, cy);
-    showFoot(pr);
-  }
-  function selectProject(pr, zoom) {
-    selProject = pr;
-    for (const q of projects) {
-      if (q.g) q.g.classList.toggle("is-sel", q === pr);
-      const li = document.getElementById(`proj-${q.n}`);
-      if (li) li.classList.toggle("is-sel", q === pr);
-    }
-    showFoot(pr);
-    if (pr && zoom) {
-      if (!$("#lyr-proj").checked) { $("#lyr-proj").checked = true; }
-      interacted = true;
-      const box = pr.box || [pr.wx - 250, pr.wy - 250, pr.wx + 250, pr.wy + 250];
-      setView(fitView(box, 70, fitK * 8), true);
-    }
-  }
-  $("#lyr-proj").addEventListener("change", draw);
-  $("#projects").innerHTML = projects.map((p) => {
-    const [cls, label] = chip[p.phase] || chip.unknown;
-    const loc = p.loc
-      ? `<p class="p-loc"><button type="button" class="btn-s" data-show="${p.n}">Show on map</button><span>${esc(METHOD[p.loc.properties.method] || "")}${p.loc.properties.area_ha ? ` · ${p.loc.properties.area_ha} ha mapped` : ""}</span></p>`
-      : `<p class="p-loc"><span>Park-wide figure, not mapped</span></p>`;
+  // night-market list, largest mapped area first
+  const byArea = [...nightMarkets].sort((a, b) => (b.extent_ha || b.ha || 0) - (a.extent_ha || a.ha || 0));
+  $("#nm-list").innerHTML = byArea.map((m, i) => {
+    const area = m.extent ? `about ${m.extent_ha} ha (OSM outline ${m.ha} ha)` : m.ha ? `${m.ha} ha mapped` : "point only";
     return `
-      <li id="proj-${p.n}">
-        <div class="p-head"><span class="pnum${p.loc ? "" : " none"}" aria-hidden="true">${p.n}</span><h3>${esc(p.en)}</h3><span class="chip ${cls}">${label}</span></div>
-        <p class="p-zh">${zh(p.zh)}${p.en_unofficial ? ` <span class="p-flag">· unofficial English name</span>` : ""}</p>
-        <p class="p-status">${esc(p.status)}</p>
-        ${p.figures ? `<p class="p-fig">${esc(p.figures)}</p>` : ""}
-        ${loc}
-        <p class="p-src">Source: ${esc(p.source)}</p>
+      <li>
+        <h3>${esc(m.en || m.zh)}${m.en ? zh(m.zh) : ""}</h3>
+        <p class="meta">${esc(m.district_en)} · ${area}</p>
+        <button type="button" class="btn-s" data-nm="${i}">Show on map</button>
       </li>`;
   }).join("");
-  $("#projects").addEventListener("click", (e) => {
-    const btn = e.target.closest("[data-show]");
-    if (btn) selectProject(projects[+btn.dataset.show - 1], true);
+  $("#nm-list").addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-nm]");
+    if (!btn) return;
+    if (!$("#lyr-mkt").checked) { $("#lyr-mkt").checked = true; setAttrib(); }
+    zoomTo(byArea[+btn.dataset.nm].box, 60, fitK * 10);
   });
-  const nLoc = locatedProjects.size;
-  $("#proj-note").textContent = nLoc
-    ? `Numbers match the markers on the map. ${nLoc} of ${projects.length} entries are placed: from OpenStreetMap features where mapped, otherwise from the traced plan; hover a marker for its source.`
-    : "This table has no coordinates, so the projects are not plotted on the map yet.";
+
+  // ---------- districts ----------
+  const legend = $("#legend");
+  for (const d of [...districts].sort((a, b) => b.nMarkets - a.nMarkets || a.i - b.i)) {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <button type="button" class="legend-dist" aria-label="Zoom to ${esc(d.en)}">
+        <span class="swatch" aria-hidden="true"></span>
+        <span><span class="nm">${esc(d.en)}</span>${zh(d.zh)}</span>
+        <span class="meta num">${d.nNight} / ${d.nMarkets}</span>
+      </button>`;
+    li.querySelector("button").title = `${marketCount(d)}; ${fmt(d.p.area_km2)} km²`;
+    li.querySelector("button").addEventListener("click", () => zoomTo(d.box, 24));
+    legend.appendChild(li);
+  }
+  legend.insertAdjacentHTML("afterbegin", `<li class="legend-group">Districts · night markets / all markets${zh("行政區・夜市／市場數")}</li>`);
+  $("#lyr-osm-wrap").hidden = !BASEMAP;
+  $("#lyr-osm").addEventListener("change", (e) => {
+    osmMsg.hidden = true;
+    tileErrors = 0;
+    setBasemap(e.target.checked);
+  });
+  $("#lyr-fill").addEventListener("change", (e) => svg.classList.toggle("no-fill", !e.target.checked));
 
   // ---------- sources ----------
-  const vertexCount = DATA.villages.features.reduce((s, f) => s + (f.geometry ? rings(f.geometry).flat().reduce((t, r) => t + r.length, 0) : 0), 0);
-  const approxVil = villages.filter((v) => v.approx);
+  const osmLink = '<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>';
   $("#sources").innerHTML = [
-    `Boundaries: ${esc(DATA.boundary_source)}`,
-    `Boundaries are simplified (about ${vertexCount} vertices for ${villages.length} villages). Use them for context, not for measurement or precise overlay. Areas come from the attribute table.`,
-    `Old downtown: Central, East, South, West and North Districts (the old_downtown flag in the source); its outline merges their boundaries. The old-downtown and Xitun–Beitun files are subsets of the former-city files.`,
-    ...approxVil.map((v) => `${esc(v.en)} (${esc(v.zh)}, ${esc(v.dist.en)}) has no boundary in the source file; it is drawn as a dashed circle of its area (${fmt(v.p.area_km2, 3)} km²) at its label point.`),
-    `Land use: ${esc(src)}`,
-    `Detailed plan overlay: ${esc(G.source)}. Placed by a similarity transform fitted to OpenStreetMap road centrelines (scale ${G.scale_m_per_mm} m per drawing mm, matching the zone areas; rotation ${G.rotation_deg}°); ${esc(G.status)}.`,
-    `Reference points: coordinates as published by the sources listed with each point (Wikipedia infoboxes, OurAirports).`,
-    ...(DATA.project_locations ? [`Major project locations: OpenStreetMap features (© OpenStreetMap contributors, ODbL 1.0; fetched ${esc(DATA.project_locations.landmarks_fetched || "")}), matched by name and type; Central Park from the traced plan. Mapped footprints may differ from official site areas.`] : []),
-    ...(DATA.roads ? [`Road network: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors, ODbL 1.0; fetched ${esc(DATA.roads.fetched)} via the Overpass API and simplified to ${DATA.roads.simplify_tolerance_m} m. Local streets cover the Shuinan area only.`] : []),
-    ...(markets.length ? [`Markets: © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors, ODbL 1.0; fetched ${esc(DATA.markets.fetched || "")}. ${markets.length} marketplaces inside the eight districts, ${markets.filter((m) => m.night).length} of them night markets (named 夜市). Only markets mapped in OpenStreetMap appear; points are footprint centres where an outline is mapped, and night markets also show that outline.${markets.some((m) => m.extent) ? " The dashed Feng Chia extent is our approximation: OSM street centrelines of Wenhua Road, Fengjia Road, Fuxing Road and Fengjia Road Lane 20 (the streets <i>Business Today</i>, 2015, names as the market area), buffered by 15 m. No official boundary is published." : ""}`] : []),
-    `Major projects: sources are listed with each entry. The Open / Upcoming chips are our grouping of the status text.`,
-    `Coordinates: WGS84 (CRS84). The map uses Web Mercator to match the OpenStreetMap tiles; the scale bar uses the east-west scale at the center of the study area.`,
-    ...(BASEMAP ? [`Basemap: vector tiles from <a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> (© <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">OpenMapTiles</a>, data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors), drawn with MapLibre GL JS. Labels show the English name (OSM name:en) where one is mapped, otherwise the local name. If the vector map cannot start, the standard OpenStreetMap tiles are used instead (labels in the local language), under the OSMF <a href="https://operations.osmfoundation.org/policies/tiles/" target="_blank" rel="noopener">tile usage policy</a>.`] : []),
+    ...(markets.length ? [`Markets: © ${osmLink} contributors, ODbL 1.0; fetched ${esc(DATA.markets.fetched || "")}. ${markets.length} marketplaces inside the eight districts, ${nightMarkets.length} of them night markets (named 夜市). Only markets mapped in OpenStreetMap appear; points are footprint centres where an outline is mapped, and night markets also show that outline.`] : []),
+    ...(markets.some((m) => m.extent) ? ["The dashed Feng Chia extent is our approximation: OSM street centrelines of Wenhua Road, Fengjia Road, Fuxing Road and Fengjia Road Lane 20 (the streets <i>Business Today</i>, 2015, names as the market area), buffered by 15 m. No official boundary is published."] : []),
+    `District boundaries: ${esc(DATA.boundary_source)}. Simplified; use them for orientation, not measurement. Areas come from the attribute table.`,
+    `Coordinates: WGS84 (CRS84). The map uses Web Mercator to match the basemap; the scale bar uses the east-west scale at the center of the map.`,
+    ...(BASEMAP ? [`Basemap: vector tiles from <a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> (© <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">OpenMapTiles</a>, data © ${osmLink} contributors), drawn with MapLibre GL JS. Labels show the English name (OSM name:en) where one is mapped, otherwise the local name. If the vector map cannot start, the standard OpenStreetMap tiles are used instead (labels in the local language), under the OSMF <a href="https://operations.osmfoundation.org/policies/tiles/" target="_blank" rel="noopener">tile usage policy</a>.`] : []),
   ].map((t) => `<li>${t}</li>`).join("");
 
   // ---------- style (Deck / Program) and tone (Light / White / Dark) ----------
-  // Both choices are stored per browser and shared with the landing page; without a tone the system setting decides.
+  // Both choices are stored per browser; without a tone the system setting decides.
   const root = document.documentElement;
   const sysDark = window.matchMedia("(prefers-color-scheme: dark)");
   const themeBtns = [...document.querySelectorAll("[data-theme-set]")];

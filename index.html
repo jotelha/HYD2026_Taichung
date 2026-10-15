@@ -6,185 +6,279 @@
 <meta name="referrer" content="strict-origin-when-cross-origin">
 </head>
 <body>
-<title>HYD2026 Taichung Outputs</title>
+<title>Boba Index</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=Instrument+Sans:wght@400..700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+TC:wght@400;500;600;700&family=Noto+Serif+TC:wght@500;600&display=swap">
 <style>
-/* Layout: one reading column; each output sits under a 2px ink rule with its map outline beside the description.
-   Same palette and type as the map page (after the HYD Healthy City Workshop deck) so the two read as one set.
-   Style and tone switches as on the map: data-style = (none, the deck) | "program" (after the HYD Taichung program
-   page), data-theme = "light" | "white" | "dark" (none: follow the system). */
+/* Layout: a survey-sheet map inside a hairline neatline with coordinate ticks in the margin (left),
+   a side column with the night-market list, legend and data notes (right); stacks to one column under 960px.
+   Palette and type follow the HYD Healthy City Workshop deck: warm greys on #f4f4f2 with ink #1c1c1c,
+   2px ink rules between blocks, Instrument Serif / Instrument Sans / JetBrains Mono, Noto TC for Chinese.
+   Two header switches set attributes on <html>:
+     data-style = (none, the deck) | "program": after the HYD Taichung program page, with navy ink on cool grey,
+                  sun-yellow highlights, Bricolage Grotesque / IBM Plex and rounded cards;
+     data-theme = "light" | "white" | "dark"; without it, light or dark follows the system setting.
+   Each style defines its colours for all three tones; components read only the tokens below. */
 :root {
   --bg: #f4f4f2;
+  --surface: #f4f4f2;
   --field: #fbfbf9;
   --ground: #e9e9e5;
   --ink: #1c1c1c;
   --ink-2: #3f3f3c;
   --muted: #6b6b67;
   --rule: #d2d2ce;
-  --line-vil: #8f8f8b;
   --line-admin: #1c1c1c;
   --accent: #1c1c1c;
-  --accent-ink: #f2f2ef;
-  --d0-fill: #c9c9c5;
+  --tip-bg: #1c1c1c;
+  --tip-ink: #f2f2ef;
+  --tip-muted: #a3a3a0;
+  /* districts: two steps of the deck's grey ramp, one step darker on hover / selection */
   --d1-fill: #e4e4e0;
-  --surface: var(--field);
+  --d1-hot: #d2d2ce;
+  /* over the greyscale OSM tiles the same districts become ink washes */
+  --d1-wash: 0.05;
+  --d1-wash-hot: 0.18;
+  --tile-filter: grayscale(1) contrast(0.92) brightness(1.03);
+  --shadow: 0 8px 24px rgba(28, 28, 28, 0.18);
+  /* highlight: ink in the monochrome deck, sun yellow in the program style */
   --hl: var(--ink);
-  --on-hl: var(--bg);
   --hl-text: var(--ink);
-  --old-band: color-mix(in srgb, var(--ink) 20%, transparent);
+  --mkt-area: #d9480f;
   --r-sm: 2px;
-  --r-md: 0px;
+  --r-md: 2px;
   --rule-strong: 2px solid var(--ink);
+  --dist-char: 8.5; /* approx px per character of a district label, for label collision */
 
   --font-display: "Instrument Serif", "Noto Serif TC", "Songti TC", "PMingLiU", Georgia, serif;
   --font-body: "Instrument Sans", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
   --font-zh: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+  --fs-xs: 11.5px;
+  --fs-sm: 13px;
+  --fs-md: 14.5px;
+  --fs-lg: 20px;
+  --fs-xl: 32px;
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]):not([data-theme="white"]) {
     --bg: #1c1c1c;
+    --surface: #1c1c1c;
     --field: #262624;
     --ground: #232321;
     --ink: #f2f2ef;
     --ink-2: #d2d2ce;
     --muted: #a3a3a0;
     --rule: #3f3f3c;
-    --line-vil: #6b6b67;
     --line-admin: #f2f2ef;
     --accent: #f2f2ef;
-    --accent-ink: #1c1c1c;
-    --d0-fill: #4a4a47;
+    --tip-bg: #f2f2ef;
+    --tip-ink: #1c1c1c;
+    --tip-muted: #6b6b67;
     --d1-fill: #2c2c2a;
+    --d1-hot: #3a3a37;
+    --d1-wash: 0.07;
+    --d1-wash-hot: 0.2;
+    --tile-filter: grayscale(1) invert(1) brightness(0.8) contrast(0.92);
+    --shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    --mkt-area: #ff8a4c;
     color-scheme: dark;
   }
 }
 :root[data-theme="white"] {
   --bg: #ffffff;
+  --surface: #ffffff;
   --field: #f6f6f4;
-  --ground: #f1f1ee;
+  --ground: #ffffff;
   --rule: #dcdcd8;
-  --line-vil: #9b9b97;
-  --d0-fill: #d5d5d1;
-  --d1-fill: #eeeeeb;
+  --d1-fill: #ececea;
+  --d1-hot: #dededa;
+  --d1-wash: 0.04;
+  --d1-wash-hot: 0.16;
+  --tile-filter: grayscale(1) contrast(0.9) brightness(1.08);
+  --shadow: 0 8px 24px rgba(28, 28, 28, 0.14);
   color-scheme: light;
 }
 :root[data-theme="dark"] {
   --bg: #1c1c1c;
+  --surface: #1c1c1c;
   --field: #262624;
   --ground: #232321;
   --ink: #f2f2ef;
   --ink-2: #d2d2ce;
   --muted: #a3a3a0;
   --rule: #3f3f3c;
-  --line-vil: #6b6b67;
   --line-admin: #f2f2ef;
   --accent: #f2f2ef;
-  --accent-ink: #1c1c1c;
-  --d0-fill: #4a4a47;
+  --tip-bg: #f2f2ef;
+  --tip-ink: #1c1c1c;
+  --tip-muted: #6b6b67;
   --d1-fill: #2c2c2a;
+  --d1-hot: #3a3a37;
+  --d1-wash: 0.07;
+  --d1-wash-hot: 0.2;
+  --tile-filter: grayscale(1) invert(1) brightness(0.8) contrast(0.92);
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --mkt-area: #ff8a4c;
   color-scheme: dark;
 }
-/* program style (after the HYD Taichung program page); after the deck's rules so it wins ties */
+/* program style (after the HYD Taichung program page); these rules come after the deck's so they win ties */
 :root[data-style="program"] {
   --bg: #f3f4f7;
-  --field: #ffffff;
   --surface: #ffffff;
+  --field: #ffffff;
   --ground: #eceef3;
   --ink: #16182a;
   --ink-2: #34384c;
   --muted: #5a5f70;
   --rule: #dcdfe7;
-  --line-vil: #b9bdca;
   --line-admin: #16182a;
   --accent: #16182a;
-  --accent-ink: #ffffff;
-  --d0-fill: #fff4cc;
+  --tip-bg: #16182a;
+  --tip-ink: #eeeff3;
+  --tip-muted: #a3a7b7;
   --d1-fill: #ffffff;
+  --d1-hot: #f0f2f7;
+  --d1-wash: 0.02;
+  --d1-wash-hot: 0.1;
+  --tile-filter: grayscale(1) contrast(0.9) brightness(1.04);
+  --shadow: 0 8px 24px rgba(22, 24, 42, 0.16);
   --hl: #f2b705;
-  --on-hl: #16182a;
   --hl-text: #7e5c00;
-  --old-band: color-mix(in srgb, #f2b705 75%, transparent);
   color-scheme: light;
   --r-sm: 6px;
   --r-md: 12px;
   --rule-strong: 1px solid var(--rule);
+  --dist-char: 10;
   --font-display: "Bricolage Grotesque", "Noto Sans TC", system-ui, sans-serif;
   --font-body: "IBM Plex Sans", "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
   --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
 }
-:root[data-style="program"][data-theme="white"] { --bg: #ffffff; --ground: #f3f4f7; --rule: #e3e5ec; }
+:root[data-style="program"][data-theme="white"] {
+  --bg: #ffffff;
+  --ground: #f3f4f7;
+  --rule: #e3e5ec;
+}
 @media (prefers-color-scheme: dark) {
   :root[data-style="program"]:not([data-theme="light"]):not([data-theme="white"]) {
     --bg: #11121a;
-    --field: #1a1c28;
     --surface: #1a1c28;
+    --field: #222536;
     --ground: #151722;
     --ink: #eeeff3;
     --ink-2: #cdd0da;
     --muted: #a3a7b7;
     --rule: #2c2f40;
-    --line-vil: #454960;
     --line-admin: #eeeff3;
     --accent: #eeeff3;
-    --accent-ink: #11121a;
-    --d0-fill: #2e2914;
+    --tip-bg: #eeeff3;
+    --tip-ink: #16182a;
+    --tip-muted: #5a5f70;
     --d1-fill: #1e2130;
+    --d1-hot: #272b3d;
+    --d1-wash: 0.04;
+    --d1-wash-hot: 0.14;
+    --tile-filter: grayscale(1) invert(1) brightness(0.78) contrast(0.95);
+    --shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
     --hl: #f5c02a;
-    --on-hl: #16182a;
     --hl-text: #f5c02a;
-    --old-band: color-mix(in srgb, #f5c02a 60%, transparent);
     color-scheme: dark;
   }
 }
 :root[data-style="program"][data-theme="dark"] {
   --bg: #11121a;
-  --field: #1a1c28;
   --surface: #1a1c28;
+  --field: #222536;
   --ground: #151722;
   --ink: #eeeff3;
   --ink-2: #cdd0da;
   --muted: #a3a7b7;
   --rule: #2c2f40;
-  --line-vil: #454960;
   --line-admin: #eeeff3;
   --accent: #eeeff3;
-  --accent-ink: #11121a;
-  --d0-fill: #2e2914;
+  --tip-bg: #eeeff3;
+  --tip-ink: #16182a;
+  --tip-muted: #5a5f70;
   --d1-fill: #1e2130;
+  --d1-hot: #272b3d;
+  --d1-wash: 0.04;
+  --d1-wash-hot: 0.14;
+  --tile-filter: grayscale(1) invert(1) brightness(0.78) contrast(0.95);
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
   --hl: #f5c02a;
-  --on-hl: #16182a;
   --hl-text: #f5c02a;
-  --old-band: color-mix(in srgb, #f5c02a 60%, transparent);
   color-scheme: dark;
 }
 
-* { box-sizing: border-box; }
+html, body { height: 100%; }
 body {
   margin: 0;
   background: var(--bg);
   color: var(--ink);
-  font: 15px/1.7 var(--font-body);
+  font: var(--fs-md)/1.5 var(--font-body);
   -webkit-font-smoothing: antialiased;
 }
-a { color: var(--ink); text-underline-offset: 3px; }
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+button, input { font: inherit; color: inherit; }
 :focus-visible { outline: 2px solid var(--hl); outline-offset: 2px; }
 
-.page {
-  max-width: 980px;
-  margin-inline: auto;
-  padding-inline: 16px;
-  padding-block: 40px 56px;
-  display: grid;
-  gap: 44px;
+/* Chinese as the supporting language: smaller, quieter, set in the CJK face */
+.zh {
+  margin-left: 0.4em;
+  font-family: var(--font-zh);
+  font-size: 0.86em;
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  color: var(--muted);
 }
-.page > * { min-width: 0; }
+.zh.block { display: block; margin-left: 0; }
 
-/* when the switches do not fit beside the eyebrow they wrap above it, still on the right */
-.bar { display: flex; flex-wrap: wrap-reverse; align-items: center; justify-content: space-between; gap: 8px 16px; }
-.switches { display: flex; flex-wrap: wrap; gap: 6px; margin-left: auto; }
+.app {
+  min-height: 100%;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  gap: 12px;
+  padding-inline: 16px;
+  padding-block: 14px 16px;
+}
+
+/* ---------- header ---------- */
+.top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 4px 24px;
+}
+.eyebrow {
+  margin: 0;
+  font: 500 var(--fs-xs)/1.4 var(--font-mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.eyebrow a { color: inherit; text-underline-offset: 3px; }
+h1 {
+  margin: 4px 0 0;
+  font: 400 var(--fs-xl)/1.1 var(--font-display);
+  letter-spacing: -0.5px;
+  text-wrap: balance;
+}
+h1 i { font-style: italic; }
+h1 .zh { margin-left: 0.5em; font-family: "Noto Serif TC", "Songti TC", serif; font-size: 0.5em; font-weight: 500; letter-spacing: 0.08em; }
+.facts {
+  margin: 0;
+  font: var(--fs-xs)/1.5 var(--font-mono);
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+}
+.top-r { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; }
+@media (max-width: 640px) { .top-r { align-items: flex-start; } }
+.switches { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+@media (max-width: 640px) { .switches { justify-content: flex-start; } }
 .theme-switch { display: inline-flex; border: 1px solid var(--rule); border-radius: var(--r-sm); overflow: hidden; }
 .theme-switch button {
   padding: 3px 9px;
@@ -200,125 +294,334 @@ a { color: var(--ink); text-underline-offset: 3px; }
 .theme-switch button:first-child { border-left: 0; }
 .theme-switch button:hover { background: var(--field); }
 .theme-switch button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
-.theme-switch .zh { margin-left: 0.35em; font-size: 11px; color: inherit; opacity: 0.75; }
-.eyebrow {
-  margin: 0;
-  font: 500 11.5px/1.4 var(--font-mono);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--muted);
+.theme-switch .zh { margin-left: 0.35em; font-size: 11px; letter-spacing: 0.02em; text-transform: none; color: inherit; opacity: 0.75; }
+
+/* ---------- main grid ---------- */
+.main {
+  display: grid;
+  gap: 14px;
+  min-height: 0;
 }
-h1 {
-  margin: 8px 0 0;
-  font: 400 clamp(36px, 6vw, 56px)/1.05 var(--font-display);
-  letter-spacing: -1px;
+.mapframe {
+  position: relative;
+  height: clamp(340px, 62vh, 640px);
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-top: var(--rule-strong);
+  border-radius: var(--r-md);
+  overflow: hidden;
+  min-width: 0;
+}
+.aside { min-width: 0; }
+
+@media (min-width: 960px) {
+  .app { height: 100%; }
+  .main { grid-template-columns: minmax(0, 1fr) 392px; }
+  .mapframe { height: auto; min-height: 0; }
+  .aside { overflow-y: auto; padding-right: 4px; }
+}
+
+/* ---------- map svg ---------- */
+#map {
+  position: relative;
+  z-index: 1;
+  display: block;
+  width: 100%;
+  height: 100%;
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+#map.dragging { cursor: grabbing; }
+#map:focus-visible { outline: 2px solid var(--hl); outline-offset: -3px; }
+.ground { fill: var(--ground); }
+.neatline { fill: none; stroke: var(--line-admin); stroke-width: 1; }
+
+.dfill { fill: var(--d1-fill); stroke: none; }
+.dfill.is-hot { fill: var(--d1-hot); }
+#map.no-fill .dfill { fill: transparent; }
+#map.no-fill .dfill.is-hot { fill: color-mix(in srgb, var(--ink) 8%, transparent); }
+
+
+/* basemap: OpenFreeMap vector tiles (MapLibre) or, as a fallback, OSM raster tiles, in HTML layers under the svg */
+.tiles {
+  position: absolute;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  filter: var(--tile-filter);
+}
+.tiles img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  max-width: none;
+  user-select: none;
+}
+.vbase {
+  position: absolute;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  filter: var(--tile-filter);
+}
+.vbase > div { width: 100%; height: 100%; }
+#map.has-tiles .ground { fill: none; }
+#map.has-tiles .dfill { fill: var(--ink); fill-opacity: var(--d1-wash); }
+#map.has-tiles .dfill.is-hot { fill-opacity: var(--d1-wash-hot); }
+#map.has-tiles.no-fill .dfill { fill-opacity: 0; }
+#map.has-tiles.no-fill .dfill.is-hot { fill-opacity: 0.1; }
+
+.dist {
+  fill: none;
+  stroke: var(--line-admin);
+  stroke-width: 1.8;
+  vector-effect: non-scaling-stroke;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+.hover-outline {
+  fill: none;
+  vector-effect: non-scaling-stroke;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+.hover-outline { stroke: var(--ink-2); stroke-width: 1.4; }
+
+/* map labels: English line first, Chinese line beneath */
+.dlabel {
+  paint-order: stroke;
+  stroke: var(--surface);
+  stroke-linejoin: round;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+.dlabel { stroke-width: 4px; }
+.dlabel .l1 { font: italic 400 21px var(--font-display); letter-spacing: -0.2px; fill: var(--ink); }
+.dlabel .l2 { font: 500 11.5px "Noto Serif TC", "Songti TC", serif; letter-spacing: 0.3em; fill: var(--ink-2); }
+
+.tick { stroke: var(--line-admin); stroke-width: 1; }
+.ticklabel {
+  font: 10px var(--font-mono);
+  fill: var(--muted);
+  text-anchor: middle;
+  font-variant-numeric: tabular-nums;
+}
+.sb-a { fill: var(--ink); }
+.sb-b { fill: var(--surface); }
+.sb-frame { fill: none; stroke: var(--ink); stroke-width: 1; }
+.sb-label {
+  font: 10px var(--font-mono);
+  fill: var(--ink);
+  text-anchor: middle;
+  paint-order: stroke;
+  stroke: var(--surface);
+  stroke-width: 3px;
+}
+.north-a { fill: var(--ink); }
+.north-b { fill: var(--surface); stroke: var(--ink); stroke-width: 1; }
+.north-n { font: 700 11px var(--font-mono); fill: var(--ink); text-anchor: middle; }
+
+/* ---------- map overlays ---------- */
+.map-ctrl {
+  position: absolute;
+  z-index: 2;
+  top: 16px;
+  right: 16px;
+  display: grid;
+  gap: 4px;
+}
+.map-ctrl button {
+  width: 32px;
+  height: 32px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  background: var(--field);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-sm);
+  color: var(--ink);
+  cursor: pointer;
+  font: 500 18px/1 var(--font-mono);
+}
+.map-ctrl button:hover { background: var(--bg); }
+.map-ctrl svg { width: 16px; height: 16px; }
+.attrib {
+  position: absolute;
+  z-index: 2;
+  right: 9px;
+  bottom: 23px;
+  padding: 1px 6px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  font-size: 10.5px;
+  line-height: 1.5;
+  color: var(--ink-2);
+}
+.attrib a { color: inherit; }
+.coord {
+  position: absolute;
+  z-index: 2;
+  right: 16px;
+  bottom: 48px;
+  padding: 2px 6px;
+  background: color-mix(in srgb, var(--surface) 88%, transparent);
+  font: var(--fs-xs)/1.4 var(--font-mono);
+  color: var(--ink-2);
+  font-variant-numeric: tabular-nums;
+  pointer-events: none;
+}
+.tip {
+  position: fixed;
+  z-index: 10;
+  max-width: 280px;
+  padding: 7px 10px;
+  background: var(--tip-bg);
+  color: var(--tip-ink);
+  border-radius: var(--r-sm);
+  box-shadow: var(--shadow);
+  font-size: var(--fs-sm);
+  line-height: 1.45;
+  pointer-events: none;
+}
+.tip .zh { color: var(--tip-muted); }
+.tip b { font-size: var(--fs-md); }
+.tip .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+/* ---------- reference column ---------- */
+.aside section {
+  padding-block: 10px 18px;
+  border-top: var(--rule-strong);
+}
+h2 {
+  margin: 0 0 10px;
+  font: 400 23px/1.15 var(--font-display);
+  letter-spacing: -0.3px;
   text-wrap: balance;
 }
-.lede { margin: 16px 0 0; max-width: 40em; color: var(--ink-2); }
-h1 i, .work h3 i { font-style: italic; }
+h2 .zh { font-size: 13px; letter-spacing: 0.04em; }
+h2 .zh.block { margin-top: 3px; }
+.sub { margin: -4px 0 12px; font-size: var(--fs-sm); color: var(--ink-2); }
+.note { margin: 10px 0 0; font-size: var(--fs-xs); color: var(--muted); line-height: 1.5; }
+.num, .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.nowrap { white-space: nowrap; }
 
-/* Chinese as the supporting language: smaller, quieter, set in the CJK face */
-.zh {
-  margin-left: 0.45em;
-  font-family: var(--font-zh);
-  font-size: 0.86em;
-  font-weight: 400;
-  font-style: normal;
-  letter-spacing: 0.02em;
-  text-transform: none;
-  color: var(--muted);
-}
-.zh.block { display: block; margin-left: 0; margin-top: 4px; }
-h1 .zh { font-family: "Noto Serif TC", "Songti TC", serif; font-size: 0.42em; font-weight: 500; letter-spacing: 0.08em; }
-.lede .zh.block { margin-top: 8px; font-size: 13.5px; line-height: 1.7; }
-.work h3 .zh.block { font-family: "Noto Serif TC", "Songti TC", serif; font-size: 15px; letter-spacing: 0.08em; margin-top: 6px; }
-
-/* section labels: mono caps under a 2px ink rule, as in the deck */
-h2 {
-  margin: 0 0 16px;
-  padding-top: 10px;
-  border-top: var(--rule-strong);
-  font: 500 11.5px/1.4 var(--font-mono);
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
-
-/* output sheet */
-.work {
+/* legend */
+.legend { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.legend-group { margin: 6px 0 0; font: 500 10.5px var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.legend-group:first-child { margin-top: 0; }
+.legend-group .zh { text-transform: none; letter-spacing: 0.02em; }
+.legend-dist {
   display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr);
-  gap: 32px;
+  grid-template-columns: 22px minmax(0, 1fr) auto;
   align-items: center;
-}
-@media (max-width: 760px) {
-  .work { grid-template-columns: 1fr; gap: 18px; }
-}
-.thumb-link {
-  display: block;
-  padding: 10px;
+  gap: 10px;
+  width: 100%;
+  padding: 6px 8px;
+  background: transparent;
   border: 1px solid var(--rule);
-  border-radius: var(--r-md);
-  background: var(--field);
-}
-.thumb { display: block; width: 100%; height: auto; }
-.thumb .v { stroke: var(--line-vil); stroke-width: 0.6; stroke-linejoin: round; }
-.thumb .v.d0 { fill: var(--d0-fill); }
-.thumb .v.d1 { fill: var(--d1-fill); }
-.thumb .dist { fill: none; stroke: var(--line-admin); stroke-width: 1.4; stroke-linejoin: round; }
-.thumb .old { fill: none; stroke: var(--old-band); stroke-width: 6; stroke-linejoin: round; }
-.thumb-link:hover { border-color: var(--hl); }
-
-.kicker { margin: 0; font: 500 11px/1.4 var(--font-mono); letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
-.work h3 { margin: 6px 0 10px; font: 400 34px/1.1 var(--font-display); letter-spacing: -0.5px; }
-.work h3 a { color: var(--ink); text-decoration: none; }
-.work h3 a:hover { text-decoration: underline; text-decoration-thickness: 1px; }
-.work p.desc { margin: 0; color: var(--ink-2); }
-.facts {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 0;
-  margin: 16px 0 20px;
-  font-size: 13px;
-}
-.facts dt, .facts dd { margin: 0; padding: 5px 14px 5px 0; border-top: 1px solid var(--rule); }
-.facts dt { font: 500 10.5px/2 var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
-.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
-.btn {
-  display: inline-block;
-  padding: 10px 20px;
-  background: var(--accent);
-  color: var(--accent-ink);
   border-radius: var(--r-sm);
-  font-weight: 600;
-  text-decoration: none;
+  text-align: left;
+  cursor: pointer;
 }
-.btn:hover { opacity: 0.86; }
+.legend-dist:hover { background: var(--field); }
+.legend-dist .nm { font-weight: 700; }
+.legend-dist .meta { font-size: var(--fs-xs); color: var(--ink-2); }
+.swatch {
+  width: 22px;
+  height: 16px;
+  border: 1.5px solid var(--line-admin);
+  background: var(--d1-fill);
+}
+.legend-lines {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--fs-sm);
+  color: var(--ink-2);
+}
+.legend-lines li { display: flex; align-items: center; gap: 8px; }
+.line-key { width: 26px; height: 0; border-top: 2px solid var(--line-admin); }
+.toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin-top: 12px;
+  font-size: var(--fs-sm);
+}
+.toggles label { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+.toggles .zh { margin-left: 0.1em; }
+.toggles input { accent-color: var(--accent); width: 15px; height: 15px; margin: 0; }
 
-/* program style: type and details */
-:root[data-style="program"] h1 { font-weight: 800; font-size: clamp(34px, 5.6vw, 58px); line-height: 0.98; letter-spacing: -0.02em; }
+
+
+.sources { margin: 0; padding-left: 1.1em; font-size: var(--fs-xs); color: var(--ink-2); display: grid; gap: 6px; }
+.sources a { color: inherit; text-underline-offset: 2px; }
+
+/* markets: dots and labels on screen, night-market areas in world units */
+.mkt-area, .mkt-extent { fill: var(--mkt-area); stroke: var(--mkt-area); vector-effect: non-scaling-stroke; stroke-linejoin: round; cursor: help; }
+.mkt-area { fill-opacity: 0.45; stroke-width: 1.5; }
+.mkt-extent { fill-opacity: 0.16; stroke-width: 1.25; stroke-dasharray: 5 3; }
+.mkt-hit { fill: transparent; cursor: help; }
+.mkt-dot { fill: var(--surface); stroke: var(--ink-2); stroke-width: 1.5px; pointer-events: none; }
+.mkt-g.night .mkt-dot { fill: var(--ink); stroke: var(--surface); stroke-width: 2px; paint-order: stroke; }
+.mkt-label {
+  font: 500 10.5px var(--font-body);
+  fill: var(--ink-2);
+  paint-order: stroke;
+  stroke: var(--surface);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+  pointer-events: none;
+}
+.mkt-g.night .mkt-label { font-weight: 600; fill: var(--ink); }
+.mkt-key { width: 26px; display: flex; justify-content: center; }
+.mkt-key::before { content: ""; width: 7px; height: 7px; border-radius: 50%; box-sizing: border-box; border: 1.5px solid var(--ink-2); background: var(--surface); }
+.mkt-key.night::before { width: 9px; height: 9px; border: 0; background: var(--ink); }
+.mkt-key.area::before, .mkt-key.extent::before { width: 18px; height: 10px; border-radius: 0; border: 1.5px solid var(--mkt-area); background: color-mix(in srgb, var(--mkt-area) 45%, transparent); }
+.mkt-key.extent::before { border-style: dashed; background: color-mix(in srgb, var(--mkt-area) 16%, transparent); }
+.btn-s {
+  padding: 5px 11px;
+  background: var(--field);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-sm);
+  font-size: var(--fs-sm);
+  cursor: pointer;
+}
+.btn-s:hover { border-color: var(--hl); }
+
+/* night-market list */
+.intro { margin: 0 0 14px; font-size: var(--fs-sm); color: var(--ink-2); line-height: 1.5; }
+.nm-list { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.nm-list li { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 2px 10px; }
+.nm-list h3 { margin: 0; font-size: var(--fs-md); font-weight: 700; }
+.nm-list .zh { font-size: var(--fs-sm); }
+.nm-list .meta { grid-column: 1; margin: 0; font-size: var(--fs-xs); color: var(--ink-2); }
+.nm-list .btn-s { grid-column: 2; grid-row: 1 / span 2; padding: 2px 8px; font-size: var(--fs-xs); }
+
+/* ---------- program style: type and details ---------- */
+:root[data-style="program"] h1 { font-weight: 800; font-size: 29px; letter-spacing: -0.02em; }
 :root[data-style="program"] h1::before { content: "#"; color: var(--hl-text); }
-:root[data-style="program"] h1 i,
-:root[data-style="program"] .work h3 i { font-style: normal; }
-:root[data-style="program"] h1 .zh,
-:root[data-style="program"] .work h3 .zh.block { font-family: var(--font-zh); font-weight: 600; letter-spacing: 0.04em; }
-:root[data-style="program"] .work h3 { font-weight: 800; font-size: 30px; letter-spacing: -0.01em; }
-:root[data-style="program"] .eyebrow, :root[data-style="program"] h2, :root[data-style="program"] .kicker { letter-spacing: 0.08em; }
-:root[data-style="program"] .btn:hover { opacity: 1; background: var(--hl); color: var(--on-hl); }
+:root[data-style="program"] h1 i { font-style: normal; }
+:root[data-style="program"] h1 .zh { font-family: var(--font-zh); font-size: 0.55em; font-weight: 600; letter-spacing: 0.04em; }
+:root[data-style="program"] h2 { font-weight: 800; font-size: 21px; letter-spacing: -0.01em; }
+:root[data-style="program"] .dlabel .l1 { font-style: normal; font-weight: 800; font-size: 17px; letter-spacing: -0.01em; }
+:root[data-style="program"] .dlabel .l2 { font-family: var(--font-zh); font-weight: 600; letter-spacing: 0.2em; }
+:root[data-style="program"] .eyebrow { letter-spacing: 0.08em; }
+:root[data-style="program"] .eyebrow a { color: var(--hl-text); }
+:root[data-style="program"] .facts { padding: 3px 9px; background: var(--surface); border: 1px solid var(--rule); border-radius: 4px; }
+:root[data-style="program"] .legend-dist { background: var(--surface); }
+:root[data-style="program"] .legend-dist:hover { background: var(--surface); border-color: var(--hl); }
+:root[data-style="program"] .map-ctrl button { background: var(--surface); box-shadow: 0 1px 2px rgba(22, 24, 42, 0.14); }
+:root[data-style="program"] .swatch { border-radius: 3px; }
 
-/* downloads */
-.table-wrap { overflow-x: auto; }
-table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
-th, td { padding: 9px 10px 9px 0; text-align: left; vertical-align: top; border-bottom: 1px solid var(--rule); }
-th { font: 500 10.5px var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
-td.file { min-width: 11em; overflow-wrap: anywhere; }
-td.size { white-space: nowrap; text-align: right; padding-right: 0; }
-th.size { text-align: right; padding-right: 0; }
-td .fmt { margin-left: 6px; font: 11px var(--font-mono); color: var(--muted); }
-
-.sources { margin: 0; padding-left: 1.1em; display: grid; gap: 8px; font-size: 13px; color: var(--ink-2); }
-footer { font-size: 12.5px; color: var(--muted); border-top: 1px solid var(--rule); padding-top: 14px; }
-footer a { color: inherit; }
+@media (prefers-reduced-motion: reduce) {
+  * { transition: none !important; animation: none !important; }
+}
 </style>
 <script>
   try {
@@ -328,10 +631,13 @@ footer a { color: inherit; }
   } catch (err) { /* storage unavailable: follow the system setting */ }
 </script>
 
-<div class="page" lang="en">
-  <header>
-    <div class="bar">
-      <p class="eyebrow">#HackYourDistrict 2026 · Taichung · Former city and Shuinan layers</p>
+<div class="app" lang="en">
+  <header class="top">
+    <div>
+      <p class="eyebrow">#HackYourDistrict 2026 · Taichung · Night market prototype</p>
+      <h1>Boba <i>Index</i><span class="zh" lang="zh-Hant-TW">珍奶指數</span></h1>
+    </div>
+    <div class="top-r">
       <div class="switches">
         <div class="theme-switch" role="group" aria-label="Style">
           <button type="button" data-style-set="deck" aria-pressed="false">Deck<span class="zh" lang="zh-Hant-TW">簡報</span></button>
@@ -343,77 +649,781 @@ footer a { color: inherit; }
           <button type="button" data-theme-set="dark" aria-pressed="false">Dark<span class="zh" lang="zh-Hant-TW">深色</span></button>
         </div>
       </div>
+      <p class="facts" id="facts"></p>
     </div>
-    <h1>HYD2026 Taichung <i>Outputs</i><span class="zh" lang="zh-Hant-TW">臺中成果</span></h1>
-    <p class="lede">District and village boundaries for the eight districts of the former Taichung City, with the five-district old downtown marked; the land-use areas and major projects of the Shuinan Airport site detailed plan; and a traced overlay of the plan itself, gathered into a map that runs in the browser.<span class="zh block" lang="zh-Hant-TW">整理原臺中市8區的行政界線並標示舊市區5區，加上水湳機場原址細部計畫土地使用面積、重大建設進度與細部計畫疊圖，做成可在瀏覽器直接操作的地圖。</span></p>
   </header>
 
-  <section aria-labelledby="h-out">
-    <h2 id="h-out">Outputs<span class="zh" lang="zh-Hant-TW">成果</span></h2>
-    <article class="work">
-      <a class="thumb-link" href="map/index.html" aria-label="Open the former Taichung City base map"><svg class="thumb" viewBox="0 0 560 314" role="img" aria-label="Outline of the district and village boundaries of the former Taichung City, with the old downtown marked"><path class="v d0" d="M273.1 205.8L273.1 206.2L273.4 211.3L262.1 222.7L260.1 221.0L272.9 205.8L273.1 205.8Z"/><path class="v d0" d="M264.8 203.7L254.0 215.1L252.8 213.8L251.6 213.0L251.6 212.5L263.3 199.9L264.1 198.2L264.8 203.7Z"/><path class="v d0" d="M273.4 221.0L265.0 226.5L262.1 222.7L273.4 211.3L273.4 221.0Z"/><path class="v d0" d="M272.9 205.8L260.1 221.0L257.2 218.0L256.2 217.2L268.0 206.6L272.9 205.8Z"/><path class="v d0" d="M268.0 206.6L256.2 217.2L254.3 215.1L254.0 215.1L264.8 203.7L268.0 206.6Z"/><path class="v d0" d="M263.8 198.2L264.1 198.2L263.3 199.9L251.6 212.5L251.6 213.0L251.6 212.5L249.1 210.4L262.3 196.9L263.8 198.2Z"/><path class="v d0" d="M262.3 196.9L249.1 210.4L246.7 207.9L253.8 196.1L255.5 194.8L256.0 194.0L262.3 196.9Z"/><path class="v d0" d="M253.8 196.1L246.7 207.9L244.4 205.8L249.8 199.9L253.8 196.1Z"/><path class="v d0" d="M284.4 226.9L268.5 234.0L265.0 226.5L273.4 221.0L282.7 218.0L284.4 226.9Z"/><path class="v d0" d="M284.4 226.9L287.8 234.5L283.9 236.6L271.4 242.1L269.2 235.7L268.5 234.0L284.4 226.9Z"/><path class="v d0" d="M283.9 236.6L287.8 234.5L291.0 233.2L293.7 233.2L294.5 243.7L283.9 254.3L283.9 236.6Z"/><path class="v d0" d="M283.9 254.3L283.9 255.1L272.1 262.7L268.2 256.8L271.4 242.1L283.9 236.6L283.9 254.3Z"/><path class="v d0" d="M294.2 213.0L282.7 218.0L273.4 221.0L273.4 211.3L273.1 206.2L281.5 207.1L289.3 206.6L289.3 203.7L294.0 203.7L294.2 213.0Z"/><path class="v d0" d="M298.6 213.8L299.1 224.8L291.0 233.2L287.8 234.5L284.4 226.9L282.7 218.0L294.2 213.0L298.6 213.8Z"/><path class="v d0" d="M294.0 203.7L294.0 202.0L308.2 202.4L309.4 214.2L298.6 213.8L294.2 213.0L294.0 203.7Z"/><path class="v d0" d="M309.4 214.2L309.4 217.6L306.2 233.6L293.7 233.2L291.0 233.2L299.1 224.8L298.6 213.8L309.4 214.2Z"/><path class="v d0" d="M306.2 233.6L312.8 253.9L307.9 254.3L304.3 254.7L283.9 255.1L283.9 254.3L294.5 243.7L293.7 233.2L306.2 233.6Z"/><path class="v d0" d="M320.2 220.6L309.4 217.6L309.4 214.2L308.2 202.4L308.9 199.1L322.6 191.5L320.2 220.6Z"/><path class="v d0" d="M306.7 189.4L308.9 199.1L308.2 202.4L294.0 202.0L294.0 188.5L306.7 189.4Z"/><path class="v d0" d="M294.0 188.5L294.0 202.0L294.0 203.7L289.3 203.7L284.6 196.9L284.9 195.3L287.3 183.0L287.6 183.0L294.0 188.5Z"/><path class="v d0" d="M289.8 181.3L303.0 184.3L306.7 184.3L306.7 189.4L294.0 188.5L287.6 183.0L287.3 183.0L287.6 183.0L289.8 181.3Z"/><path class="v d0" d="M289.3 203.7L289.3 206.6L281.5 207.1L273.1 206.2L273.1 205.8L284.6 196.9L289.3 203.7Z"/><path class="v d0" d="M320.2 220.6L329.5 226.9L327.1 233.2L323.4 242.1L317.5 254.3L312.8 253.9L306.2 233.6L309.4 217.6L320.2 220.6Z"/><path class="v d0" d="M332.7 188.9L336.6 199.1L336.4 202.8L329.5 226.9L320.2 220.6L322.6 191.5L332.7 188.9Z"/><path class="v d0" d="M269.2 235.7L271.4 242.1L257.0 248.8L254.3 242.9L253.8 241.6L269.2 235.7Z"/><path class="v d0" d="M268.2 256.8L257.7 256.4L257.7 254.3L257.0 248.8L271.4 242.1L268.2 256.8Z"/><path class="v d0" d="M257.7 256.4L268.2 256.8L272.1 262.7L268.0 270.7L257.9 273.7L257.9 274.1L257.9 273.7L257.7 256.4Z"/><path class="v d0" d="M257.7 254.3L246.4 250.1L246.7 247.1L254.3 242.9L257.0 248.8L257.7 254.3Z"/><path class="v d0" d="M246.4 250.1L257.7 254.3L257.7 256.4L257.9 273.7L257.9 274.1L257.7 274.1L248.9 273.3L237.8 280.8L239.3 290.1L233.2 287.6L238.8 269.5L239.1 261.0L246.4 250.1Z"/><path class="v d0" d="M246.2 246.3L246.7 247.1L246.4 250.1L239.1 261.0L235.4 261.0L232.9 244.6L246.2 246.3Z"/><path class="v d0" d="M246.2 246.3L232.9 244.6L231.5 241.6L242.2 237.0L246.2 234.9L246.2 246.3Z"/><path class="v d0" d="M235.4 261.0L225.1 258.1L232.9 244.6L235.4 261.0Z"/><path class="v d0" d="M216.0 240.8L231.5 241.6L232.9 244.6L225.1 258.1L217.7 248.4L210.9 251.3L209.9 240.8L216.0 240.8Z"/><path class="v d0" d="M211.4 255.1L217.2 264.8L218.2 266.1L208.4 274.5L203.0 269.0L205.0 258.1L211.4 255.1Z"/><path class="v d0" d="M231.7 275.4L226.6 286.7L215.3 295.6L209.6 290.1L212.6 275.4L231.7 275.4Z"/><path class="v d0" d="M209.6 290.1L215.3 295.6L214.5 302.8L204.7 307.8L204.0 307.8L204.5 300.2L188.3 300.7L187.3 288.8L173.9 293.1L176.3 286.7L191.3 284.6L196.9 276.2L209.6 290.1Z"/><path class="v d0" d="M203.0 269.0L196.9 276.2L191.3 284.6L176.3 286.7L179.5 270.7L171.9 269.0L192.2 251.3L203.0 269.0Z"/><path class="v d0" d="M205.0 230.7L215.5 235.3L216.0 240.8L209.9 240.8L198.9 242.5L199.1 232.4L199.1 226.9L205.0 230.7Z"/><path class="v d0" d="M265.0 226.5L268.5 234.0L269.2 235.7L253.8 241.6L255.0 231.1L265.0 226.5Z"/><path class="v d0" d="M253.8 241.6L254.3 242.9L246.7 247.1L246.2 246.3L246.2 234.9L249.8 233.2L255.0 231.1L253.8 241.6Z"/><path class="v d0" d="M217.2 264.8L211.4 255.1L210.9 251.3L217.7 248.4L225.1 258.1L217.2 264.8Z"/><path class="v d0" d="M235.4 261.0L239.1 261.0L238.8 269.5L231.7 269.5L218.2 266.1L217.2 264.8L225.1 258.1L235.4 261.0Z"/><path class="v d0" d="M231.7 275.4L212.6 275.4L208.4 274.5L218.2 266.1L231.7 269.5L231.7 275.4Z"/><path class="v d0" d="M238.8 269.5L233.2 287.6L226.6 286.7L231.7 275.4L231.7 269.5L238.8 269.5Z"/><path class="v d0" d="M209.6 290.1L196.9 276.2L203.0 269.0L208.4 274.5L212.6 275.4L209.6 290.1Z"/><path class="v d0" d="M209.9 240.8L210.9 251.3L211.4 255.1L205.0 258.1L203.0 269.0L192.2 251.3L198.9 242.5L209.9 240.8Z"/><path class="v d0" d="M260.1 221.0L262.1 222.7L265.0 226.5L255.0 231.1L249.8 233.2L245.9 229.0L257.2 218.0L260.1 221.0Z"/><path class="v d0" d="M256.2 217.2L257.2 218.0L245.9 229.0L249.8 233.2L246.2 234.9L242.2 237.0L239.5 234.0L254.3 215.1L256.2 217.2Z"/><path class="v d0" d="M234.2 229.0L240.8 224.4L246.4 216.8L252.8 213.8L254.0 215.1L254.3 215.1L239.5 234.0L234.2 229.0Z"/><path class="v d0" d="M233.4 218.9L237.3 221.0L240.8 224.4L234.2 229.0L228.8 223.9L233.4 218.9Z"/><path class="v d0" d="M249.1 210.4L251.6 212.5L251.6 213.0L252.8 213.8L246.4 216.8L240.8 224.4L237.3 221.0L246.7 207.9L249.1 210.4Z"/><path class="v d0" d="M239.5 201.2L244.4 205.8L246.7 207.9L237.3 221.0L233.4 218.9L237.3 206.6L238.3 200.3L239.5 201.2Z"/><path class="v d0" d="M233.4 218.9L228.8 223.9L225.3 227.7L220.9 223.5L225.1 214.2L237.3 206.6L233.4 218.9Z"/><path class="v d0" d="M234.2 229.0L239.5 234.0L242.2 237.0L231.5 241.6L225.3 227.7L228.8 223.9L234.2 229.0Z"/><path class="v d0" d="M220.9 223.5L225.3 227.7L231.5 241.6L216.0 240.8L215.5 235.3L220.9 223.5Z"/><path class="v d0" d="M247.6 189.8L247.1 190.6L244.7 194.8L245.2 195.7L244.7 194.8L237.8 188.5L243.5 182.6L247.4 184.7L247.4 188.9L247.6 189.8Z"/><path class="v d0" d="M221.2 175.4L220.9 175.9L236.6 177.5L243.0 182.2L243.5 182.6L237.8 188.5L229.5 187.7L221.7 190.6L218.5 184.3L220.9 175.9L221.2 175.4Z"/><path class="v d0" d="M232.4 202.0L229.5 187.7L237.8 188.5L244.7 194.8L245.2 195.7L239.5 201.2L238.3 200.3L232.4 202.0Z"/><path class="v d0" d="M238.3 200.3L237.3 206.6L225.1 214.2L221.7 214.2L215.3 206.6L221.7 202.8L232.4 202.0L238.3 200.3Z"/><path class="v d0" d="M221.7 214.2L225.1 214.2L220.9 223.5L215.5 235.3L205.0 230.7L205.0 227.3L221.7 214.2Z"/><path class="v d0" d="M221.7 202.8L215.3 206.6L204.7 206.6L202.3 206.6L204.0 196.9L211.6 196.9L221.7 196.9L221.7 202.8Z"/><path class="v d0" d="M211.8 184.3L208.2 184.3L208.2 181.3L219.4 160.3L224.1 164.1L221.2 175.4L220.9 175.9L218.5 184.3L211.8 184.3Z"/><path class="v d0" d="M199.3 201.2L187.1 204.5L186.8 196.5L190.5 191.5L194.4 186.0L199.6 186.0L199.3 201.2Z"/><path class="v d0" d="M221.7 214.2L205.0 227.3L204.7 206.6L215.3 206.6L221.7 214.2Z"/><path class="v d0" d="M219.4 160.3L208.2 181.3L198.1 173.8L206.2 166.6L217.2 152.2L219.4 153.5L218.2 158.2L219.4 160.3Z"/><path class="v d0" d="M211.8 184.3L211.6 196.9L204.0 196.9L204.7 186.0L208.2 184.3L211.8 184.3Z"/><path class="v d0" d="M211.8 184.3L218.5 184.3L221.7 190.6L221.7 196.9L211.6 196.9L211.8 184.3Z"/><path class="v d0" d="M198.1 173.8L208.2 181.3L208.2 184.3L204.7 186.0L199.6 186.0L194.4 186.0L196.4 172.9L198.1 173.8Z"/><path class="v d0" d="M204.7 186.0L204.0 196.9L202.3 206.6L198.9 214.2L198.4 213.0L199.3 201.2L199.6 186.0L204.7 186.0Z"/><path class="v d0" d="M229.5 187.7L232.4 202.0L221.7 202.8L221.7 196.9L221.7 190.6L229.5 187.7Z"/><path class="v d0" d="M199.1 220.1L198.9 214.2L202.3 206.6L204.7 206.6L205.0 227.3L205.0 230.7L199.1 226.9L199.1 220.1Z"/><path class="v d0" d="M258.4 182.2L258.7 183.0L256.0 194.0L255.5 194.8L247.1 190.6L247.6 189.8L252.8 184.7L252.0 172.9L254.3 172.9L258.4 182.2Z"/><path class="v d0" d="M252.0 172.9L252.8 184.7L247.6 189.8L247.4 188.9L247.4 184.7L243.5 182.6L243.0 182.2L248.1 172.9L252.0 172.9Z"/><path class="v d0" d="M254.3 172.9L271.9 169.5L274.4 175.9L258.4 182.2L254.3 172.9Z"/><path class="v d0" d="M275.3 194.0L281.0 195.3L284.9 195.3L284.6 196.9L273.1 205.8L272.9 205.8L268.0 206.6L264.8 203.7L264.1 198.2L263.8 198.2L266.8 195.3L269.5 188.5L275.3 194.0Z"/><path class="v d0" d="M277.1 172.9L277.8 173.3L281.5 178.4L275.3 194.0L269.5 188.5L274.4 175.9L277.1 172.9Z"/><path class="v d0" d="M275.3 194.0L281.5 178.4L277.8 173.3L290.0 178.0L289.8 181.3L287.6 183.0L287.3 183.0L284.9 195.3L281.0 195.3L275.3 194.0Z"/><path class="v d0" d="M304.3 173.8L303.0 184.3L289.8 181.3L290.0 178.0L295.9 173.8L304.3 173.8Z"/><path class="v d0" d="M316.8 163.6L306.7 184.3L303.0 184.3L304.3 173.8L306.0 160.7L316.8 163.6Z"/><path class="v d0" d="M295.9 173.8L294.0 173.8L293.5 158.6L301.1 159.8L295.9 173.8Z"/><path class="v d0" d="M286.6 164.1L283.9 171.2L294.0 173.8L295.9 173.8L290.0 178.0L277.8 173.3L277.1 172.9L286.6 164.1Z"/><path class="v d0" d="M288.8 158.2L286.6 164.1L277.1 172.9L274.4 175.9L271.9 169.5L272.9 164.5L280.0 155.6L288.8 158.2Z"/><path class="v d0" d="M271.9 169.5L254.3 172.9L252.0 172.9L248.1 172.9L249.1 169.1L261.4 164.1L261.6 164.1L272.9 164.5L271.9 169.5Z"/><path class="v d0" d="M279.5 154.8L280.0 155.6L272.9 164.5L261.6 164.1L261.6 155.6L271.7 154.8L279.5 154.8Z"/><path class="v d0" d="M265.8 143.4L266.5 139.2L271.4 139.6L271.7 143.4L271.7 154.8L261.6 155.6L261.6 153.5L265.0 148.0L265.8 143.4Z"/><path class="v d0" d="M244.7 148.5L243.2 143.4L251.3 143.4L265.8 143.4L265.0 148.0L244.7 148.5Z"/><path class="v d0" d="M246.4 154.4L261.6 153.5L261.6 155.6L261.6 164.1L261.4 164.1L249.4 164.1L246.4 154.4Z"/><path class="v d0" d="M240.3 164.1L249.4 164.1L261.4 164.1L249.1 169.1L240.3 168.7L240.3 164.1Z"/><path class="v d0" d="M240.3 164.1L240.3 168.7L236.6 177.5L220.9 175.9L221.2 175.4L224.1 164.1L240.3 164.1Z"/><path class="v d0" d="M240.3 168.7L249.1 169.1L248.1 172.9L243.0 182.2L236.6 177.5L240.3 168.7Z"/><path class="v d0" d="M288.8 158.2L293.5 158.6L294.0 173.8L283.9 171.2L286.6 164.1L288.8 158.2Z"/><path class="v d0" d="M236.6 154.4L246.4 154.4L249.4 164.1L240.3 164.1L224.1 164.1L219.4 160.3L218.2 158.2L236.6 154.4Z"/><path class="v d0" d="M236.6 154.4L218.2 158.2L219.4 153.5L224.6 143.8L224.8 143.8L236.6 143.8L236.6 154.4Z"/><path class="v d0" d="M243.2 143.4L236.6 143.8L224.8 143.8L224.6 143.8L224.8 143.8L227.0 136.2L240.8 135.4L243.2 143.4Z"/><path class="v d0" d="M240.8 135.4L247.4 135.4L251.8 135.8L251.3 143.4L243.2 143.4L240.8 135.4Z"/><path class="v d0" d="M247.4 125.7L258.4 127.8L257.4 135.8L251.8 135.8L247.4 135.4L247.4 125.7Z"/><path class="v d0" d="M245.2 195.7L249.8 199.9L244.4 205.8L239.5 201.2L245.2 195.7Z"/><path class="v d0" d="M255.5 194.8L253.8 196.1L249.8 199.9L245.2 195.7L244.7 194.8L247.1 190.6L255.5 194.8Z"/><path class="v d0" d="M266.8 195.3L263.8 198.2L262.3 196.9L256.0 194.0L258.7 183.0L265.5 194.0L266.8 195.3Z"/><path class="v d0" d="M274.4 175.9L269.5 188.5L266.8 195.3L265.5 194.0L258.7 183.0L258.4 182.2L274.4 175.9Z"/><path class="v d0" d="M301.1 159.8L306.0 160.7L304.3 173.8L295.9 173.8L301.1 159.8Z"/><path class="v d0" d="M271.7 143.4L279.7 143.8L279.5 148.9L279.5 154.8L271.7 154.8L271.7 143.4Z"/><path class="v d0" d="M247.4 135.4L240.8 135.4L238.6 125.7L244.7 125.3L247.4 125.7L247.4 135.4Z"/><path class="v d0" d="M243.2 143.4L244.7 148.5L246.4 154.4L236.6 154.4L236.6 143.8L243.2 143.4Z"/><path class="v d0" d="M240.8 135.4L227.0 136.2L228.3 127.4L238.6 125.7L240.8 135.4Z"/><path class="v d0" d="M251.8 135.8L257.4 135.8L266.5 139.2L265.8 143.4L251.3 143.4L251.8 135.8Z"/><path class="v d0" d="M261.6 153.5L246.4 154.4L244.7 148.5L265.0 148.0L261.6 153.5Z"/><path class="v d1" d="M166.7 91.9L173.9 100.4L168.7 115.1L158.4 121.0L164.0 91.9L166.7 91.9Z"/><path class="v d1" d="M173.6 89.4L166.7 91.9L164.0 91.9L158.4 121.0L157.2 125.7L142.2 122.3L135.1 117.7L147.1 112.2L145.2 101.6L150.8 97.8L155.5 81.0L167.7 81.8L176.3 75.9L173.6 89.4Z"/><path class="v d1" d="M157.2 125.7L159.9 136.6L165.5 141.3L165.5 141.7L154.5 160.3L154.5 169.5L148.6 161.9L137.6 154.4L144.2 139.2L140.5 126.9L142.2 122.3L157.2 125.7Z"/><path class="v d1" d="M148.6 161.9L141.3 167.8L133.4 175.9L120.9 172.5L121.2 162.4L128.5 148.9L129.7 134.1L140.5 126.9L144.2 139.2L137.6 154.4L148.6 161.9Z"/><path class="v d1" d="M189.3 136.2L189.5 136.6L188.6 143.0L186.4 154.8L179.5 173.3L165.0 175.9L155.5 176.3L154.5 169.5L154.5 160.3L165.5 141.7L165.5 141.3L165.5 141.7L171.9 145.9L180.2 138.3L182.4 136.6L184.1 135.4L189.3 136.2Z"/><path class="v d1" d="M182.4 136.6L180.2 138.3L173.6 132.0L166.0 126.5L170.7 117.2L182.4 136.6Z"/><path class="v d1" d="M184.1 135.4L182.4 136.6L170.7 117.2L175.6 115.1L187.6 129.9L184.1 135.4Z"/><path class="v d1" d="M187.8 104.2L199.6 91.9L199.6 119.4L197.9 119.4L178.5 118.5L178.8 112.2L178.3 104.2L187.8 104.2Z"/><path class="v d1" d="M201.6 147.2L205.2 148.5L194.7 159.8L186.4 154.8L188.6 143.0L201.6 147.2Z"/><path class="v d1" d="M201.8 164.1L194.7 159.8L205.2 148.5L211.6 150.6L201.8 164.1Z"/><path class="v d1" d="M214.1 131.2L193.0 132.4L189.5 136.6L189.3 136.2L192.0 126.5L197.9 119.4L199.6 119.4L217.7 118.9L214.1 131.2Z"/><path class="v d1" d="M205.7 90.7L206.7 116.0L222.4 111.8L217.7 118.9L199.6 119.4L199.6 91.9L205.7 90.7Z"/><path class="v d1" d="M231.9 113.9L233.9 116.4L232.2 120.2L228.8 126.1L226.1 126.1L226.1 113.0L231.9 113.9Z"/><path class="v d1" d="M226.1 113.0L226.1 126.1L214.1 131.2L217.7 118.9L222.4 111.8L226.1 113.0Z"/><path class="v d1" d="M197.1 33.3L198.1 34.2L222.6 37.5L222.1 52.3L215.8 56.9L210.4 74.6L205.7 90.7L199.6 91.9L187.8 104.2L187.3 89.4L173.6 89.4L176.3 75.9L170.2 66.2L192.5 58.6L195.4 47.2L186.1 35.4L197.1 33.3Z"/><path class="v d1" d="M155.7 51.9L156.0 51.9L160.9 45.1L175.6 46.4L181.7 39.2L186.1 35.4L195.4 47.2L192.5 58.6L170.2 66.2L176.3 75.9L167.7 81.8L155.5 81.0L157.9 75.1L146.2 71.7L149.6 61.6L155.7 51.9Z"/><path class="v d1" d="M155.7 51.9L156.0 51.9L155.7 51.9L149.6 61.6L137.1 75.9L128.5 69.6L115.5 75.5L112.1 85.2L84.9 69.2L73.6 69.6L71.4 62.4L48.6 54.4L49.6 52.7L54.2 42.6L58.4 19.4L69.4 17.7L75.3 24.0L113.1 33.3L151.8 46.0L155.7 51.9Z"/><path class="v d1" d="M149.6 61.6L146.2 71.7L157.9 75.1L155.5 81.0L150.8 97.8L145.2 101.6L124.6 94.9L115.5 90.3L93.2 80.1L82.9 75.5L68.2 78.0L54.5 66.6L43.2 62.8L48.6 54.4L71.4 62.4L73.6 69.6L84.9 69.2L112.1 85.2L115.5 75.5L128.5 69.6L137.1 75.9L149.6 61.6Z"/><path class="v d1" d="M145.2 101.6L147.1 112.2L135.1 117.7L118.9 109.2L124.6 94.9L145.2 101.6Z"/><path class="v d1" d="M99.8 127.8L103.5 130.7L106.9 132.4L114.3 115.1L132.4 120.6L129.7 134.1L128.5 148.9L121.2 162.4L120.9 172.5L120.7 173.3L115.5 164.5L95.9 161.1L81.7 148.9L68.2 148.5L55.0 153.1L37.1 143.4L39.3 136.6L29.5 134.5L28.5 133.3L27.8 124.4L36.1 114.7L51.8 105.9L56.4 110.9L83.2 112.6L99.8 127.8Z"/><path class="v d1" d="M214.1 131.2L216.0 135.4L211.4 137.9L201.6 147.2L188.6 143.0L189.5 136.6L193.0 132.4L214.1 131.2Z"/><path class="v d1" d="M212.3 150.1L211.6 150.6L205.2 148.5L201.6 147.2L211.4 137.9L212.3 150.1Z"/><path class="v d1" d="M228.8 126.1L228.3 127.4L227.0 136.2L224.8 143.8L224.6 143.8L216.0 135.4L214.1 131.2L226.1 126.1L228.8 126.1Z"/><path class="v d1" d="M187.8 104.2L178.3 104.2L178.8 112.2L175.6 115.1L170.7 117.2L168.7 115.1L173.9 100.4L166.7 91.9L173.6 89.4L187.3 89.4L187.8 104.2Z"/><path class="v d1" d="M201.8 164.1L206.2 166.6L198.1 173.8L196.4 172.9L189.5 168.7L194.7 159.8L201.8 164.1Z"/><path class="v d1" d="M170.7 117.2L166.0 126.5L159.9 136.6L157.2 125.7L158.4 121.0L168.7 115.1L170.7 117.2Z"/><path class="v d1" d="M173.6 132.0L165.5 141.7L165.5 141.3L159.9 136.6L166.0 126.5L173.6 132.0Z"/><path class="v d1" d="M165.5 141.7L173.6 132.0L180.2 138.3L171.9 145.9L165.5 141.7Z"/><path class="v d1" d="M197.9 119.4L192.0 126.5L189.3 136.2L184.1 135.4L187.6 129.9L175.6 115.1L178.8 112.2L178.5 118.5L197.9 119.4Z"/><path class="v d1" d="M217.2 152.2L206.2 166.6L201.8 164.1L211.6 150.6L212.3 150.1L217.2 152.2Z"/><path class="v d1" d="M194.7 159.8L189.5 168.7L186.6 173.3L179.5 173.3L186.4 154.8L194.7 159.8Z"/><path class="v d1" d="M224.6 143.8L219.4 153.5L217.2 152.2L212.3 150.1L211.4 137.9L216.0 135.4L224.6 143.8Z"/><path class="v d1" d="M107.4 102.9L109.1 103.7L118.9 109.2L135.1 117.7L142.2 122.3L140.5 126.9L129.7 134.1L132.4 120.6L114.3 115.1L106.9 132.4L103.5 130.7L107.4 102.9Z"/><path class="v d1" d="M103.5 130.7L99.8 127.8L104.0 101.2L107.4 102.9L103.5 130.7Z"/><path class="v d1" d="M90.3 97.4L104.0 101.2L99.8 127.8L83.2 112.6L56.4 110.9L51.8 105.9L50.8 101.2L70.7 102.9L90.3 97.4Z"/><path class="v d1" d="M82.9 75.5L78.5 89.4L91.5 90.7L90.3 97.4L70.7 102.9L50.8 101.2L37.3 94.9L40.5 90.3L54.7 94.0L62.1 84.3L37.6 75.9L43.2 62.8L54.5 66.6L68.2 78.0L82.9 75.5Z"/><path class="v d1" d="M93.2 80.1L91.5 90.7L78.5 89.4L82.9 75.5L93.2 80.1Z"/><path class="v d1" d="M115.5 90.3L109.1 103.7L107.4 102.9L104.0 101.2L90.3 97.4L91.5 90.7L93.2 80.1L115.5 90.3Z"/><path class="v d1" d="M109.1 103.7L115.5 90.3L124.6 94.9L118.9 109.2L109.1 103.7Z"/><path class="v d1" d="M151.5 224.8L155.5 216.8L157.4 200.7L164.8 203.3L165.8 218.9L161.1 227.3L151.5 224.8Z"/><path class="v d1" d="M170.7 218.9L172.6 231.9L187.1 231.9L199.1 232.4L198.9 242.5L192.2 251.3L171.9 269.0L166.0 274.1L164.0 265.2L149.1 254.3L153.8 246.7L149.8 227.3L150.1 227.3L151.5 224.8L161.1 227.3L165.8 218.9L170.7 218.9Z"/><path class="v d1" d="M166.0 274.1L155.5 285.9L139.0 295.2L129.7 287.6L136.3 265.2L149.1 254.3L164.0 265.2L166.0 274.1Z"/><path class="v d1" d="M136.3 265.2L129.7 287.6L115.3 286.3L114.5 274.9L112.6 266.9L119.2 263.6L136.3 265.2Z"/><path class="v d1" d="M13.3 172.9L33.2 177.5L58.2 188.9L65.8 197.4L104.7 215.1L115.5 213.4L111.6 227.3L112.6 256.8L89.3 252.6L61.6 237.4L43.4 218.0L34.1 220.1L22.4 205.0L6.2 194.4L5.5 190.6L5.7 172.9L13.3 172.9ZM84.9 223.9L75.6 225.2L89.3 234.9L92.0 224.4L84.9 223.9Z"/><path class="v d1" d="M84.9 223.9L92.0 224.4L89.3 234.9L75.6 225.2L84.9 223.9Z"/><path class="v d1" d="M118.5 188.9L115.5 213.4L104.7 215.1L65.8 197.4L58.2 188.9L33.2 177.5L13.3 172.9L25.3 143.4L28.0 140.4L36.1 158.6L82.7 185.1L97.1 182.2L114.3 192.7L118.5 188.9Z"/><path class="v d1" d="M138.1 184.3L140.8 192.3L133.7 210.0L131.0 221.8L111.6 227.3L115.5 213.4L118.5 188.9L120.7 173.3L120.9 172.5L133.4 175.9L138.1 184.3Z"/><path class="v d1" d="M131.0 221.8L133.7 210.0L148.9 207.5L157.4 200.7L155.5 216.8L151.5 224.8L150.1 227.3L149.8 227.3L131.0 221.8Z"/><path class="v d1" d="M164.8 191.5L164.8 203.3L157.4 200.7L148.9 207.5L133.7 210.0L140.8 192.3L164.8 191.5Z"/><path class="v d1" d="M186.6 173.3L186.8 186.0L164.8 185.1L165.0 175.9L179.5 173.3L186.6 173.3Z"/><path class="v d1" d="M179.0 221.4L170.7 218.9L165.8 218.9L164.8 203.3L179.5 196.5L179.2 207.5L179.0 221.4Z"/><path class="v d1" d="M151.3 181.3L138.1 184.3L133.4 175.9L141.3 167.8L149.8 172.9L151.3 181.3Z"/><path class="v d1" d="M149.8 227.3L150.1 227.3L149.8 227.3L153.8 246.7L149.1 254.3L136.3 265.2L119.2 263.6L112.6 266.9L112.6 256.8L111.6 227.3L131.0 221.8L149.8 227.3Z"/><path class="v d1" d="M199.3 201.2L198.4 213.0L187.1 212.1L187.1 207.5L187.1 204.5L199.3 201.2Z"/><path class="v d1" d="M186.8 196.5L187.1 204.5L187.1 207.5L179.2 207.5L179.5 196.5L186.8 196.5Z"/><path class="v d1" d="M187.1 220.1L187.1 223.5L179.0 221.4L179.2 207.5L187.1 207.5L187.1 212.1L187.1 220.1Z"/><path class="v d1" d="M187.1 231.9L172.6 231.9L170.7 218.9L179.0 221.4L187.1 223.5L187.1 231.9Z"/><path class="v d1" d="M198.4 213.0L198.9 214.2L199.1 220.1L187.1 220.1L187.1 212.1L198.4 213.0Z"/><path class="v d1" d="M187.1 231.9L187.1 223.5L187.1 220.1L199.1 220.1L199.1 226.9L199.1 232.4L187.1 231.9Z"/><path class="v d1" d="M196.4 172.9L194.4 186.0L190.5 191.5L186.8 186.0L186.6 173.3L189.5 168.7L196.4 172.9Z"/><path class="v d1" d="M186.8 186.0L190.5 191.5L186.8 196.5L179.5 196.5L164.8 203.3L164.8 191.5L164.8 185.1L186.8 186.0Z"/><path class="v d1" d="M120.7 173.3L118.5 188.9L114.3 192.7L97.1 182.2L82.7 185.1L36.1 158.6L28.0 140.4L29.5 134.5L39.3 136.6L37.1 143.4L55.0 153.1L68.2 148.5L81.7 148.9L95.9 161.1L115.5 164.5L120.7 173.3Z"/><path class="v d1" d="M138.1 184.3L151.3 181.3L164.8 185.1L164.8 191.5L140.8 192.3L138.1 184.3Z"/><path class="v d1" d="M154.5 169.5L155.5 176.3L165.0 175.9L164.8 185.1L151.3 181.3L149.8 172.9L141.3 167.8L148.6 161.9L154.5 169.5Z"/><path class="v d1" d="M307.2 148.9L319.2 149.3L317.5 154.4L316.8 163.6L306.0 160.7L301.1 159.8L293.0 149.7L307.2 148.9Z"/><path class="v d1" d="M292.7 144.2L292.5 144.2L293.5 148.9L282.0 148.9L292.5 144.2L292.7 144.2Z"/><path class="v d1" d="M308.9 135.4L307.2 148.9L293.0 149.7L293.5 148.9L292.5 144.2L292.7 144.2L299.4 133.3L301.1 134.1L308.9 135.4Z"/><path class="v d1" d="M284.9 131.6L289.6 125.7L291.0 122.7L301.1 130.3L301.1 134.1L299.4 133.3L284.9 131.6Z"/><path class="v d1" d="M251.8 117.2L250.8 122.3L272.9 123.6L272.6 129.9L258.4 127.8L247.4 125.7L244.7 125.3L251.8 117.2Z"/><path class="v d1" d="M319.9 133.3L320.7 136.6L308.9 135.4L301.1 134.1L301.1 130.3L309.7 119.8L309.7 127.8L319.9 133.3Z"/><path class="v d1" d="M332.7 74.6L337.4 91.9L332.7 108.8L332.2 123.6L319.9 133.3L309.7 127.8L309.7 119.8L302.1 119.4L299.1 110.1L306.0 102.1L313.3 90.7L317.3 90.7L319.5 64.1L324.9 58.2L332.7 74.6Z"/><path class="v d1" d="M353.0 124.4L352.1 135.0L366.0 136.6L361.6 139.6L351.1 162.4L339.8 159.8L318.5 153.9L317.5 154.4L319.2 149.3L320.7 136.6L319.9 133.3L332.2 123.6L332.7 108.8L339.6 108.8L338.1 124.0L342.0 130.7L353.0 124.4Z"/><path class="v d1" d="M379.3 74.2L380.7 95.3L373.1 109.7L359.4 104.2L357.7 119.8L353.0 124.4L342.0 130.7L338.1 124.0L339.6 108.8L332.7 108.8L337.4 91.9L342.7 82.7L379.3 74.2Z"/><path class="v d1" d="M390.3 71.7L390.3 72.1L390.8 74.6L392.8 85.2L394.2 94.0L400.4 108.8L398.4 114.3L381.7 126.1L374.9 136.2L366.0 136.6L352.1 135.0L353.0 124.4L357.7 119.8L359.4 104.2L373.1 109.7L380.7 95.3L379.3 74.2L390.3 71.7Z"/><path class="v d1" d="M404.3 116.0L404.5 116.0L404.3 116.0L398.4 114.3L400.4 108.8L424.1 77.6L454.3 75.9L458.4 71.7L466.5 80.1L481.2 73.8L494.0 89.4L516.8 99.1L532.5 98.7L541.5 101.6L547.4 110.9L519.7 120.2L504.3 119.4L482.2 110.5L473.6 113.4L447.7 108.4L445.2 104.2L430.0 110.5L421.9 109.7L408.9 119.8L404.3 116.0Z"/><path class="v d1" d="M547.4 110.9L546.9 123.1L554.0 137.1L541.1 145.1L509.9 143.4L489.6 139.2L481.2 155.2L473.6 161.5L440.6 167.4L425.8 156.0L413.6 163.6L400.8 161.9L405.5 141.7L404.5 116.0L404.3 116.0L408.9 119.8L421.9 109.7L430.0 110.5L445.2 104.2L447.7 108.4L473.6 113.4L482.2 110.5L504.3 119.4L519.7 120.2L547.4 110.9Z"/><path class="v d1" d="M404.5 116.0L405.5 141.7L400.8 161.9L374.4 169.1L353.3 163.2L351.1 162.4L361.6 139.6L366.0 136.6L374.9 136.2L381.7 126.1L398.4 114.3L404.3 116.0L404.5 116.0Z"/><path class="v d1" d="M422.9 27.8L436.4 5.9L471.4 11.8L478.8 21.5L471.4 27.0L471.2 27.0L471.4 27.0L471.2 27.0L471.2 30.8L469.5 41.7L469.5 42.2L468.5 45.5L463.3 62.0L464.1 62.0L481.2 73.8L466.5 80.1L458.4 71.7L454.3 75.9L424.1 77.6L400.4 108.8L394.2 94.0L392.8 85.2L390.8 74.6L390.3 72.1L390.3 71.7L397.9 65.8L400.4 51.0L428.1 44.3L422.9 27.8Z"/><path class="v d1" d="M478.8 21.5L505.5 28.2L513.6 34.6L533.0 42.2L542.0 51.0L547.7 59.0L547.9 87.7L541.5 101.6L532.5 98.7L516.8 99.1L494.0 89.4L481.2 73.8L464.1 62.0L463.3 62.0L468.5 45.5L469.5 42.2L469.5 41.7L471.2 30.8L471.2 27.0L471.4 27.0L471.2 27.0L471.4 27.0L478.8 21.5Z"/><path class="v d1" d="M284.4 117.2L273.4 116.0L256.7 113.9L256.0 108.8L264.3 104.2L279.7 104.2L284.4 117.2Z"/><path class="v d1" d="M265.3 69.2L267.0 78.0L274.8 87.3L279.7 104.2L264.3 104.2L256.0 108.8L247.9 108.4L243.2 102.9L238.6 91.5L238.8 85.2L248.9 71.7L255.2 65.4L265.3 69.2Z"/><path class="v d1" d="M285.9 40.1L284.6 45.5L300.1 48.5L299.4 58.2L292.5 62.8L295.2 72.1L298.9 77.6L284.2 87.3L274.8 87.3L267.0 78.0L275.1 62.8L272.1 53.6L273.6 43.0L285.9 40.1Z"/><path class="v d1" d="M265.3 69.2L272.1 53.6L275.1 62.8L267.0 78.0L265.3 69.2Z"/><path class="v d1" d="M248.9 71.7L238.8 85.2L225.8 91.5L220.9 94.5L211.1 75.5L220.2 69.6L226.6 66.6L237.6 65.4L237.6 71.7L248.9 71.7Z"/><path class="v d1" d="M272.1 53.6L265.3 69.2L255.2 65.4L248.9 71.7L237.6 71.7L237.6 65.4L226.6 66.6L220.2 69.6L211.1 75.5L210.4 74.6L215.8 56.9L222.1 52.3L234.9 46.8L263.8 47.2L273.6 43.0L272.1 53.6Z"/><path class="v d1" d="M247.9 108.4L232.2 120.2L233.9 116.4L243.2 102.9L247.9 108.4Z"/><path class="v d1" d="M256.0 108.8L256.7 113.9L251.8 117.2L244.7 125.3L238.6 125.7L228.3 127.4L228.8 126.1L232.2 120.2L247.9 108.4L256.0 108.8Z"/><path class="v d1" d="M229.3 109.7L220.9 94.5L225.8 91.5L233.7 102.5L229.3 109.7Z"/><path class="v d1" d="M210.4 74.6L211.1 75.5L220.9 94.5L229.3 109.7L231.9 113.9L226.1 113.0L222.4 111.8L206.7 116.0L205.7 90.7L210.4 74.6Z"/><path class="v d1" d="M272.6 129.9L284.9 131.6L279.7 143.8L271.7 143.4L271.4 139.6L272.6 129.9Z"/><path class="v d1" d="M284.4 117.2L290.5 118.1L292.3 118.5L291.0 122.7L289.6 125.7L284.6 124.8L284.4 117.2Z"/><path class="v d1" d="M257.4 135.8L258.4 127.8L272.6 129.9L271.4 139.6L266.5 139.2L257.4 135.8Z"/><path class="v d1" d="M292.3 118.5L290.5 118.1L291.3 101.2L298.4 100.8L299.1 110.1L292.3 118.5Z"/><path class="v d1" d="M302.3 87.3L303.8 87.7L306.0 102.1L299.1 110.1L298.4 100.8L302.3 87.3Z"/><path class="v d1" d="M243.2 102.9L233.9 116.4L231.9 113.9L229.3 109.7L233.7 102.5L238.6 91.5L243.2 102.9Z"/><path class="v d1" d="M306.0 77.2L306.2 77.2L302.3 87.3L298.4 100.8L291.3 101.2L279.7 104.2L274.8 87.3L284.2 87.3L298.9 77.6L306.0 77.2Z"/><path class="v d1" d="M303.8 87.7L313.3 90.7L306.0 102.1L303.8 87.7Z"/><path class="v d1" d="M282.0 148.9L293.5 148.9L293.0 149.7L301.1 159.8L293.5 158.6L288.8 158.2L280.0 155.6L279.5 154.8L279.5 148.9L282.0 148.9Z"/><path class="v d1" d="M284.9 131.6L272.6 129.9L272.9 123.6L284.6 124.8L289.6 125.7L284.9 131.6Z"/><path class="v d1" d="M284.4 117.2L284.6 124.8L272.9 123.6L273.4 116.0L284.4 117.2Z"/><path class="v d1" d="M290.5 118.1L284.4 117.2L279.7 104.2L291.3 101.2L290.5 118.1Z"/><path class="v d1" d="M251.8 117.2L256.7 113.9L273.4 116.0L272.9 123.6L250.8 122.3L251.8 117.2Z"/><path class="v d1" d="M291.0 122.7L292.3 118.5L299.1 110.1L302.1 119.4L309.7 119.8L301.1 130.3L291.0 122.7Z"/><path class="v d1" d="M299.4 133.3L292.7 144.2L292.5 144.2L282.0 148.9L279.5 148.9L279.7 143.8L284.9 131.6L299.4 133.3Z"/><path class="v d1" d="M307.2 148.9L308.9 135.4L320.7 136.6L319.2 149.3L307.2 148.9Z"/><path class="v d1" d="M238.8 85.2L238.6 91.5L233.7 102.5L225.8 91.5L238.8 85.2Z"/><path class="old" d="M306.6 184.4L308.8 199.2L336.4 195.4L317.3 254.4L282.4 254.8L272.0 262.8L268.0 270.8L216.2 291.1L204.6 307.9L174.8 293.6L171.9 269.2L198.8 244.7L199.0 227.0L196.3 173.0L219.4 153.6L228.1 127.5L258.4 127.9L256.4 139.3L279.7 143.9L280.1 156.2L316.6 163.8L306.6 184.4Z"/><path class="dist" d="M272.9 205.9L264.9 226.6L244.5 205.9L256.8 192.8L272.9 205.9Z"/><path class="dist" d="M306.6 184.4L308.8 199.2L336.4 195.4L317.3 254.4L282.4 254.8L272.0 262.8L264.9 226.6L272.9 205.9L284.8 182.7L306.6 184.4Z"/><path class="dist" d="M272.0 262.8L268.0 270.8L216.2 291.1L204.6 307.9L174.8 293.6L171.9 269.2L198.8 244.7L199.0 227.0L227.0 243.9L264.9 226.6L272.0 262.8Z"/><path class="dist" d="M244.5 205.9L264.9 226.6L227.0 243.9L199.0 227.0L196.3 173.0L219.4 153.6L225.2 178.5L247.4 184.8L247.4 189.1L244.5 205.9Z"/><path class="dist" d="M316.6 163.8L306.6 184.4L284.8 182.7L272.9 205.9L256.8 192.8L244.5 205.9L247.4 189.1L247.4 184.8L225.2 178.5L219.4 153.6L228.1 127.5L258.4 127.9L256.4 139.3L279.7 143.9L280.1 156.2L316.6 163.8Z"/><path class="dist" d="M222.1 52.4L205.3 84.5L206.6 116.1L234.2 116.9L228.1 127.5L219.4 153.6L196.3 173.0L155.3 176.4L147.4 162.1L132.6 176.4L81.5 149.0L54.9 153.2L29.3 134.7L27.7 124.5L49.0 108.5L37.2 95.0L62.0 84.5L37.4 76.0L58.2 19.5L151.7 46.1L175.4 46.5L190.7 30.9L222.7 37.6L222.1 52.4Z"/><path class="dist" d="M196.3 173.0L199.0 227.0L198.8 244.7L171.9 269.2L142.3 294.9L115.2 286.4L112.5 256.9L91.6 253.6L34.0 220.3L6.0 195.0L29.3 134.7L54.9 153.2L81.5 149.0L132.6 176.4L147.4 162.1L155.3 176.4L196.3 173.0Z"/><path class="dist" d="M471.3 11.9L541.0 48.6L549.5 64.2L541.4 99.2L554.0 137.2L541.0 145.2L490.8 139.3L474.4 161.2L440.6 167.5L425.8 156.2L383.0 169.2L322.5 153.6L316.6 163.8L280.1 156.2L279.7 143.9L256.4 139.3L258.4 127.9L228.1 127.5L234.2 116.9L206.6 116.1L205.3 84.5L222.1 52.4L234.8 46.9L285.7 40.2L300.1 48.6L292.7 75.2L317.1 90.8L324.7 58.3L339.5 93.7L342.6 82.8L392.2 72.2L400.2 51.1L428.0 44.4L422.7 27.5L436.3 6.0L471.3 11.9Z"/></svg></a>
-      <div>
-        <p class="kicker">Interactive map<span class="zh" lang="zh-Hant-TW">互動地圖</span></p>
-        <h3><a href="map/index.html">Former Taichung City <i>Base Map</i></a><span class="zh block" lang="zh-Hant-TW">原臺中市基本圖</span></h3>
-        <p class="desc">District and 214 village boundaries with the old downtown outlined, on an English-labelled basemap with the road network, major projects at Shuinan, village lookup, the traced detailed plan, and side panels on plan land use and project status.</p>
-        <dl class="facts">
-          <dt>Extent</dt><dd>Former Taichung City, 8 districts (5 in the old downtown) · 214 villages · <span class="num">161.86</span> km²</dd>
-          <dt>Boundaries</dt><dd>NLSC village boundaries, 2026-08-17</dd>
-          <dt>Land use</dt><dd>2nd comprehensive review, public briefing, 2024-02-01</dd>
-          <dt>Projects</dt><dd>Sources up to 2026-08-05</dd>
-        </dl>
-        <a class="btn" href="map/index.html">Open the map</a>
+  <main class="main">
+    <div class="mapframe" id="mapframe">
+      <div class="vbase" id="vbase" aria-hidden="true" hidden><div id="vmap"></div></div>
+      <div class="tiles" id="tiles" aria-hidden="true" hidden></div>
+      <svg id="map" tabindex="0" role="img" aria-label="Map of the markets and night markets in the eight districts of the former Taichung City. Drag to pan, scroll or pinch to zoom. Arrow keys pan, plus and minus zoom, 0 shows the full extent.">
+        <defs><clipPath id="clip"><rect id="cliprect"></rect></clipPath></defs>
+        <rect class="ground" id="groundrect"></rect>
+        <g clip-path="url(#clip)">
+          <g id="world">
+            <g id="g-dfill"></g>
+            <g id="g-mkt-area"></g>
+            <g id="g-d"></g>
+            <path class="hover-outline" id="hover-outline"></path>
+          </g>
+          <g id="g-labels"></g>
+          <g id="g-mkt"></g>
+        </g>
+        <rect class="neatline" id="neatline"></rect>
+        <g id="g-ticks"></g>
+        <g id="g-north"></g>
+        <g id="g-scale"></g>
+      </svg>
+      <div class="map-ctrl">
+        <button type="button" id="zin" aria-label="Zoom in">+</button>
+        <button type="button" id="zout" aria-label="Zoom out">−</button>
+        <button type="button" id="zfit" aria-label="Show full extent">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+        </button>
       </div>
-    </article>
-  </section>
-
-  <section aria-labelledby="h-data">
-    <h2 id="h-data">Data<span class="zh" lang="zh-Hant-TW">資料下載</span></h2>
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>File</th><th>Contents</th><th class="size">Size</th></tr></thead>
-        <tbody><tr><td class="file"><a href="data/raw/former_city_8_districts.geojson" download>former_city_8_districts.geojson</a><span class="fmt">GEOJSON</span></td><td>Former Taichung City: 8 district boundaries<span class="zh block" lang="zh-Hant-TW">原臺中市8區區界</span></td><td class="size num">7.9 KB</td></tr><tr><td class="file"><a href="data/raw/former_city_villages.geojson" download>former_city_villages.geojson</a><span class="fmt">GEOJSON</span></td><td>Former Taichung City: 214 village boundaries<span class="zh block" lang="zh-Hant-TW">原臺中市214里里界</span></td><td class="size num">192.4 KB</td></tr><tr><td class="file"><a href="data/raw/former_city_villages.csv" download>former_city_villages.csv</a><span class="fmt">CSV</span></td><td>Village attribute table (214 rows)<span class="zh block" lang="zh-Hant-TW">里別屬性表（214筆）</span></td><td class="size num">66.7 KB</td></tr><tr><td class="file"><a href="data/raw/old_downtown_5_districts.geojson" download>old_downtown_5_districts.geojson</a><span class="fmt">GEOJSON</span></td><td>Old downtown: 5 district boundaries (subset)<span class="zh block" lang="zh-Hant-TW">舊市區5區區界（子集）</span></td><td class="size num">4.2 KB</td></tr><tr><td class="file"><a href="data/raw/old_downtown_villages.geojson" download>old_downtown_villages.geojson</a><span class="fmt">GEOJSON</span></td><td>Old downtown: 108 village boundaries (subset)<span class="zh block" lang="zh-Hant-TW">舊市區108里里界（子集）</span></td><td class="size num">93.5 KB</td></tr><tr><td class="file"><a href="data/raw/context_xitun_beitun_districts.geojson" download>context_xitun_beitun_districts.geojson</a><span class="fmt">GEOJSON</span></td><td>Xitun and Beitun district boundaries (subset)<span class="zh block" lang="zh-Hant-TW">西屯區、北屯區區界（子集）</span></td><td class="size num">2.9 KB</td></tr><tr><td class="file"><a href="data/raw/context_xitun_beitun_villages.geojson" download>context_xitun_beitun_villages.geojson</a><span class="fmt">GEOJSON</span></td><td>Xitun and Beitun: 81 village boundaries (subset)<span class="zh block" lang="zh-Hant-TW">西屯區、北屯區81里里界（子集）</span></td><td class="size num">76.3 KB</td></tr><tr><td class="file"><a href="data/raw/shuinan_zoning_areas_2024.csv" download>shuinan_zoning_areas_2024.csv</a><span class="fmt">CSV</span></td><td>Shuinan Airport site detailed plan: land-use areas (2024)<span class="zh block" lang="zh-Hant-TW">水湳機場原址細部計畫土地使用分區面積</span></td><td class="size num">1.9 KB</td></tr><tr><td class="file"><a href="data/raw/shuinan_major_projects_2026.csv" download>shuinan_major_projects_2026.csv</a><span class="fmt">CSV</span></td><td>Shuinan park major projects and status (2026)<span class="zh block" lang="zh-Hant-TW">水湳經貿園區重大建設進度</span></td><td class="size num">1.6 KB</td></tr><tr><td class="file"><a href="data/derived/shuinan_detailed_plan_traced.geojson" download>shuinan_detailed_plan_traced.geojson</a><span class="fmt">GEOJSON</span></td><td>Detailed plan trace, fitted to OSM roads (errors of a few tens of metres)<span class="zh block" lang="zh-Hant-TW">細部計畫描圖（已對齊OSM路網）</span></td><td class="size num">102.7 KB</td></tr><tr><td class="file"><a href="data/raw/Figure_7-1_Detailed_Plan_A3_English_CAD.dxf" download>Figure_7-1_Detailed_Plan_A3_English_CAD.dxf</a><span class="fmt">DXF</span></td><td>Detailed plan, English reference CAD (A3 sheet units, not georeferenced)<span class="zh block" lang="zh-Hant-TW">細部計畫圖英文參考版CAD</span></td><td class="size num">120.4 KB</td></tr><tr><td class="file"><a href="data/raw/reference_points.csv" download>reference_points.csv</a><span class="fmt">CSV</span></td><td>Reference point coordinates and sources<span class="zh block" lang="zh-Hant-TW">參考點座標與出處</span></td><td class="size num">1.0 KB</td></tr><tr><td class="file"><a href="data/derived/roads_osm.geojson" download>roads_osm.geojson</a><span class="fmt">GEOJSON</span></td><td>Road and rail network from OpenStreetMap (ODbL)<span class="zh block" lang="zh-Hant-TW">OSM路網（ODbL授權）</span></td><td class="size num">1366.5 KB</td></tr><tr><td class="file"><a href="data/derived/project_locations.geojson" download>project_locations.geojson</a><span class="fmt">GEOJSON</span></td><td>Major project locations with method and source<span class="zh block" lang="zh-Hant-TW">重大建設位置與定位依據</span></td><td class="size num">11.8 KB</td></tr><tr><td class="file"><a href="data/derived/fengjia_night_market_extent.geojson" download>fengjia_night_market_extent.geojson</a><span class="fmt">GEOJSON</span></td><td>Feng Chia Night Market, approximate full extent (our approximation)<span class="zh block" lang="zh-Hant-TW">逢甲夜市約略範圍（推估）</span></td><td class="size num">4.6 KB</td></tr></tbody>
-      </table>
+      <div class="coord" id="coord" hidden></div>
+      <div class="attrib" id="attrib" hidden></div>
     </div>
-  </section>
 
-  <section aria-labelledby="h-src">
-    <h2 id="h-src">Sources and licences<span class="zh" lang="zh-Hant-TW">資料來源與授權</span></h2>
-    <ul class="sources"><li>Boundaries: Derived from MOI district boundaries (2025-03-18) and NLSC village boundaries (2026-08-17) via plotdb/pdmaptw v2.4.0; Open Government Data License v1.0</li><li>Boundaries are simplified: use them for context, not for measurement or precise overlay. The old-downtown and Xitun–Beitun files are subsets of the former-city files, with identical geometry and attributes. Futai Village (富台里, East District) has no boundary in the source; the map shows it as a circle of the same area at its label point.</li><li>Land-use areas: Urban Development Bureau, Taichung City Government: public briefing for the 2nd comprehensive review of the Shuinan Airport site detailed plan, 2024-02-01</li><li>Major projects: Taichung City Government project reports and news coverage; each row's source is in the CSV.</li><li>Detailed plan overlay: colour patches auto-traced from Figure 7-1 (unofficial English reference) and fitted to OpenStreetMap road centrelines; block edges sit a median 11 m from the nearest road, so expect errors of a few tens of metres. The Chinese plan and official GIS/CAD data prevail.</li><li>Basemap: vector tiles from <a href="https://openfreemap.org">OpenFreeMap</a> (© <a href="https://www.openmaptiles.org/">OpenMapTiles</a>), drawn with MapLibre GL JS, labelled with English names (OSM name:en) where mapped; the standard OpenStreetMap tiles serve as a fallback under the <a href="https://operations.osmfoundation.org/policies/tiles/">OSM tile usage policy</a>.</li><li><a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors</a>: basemap data and the road network (Open Database License 1.0, fetched through the Overpass API).</li></ul>
-  </section>
+    <aside class="aside">
+      <section aria-labelledby="h-nm">
+        <h2 id="h-nm">Night Markets<span class="zh" lang="zh-Hant-TW">夜市</span></h2>
+        <p class="intro">A prototype for rating how authentic Taichung's night markets are. No scores yet: the map shows the markets mapped in OpenStreetMap.</p>
+        <ul class="nm-list" id="nm-list"></ul>
+      </section>
 
-  <script>
-    (() => {
-      const root = document.documentElement;
-      const sysDark = window.matchMedia("(prefers-color-scheme: dark)");
-      const btns = [...document.querySelectorAll("[data-theme-set]")];
-      const styleBtns = [...document.querySelectorAll("[data-style-set]")];
-      const store = (k, v) => { try { localStorage.setItem(k, v); } catch (err) { /* this visit only */ } };
-      const sync = () => {
-        const t = root.dataset.theme || (sysDark.matches ? "dark" : "light");
-        for (const b of btns) b.setAttribute("aria-pressed", String(b.dataset.themeSet === t));
-        const st = root.dataset.style || "deck";
-        for (const b of styleBtns) b.setAttribute("aria-pressed", String(b.dataset.styleSet === st));
-      };
-      for (const b of btns) b.addEventListener("click", () => {
-        root.dataset.theme = b.dataset.themeSet;
-        store("hyd2026-theme", b.dataset.themeSet);
-        sync();
-      });
-      for (const b of styleBtns) b.addEventListener("click", () => {
-        if (b.dataset.styleSet === "deck") delete root.dataset.style; else root.dataset.style = b.dataset.styleSet;
-        store("hyd2026-style", b.dataset.styleSet);
-        sync();
-      });
-      sysDark.addEventListener("change", sync);
-      sync();
-    })();
-  </script>
+      <section aria-labelledby="h-legend">
+        <h2 id="h-legend">Legend<span class="zh" lang="zh-Hant-TW">圖例</span></h2>
+        <ul class="legend-lines" id="mkt-legend">
+          <li><span class="mkt-key night"></span>Night market<span class="zh" lang="zh-Hant-TW">夜市</span></li>
+          <li><span class="mkt-key"></span>Market<span class="zh" lang="zh-Hant-TW">市場</span></li>
+          <li><span class="mkt-key area"></span>Night market, mapped area<span class="zh" lang="zh-Hant-TW">夜市範圍（OSM）</span></li>
+          <li id="mkt-legend-extent" hidden><span class="mkt-key extent"></span>Feng Chia, approx. full extent<span class="zh" lang="zh-Hant-TW">逢甲夜市約略範圍</span></li>
+          <li><span class="line-key"></span>District boundary<span class="zh" lang="zh-Hant-TW">區界</span></li>
+        </ul>
+        <div class="toggles" role="group" aria-label="Layers">
+          <label id="lyr-osm-wrap" hidden><input type="checkbox" id="lyr-osm" checked>Basemap, English labels<span class="zh" lang="zh-Hant-TW">英文底圖</span></label>
+          <label><input type="checkbox" id="lyr-fill" checked>District tint<span class="zh" lang="zh-Hant-TW">區底色</span></label>
+          <label><input type="checkbox" id="lyr-mkt" checked>Markets<span class="zh" lang="zh-Hant-TW">市場、夜市</span></label>
+        </div>
+        <p class="note" id="osm-msg" hidden></p>
+        <ul class="legend" id="legend"></ul>
+        <p class="note">The eight districts of the former Taichung City. Click a district to zoom to it.</p>
+      </section>
 
-  <footer>
-    Source data, map templates and build scripts: <a href="https://github.com/yunching0513/HYD2026_Taichung">github.com/yunching0513/HYD2026_Taichung</a>
-  </footer>
+      <section aria-labelledby="h-src">
+        <h2 id="h-src">Data Notes<span class="zh" lang="zh-Hant-TW">資料說明</span></h2>
+        <ul class="sources" id="sources"></ul>
+      </section>
+    </aside>
+  </main>
 </div>
+<div class="tip" id="tip" lang="en" hidden></div>
+
+<script>
+(() => {
+  const DATA = {"districts":{"type":"FeatureCollection","name":"former_city_8_districts","xy_coordinate_resolution":1e-06,"features":[{"type":"Feature","properties":{"district_code":"66000010","district_zh":"中區","district_en":"Central District","area_km2":0.9197,"label_lon":120.680681,"label_lat":24.142019},"geometry":{"type":"Polygon","coordinates":[[[120.685686,24.143248],[120.682329,24.135403],[120.673841,24.143248],[120.678971,24.148212],[120.685686,24.143248]]]}},{"type":"Feature","properties":{"district_code":"66000020","district_zh":"東區","district_en":"East District","area_km2":6.7583,"label_lon":120.696574,"label_lat":24.138121},"geometry":{"type":"Polygon","coordinates":[[[120.699676,24.151414],[120.700609,24.14581],[120.712081,24.147251],[120.704153,24.124836],[120.689603,24.124676],[120.685313,24.121633],[120.682329,24.135403],[120.685686,24.143248],[120.690629,24.152054],[120.699676,24.151414]]]}},{"type":"Feature","properties":{"district_code":"66000030","district_zh":"南區","district_en":"South District","area_km2":7.9283,"label_lon":120.663461,"label_lat":24.120417},"geometry":{"type":"Polygon","coordinates":[[[120.685313,24.121633],[120.683634,24.118591],[120.662089,24.110906],[120.657239,24.104502],[120.644835,24.109945],[120.643622,24.119232],[120.654814,24.128518],[120.654908,24.135243],[120.666566,24.128838],[120.682329,24.135403],[120.685313,24.121633]]]}},{"type":"Feature","properties":{"district_code":"66000040","district_zh":"西區","district_en":"West District","area_km2":6.3633,"label_lon":120.664489,"label_lat":24.145576},"geometry":{"type":"Polygon","coordinates":[[[120.673841,24.143248],[120.682329,24.135403],[120.666566,24.128838],[120.654908,24.135243],[120.653788,24.155737],[120.663395,24.163102],[120.66582,24.153656],[120.675054,24.151254],[120.675054,24.149653],[120.673841,24.143248]]]}},{"type":"Feature","properties":{"district_code":"66000050","district_zh":"北區","district_en":"North District","area_km2":7.5655,"label_lon":120.680948,"label_lat":24.15732},"geometry":{"type":"Polygon","coordinates":[[[120.703874,24.159259],[120.699676,24.151414],[120.690629,24.152054],[120.685686,24.143248],[120.678971,24.148212],[120.673841,24.143248],[120.675054,24.149653],[120.675054,24.151254],[120.66582,24.153656],[120.663395,24.163102],[120.667033,24.173029],[120.679624,24.172869],[120.678784,24.168546],[120.688484,24.166785],[120.688671,24.162141],[120.703874,24.159259]]]}},{"type":"Feature","properties":{"district_code":"66000060","district_zh":"西屯區","district_en":"Xitun District","area_km2":40.0349,"label_lon":120.626736,"label_lat":24.183079},"geometry":{"type":"Polygon","coordinates":[[[120.664514,24.201529],[120.657519,24.18936],[120.658079,24.177352],[120.669551,24.177032],[120.667033,24.173029],[120.663395,24.163102],[120.653788,24.155737],[120.63672,24.154456],[120.633456,24.1599],[120.6273,24.154456],[120.606035,24.164863],[120.594936,24.163262],[120.584303,24.170307],[120.583651,24.17415],[120.592511,24.180234],[120.587568,24.185357],[120.597921,24.18936],[120.587661,24.192562],[120.596335,24.214017],[120.635228,24.20393],[120.645114,24.20377],[120.651457,24.209694],[120.664794,24.207132],[120.664514,24.201529]]]}},{"type":"Feature","properties":{"district_code":"66000070","district_zh":"南屯區","district_en":"Nantun District","area_km2":30.4752,"label_lon":120.617868,"label_lat":24.141585},"geometry":{"type":"Polygon","coordinates":[[[120.653788,24.155737],[120.654908,24.135243],[120.654814,24.128518],[120.643622,24.119232],[120.631311,24.109465],[120.620025,24.112667],[120.618906,24.123875],[120.610232,24.125156],[120.586262,24.137805],[120.574603,24.147411],[120.584303,24.170307],[120.594936,24.163262],[120.606035,24.164863],[120.6273,24.154456],[120.633456,24.1599],[120.63672,24.154456],[120.653788,24.155737]]]}},{"type":"Feature","properties":{"district_code":"66000080","district_zh":"北屯區","district_en":"Beitun District","area_km2":61.8171,"label_lon":120.736144,"label_lat":24.184117},"geometry":{"type":"Polygon","coordinates":[[[120.768229,24.216899],[120.797235,24.20297],[120.800779,24.197045],[120.797422,24.183756],[120.802645,24.169346],[120.797235,24.166304],[120.776343,24.168546],[120.769535,24.16022],[120.755451,24.157818],[120.749295,24.162141],[120.731481,24.157178],[120.706299,24.163102],[120.703874,24.159259],[120.688671,24.162141],[120.688484,24.166785],[120.678784,24.168546],[120.679624,24.172869],[120.667033,24.173029],[120.669551,24.177032],[120.658079,24.177352],[120.657519,24.18936],[120.664514,24.201529],[120.669831,24.20361],[120.691002,24.206172],[120.696972,24.20297],[120.693894,24.192883],[120.70406,24.186959],[120.707231,24.199287],[120.713387,24.185838],[120.714693,24.190001],[120.735305,24.194003],[120.738663,24.202009],[120.750228,24.204571],[120.74799,24.210975],[120.753679,24.219141],[120.768229,24.216899]]]}}]},"markets":{"fetched":"2026-10-15","features":[{"zh":"大慶夜市","en":"","night":true,"foot":[[[[120.655879,24.123381],[120.656148,24.123258],[120.656338,24.123126],[120.656442,24.122923],[120.656396,24.122811],[120.656265,24.122562],[120.656108,24.122398],[120.655952,24.122283],[120.65579,24.122297],[120.655469,24.122596],[120.655194,24.122507],[120.655015,24.122465],[120.654983,24.122494],[120.655022,24.122685],[120.655001,24.122881],[120.655879,24.123381]]]],"lon":120.655764,"lat":24.122826,"ha":1.11,"district_en":"South District","district_zh":"南區","osm":"way/1098244728"},{"zh":"忠孝夜市","en":"Zhongxiao Night Market","night":true,"foot":null,"lon":120.6833681,"lat":24.1302138,"ha":null,"district_en":"South District","district_zh":"南區","osm":"node/5540543021"},{"zh":"旱溪夜市","en":"Hanxida Night Market","night":true,"foot":[[[[120.700586,24.134058],[120.700654,24.13409],[120.701414,24.134082],[120.701333,24.133303],[120.70041,24.133347],[120.700586,24.134058]]]],"lon":120.7009346,"lat":24.1336959,"ha":0.75,"district_en":"East District","district_zh":"東區","osm":"way/373554653"},{"zh":"漁人町夜市","en":"","night":true,"foot":[[[[120.622899,24.14782],[120.622767,24.147825],[120.622761,24.147661],[120.622896,24.147654],[120.622899,24.14782]]]],"lon":120.622939,"lat":24.1477611,"ha":0.02,"district_en":"Nantun District","district_zh":"南屯區","osm":"way/1474690360"},{"zh":"逢甲夜市","en":"Fengjia Night Market","night":true,"foot":[[[[120.644818,24.175146],[120.645912,24.176176],[120.646314,24.176369],[120.64669,24.176648],[120.646711,24.176754],[120.646631,24.178059],[120.64659,24.178095],[120.646512,24.178923],[120.646482,24.178924],[120.645773,24.178931],[120.64574,24.1799],[120.646373,24.17992],[120.646355,24.180003],[120.645735,24.180003],[120.645703,24.180461],[120.646349,24.180475],[120.646336,24.180566],[120.645099,24.180539],[120.645107,24.180451],[120.645601,24.18047],[120.645684,24.177975],[120.645767,24.177975],[120.645786,24.178743],[120.646419,24.178747],[120.646435,24.178109],[120.646507,24.177921],[120.646545,24.17678],[120.646524,24.17667],[120.64644,24.176602],[120.645464,24.176029],[120.644716,24.175176],[120.644818,24.175146]]]],"lon":120.6459734,"lat":24.1780635,"ha":1.37,"district_en":"Xitun District","district_zh":"西屯區","osm":"way/450771065","extent":[[[[120.644612,24.175178],[120.644995,24.175646],[120.645533,24.17614],[120.645732,24.176261],[120.645931,24.17635],[120.646133,24.176454],[120.646436,24.176665],[120.646469,24.176706],[120.646477,24.176727],[120.646467,24.177415],[120.646424,24.177975],[120.646388,24.178069],[120.646364,24.178185],[120.646364,24.178283],[120.646336,24.178691],[120.645732,24.178684],[120.645191,24.17869],[120.645218,24.178673],[120.645249,24.178629],[120.645259,24.178577],[120.645247,24.178525],[120.645215,24.178482],[120.645166,24.178453],[120.64511,24.178443],[120.64492,24.178446],[120.644768,24.178438],[120.644543,24.17842],[120.644333,24.178387],[120.644201,24.178355],[120.64403,24.178302],[120.643733,24.178188],[120.643506,24.17808],[120.64345,24.178065],[120.643393,24.178071],[120.643343,24.178097],[120.643307,24.178138],[120.643291,24.178189],[120.643304,24.178254],[120.643025,24.178095],[120.642449,24.177736],[120.642361,24.177674],[120.642309,24.177651],[120.642252,24.177648],[120.642197,24.177665],[120.642154,24.177701],[120.642129,24.177748],[120.642126,24.177801],[120.642144,24.177851],[120.642183,24.177891],[120.64228,24.177958],[120.642864,24.178322],[120.643137,24.178479],[120.643604,24.178689],[120.643801,24.178762],[120.644118,24.178854],[120.644651,24.178942],[120.644947,24.178965],[120.644958,24.179021],[120.644965,24.179275],[120.644928,24.179871],[120.644908,24.180661],[120.644886,24.181092],[120.644889,24.181418],[120.644879,24.181583],[120.644889,24.181681],[120.644886,24.181793],[120.64486,24.182115],[120.644843,24.182187],[120.644774,24.182192],[120.644605,24.182183],[120.644548,24.182191],[120.644499,24.182219],[120.644466,24.182262],[120.644452,24.182313],[120.644462,24.182366],[120.644492,24.182411],[120.644539,24.182442],[120.644595,24.182454],[120.644761,24.182463],[120.644985,24.18245],[120.645027,24.182438],[120.645073,24.182405],[120.645105,24.182347],[120.645153,24.182147],[120.645182,24.181799],[120.645184,24.181664],[120.645175,24.181586],[120.645184,24.18142],[120.645182,24.181095],[120.645203,24.180669],[120.645223,24.17988],[120.64526,24.179282],[120.645247,24.178962],[120.645578,24.178957],[120.645578,24.179381],[120.645553,24.179936],[120.645539,24.180483],[120.645548,24.180535],[120.645579,24.18058],[120.645626,24.18061],[120.645683,24.180622],[120.645739,24.180612],[120.645788,24.180584],[120.645821,24.180541],[120.645834,24.180489],[120.645848,24.179946],[120.645873,24.17939],[120.645874,24.178957],[120.646322,24.178962],[120.646306,24.179945],[120.646275,24.180642],[120.646252,24.180669],[120.646237,24.180724],[120.646223,24.181125],[120.646173,24.181759],[120.646179,24.181926],[120.646192,24.181977],[120.646226,24.18202],[120.646275,24.182048],[120.646332,24.182056],[120.646388,24.182044],[120.646435,24.182013],[120.646465,24.181968],[120.646474,24.181915],[120.646468,24.181771],[120.646518,24.181142],[120.64653,24.180788],[120.646555,24.180759],[120.64657,24.180703],[120.646601,24.179952],[120.646618,24.178944],[120.646632,24.178826],[120.64663,24.178662],[120.646659,24.178298],[120.646659,24.178199],[120.646717,24.178011],[120.646762,24.177427],[120.646768,24.177207],[120.646773,24.176711],[120.646766,24.176665],[120.646744,24.176606],[120.646698,24.17653],[120.646666,24.176493],[120.646619,24.176452],[120.646286,24.176221],[120.64607,24.176111],[120.645885,24.176029],[120.645729,24.175935],[120.645212,24.175462],[120.644853,24.175022],[120.644811,24.174985],[120.644757,24.174966],[120.6447,24.174968],[120.644647,24.174989],[120.644607,24.175028],[120.644587,24.175077],[120.644588,24.17513],[120.644612,24.175178]]]],"extent_ha":6.28,"extent_note":"Streets named as the market area by Business Today (商業周刊), 2015; stretches and buffer are our approximation, not an official boundary"},{"zh":"總站夜市","en":"Zong Zhan Night Market","night":true,"foot":[[[[120.708003,24.18506],[120.707966,24.185021],[120.707976,24.184295],[120.707971,24.184153],[120.70855,24.184156],[120.708548,24.185065],[120.708003,24.18506]]]],"lon":120.7082391,"lat":24.1846047,"ha":0.59,"district_en":"Beitun District","district_zh":"北屯區","osm":"way/938142619"},{"zh":"四張犁夜市","en":"","night":true,"foot":[[[[120.679028,24.194653],[120.679013,24.194179],[120.679065,24.194139],[120.679744,24.194046],[120.679848,24.194545],[120.679086,24.194701],[120.679028,24.194653]]]],"lon":120.6794214,"lat":24.1943709,"ha":0.47,"district_en":"Beitun District","district_zh":"北屯區","osm":"way/976360734"},{"zh":"","en":"","night":false,"foot":null,"lon":120.6671991,"lat":24.1163497,"ha":0.04,"district_en":"South District","district_zh":"南區","osm":"way/1117085569"},{"zh":"工學市場","en":"","night":false,"foot":null,"lon":120.6581752,"lat":24.1166471,"ha":0.19,"district_en":"South District","district_zh":"南區","osm":"way/262251763"},{"zh":"健康黃昏市場","en":"Jiankang market","night":false,"foot":null,"lon":120.6678347,"lat":24.118265,"ha":0.19,"district_en":"South District","district_zh":"南區","osm":"way/440016398"},{"zh":"建國北黃昏店鋪商場","en":"","night":false,"foot":null,"lon":120.6539112,"lat":24.1233627,"ha":0.26,"district_en":"South District","district_zh":"南區","osm":"way/1370761932"},{"zh":"臺中市公有建國零售市場","en":"Morning Fresh Food Market","night":false,"foot":null,"lon":120.6943427,"lat":24.1343877,"ha":1.51,"district_en":"East District","district_zh":"東區","osm":"way/460124288"},{"zh":"","en":"","night":false,"foot":null,"lon":120.6385581,"lat":24.1380415,"ha":0.03,"district_en":"Nantun District","district_zh":"南屯區","osm":"way/654379393"},{"zh":"第五市場","en":"5th Market","night":false,"foot":null,"lon":120.6724888,"lat":24.1385188,"ha":0.38,"district_en":"West District","district_zh":"西區","osm":"way/569834175"},{"zh":"","en":"","night":false,"foot":null,"lon":120.6882816,"lat":24.1385555,"ha":0.37,"district_en":"East District","district_zh":"東區","osm":"way/1118915599"},{"zh":"舊建國市場","en":"","night":false,"foot":null,"lon":120.6896308,"lat":24.1389157,"ha":null,"district_en":"East District","district_zh":"東區","osm":"node/12479809501"},{"zh":"","en":"","night":false,"foot":null,"lon":120.6881658,"lat":24.1390551,"ha":0.23,"district_en":"East District","district_zh":"東區","osm":"way/1118915598"},{"zh":"南屯早市","en":"","night":false,"foot":null,"lon":120.6388962,"lat":24.1393423,"ha":null,"district_en":"Nantun District","district_zh":"南屯區","osm":"node/6409504486"},{"zh":"復興市集","en":"","night":false,"foot":null,"lon":120.6895551,"lat":24.1395439,"ha":null,"district_en":"East District","district_zh":"東區","osm":"node/12479810001"},{"zh":"忠信市場","en":"","night":false,"foot":null,"lon":120.6634673,"lat":24.139643,"ha":0.47,"district_en":"West District","district_zh":"西區","osm":"way/355383508"},{"zh":"文心第一黃昏市場","en":"","night":false,"foot":null,"lon":120.6501943,"lat":24.1407249,"ha":0.22,"district_en":"Nantun District","district_zh":"南屯區","osm":"way/543947295"},{"zh":"第二市場","en":"","night":false,"foot":null,"lon":120.6787146,"lat":24.1423547,"ha":0.82,"district_en":"Central District","district_zh":"中區","osm":"way/271452260"},{"zh":"大進市場","en":"","night":false,"foot":null,"lon":120.6501758,"lat":24.1423689,"ha":0.19,"district_en":"Nantun District","district_zh":"南屯區","osm":"way/361514581"},{"zh":"臺中市建國跳蚤市場","en":"","night":false,"foot":null,"lon":120.6896901,"lat":24.1425452,"ha":0.34,"district_en":"East District","district_zh":"東區","osm":"way/638990808"},{"zh":"台中市假日玉市","en":"","night":false,"foot":null,"lon":120.6828203,"lat":24.1429045,"ha":0.03,"district_en":"Central District","district_zh":"中區","osm":"way/921857301"},{"zh":"新光黃昏市場","en":"","night":false,"foot":null,"lon":120.7104672,"lat":24.1441503,"ha":0.5,"district_en":"East District","district_zh":"東區","osm":"way/467608415"},{"zh":"十甲旺市場","en":"","night":false,"foot":null,"lon":120.698189,"lat":24.1453175,"ha":null,"district_en":"East District","district_zh":"東區","osm":"node/4810908417"},{"zh":"竹圍市場","en":"","night":false,"foot":null,"lon":120.6765628,"lat":24.1457692,"ha":0.11,"district_en":"Central District","district_zh":"中區","osm":"way/865658920"},{"zh":"向上市場","en":"","night":false,"foot":null,"lon":120.6595017,"lat":24.1472902,"ha":1.41,"district_en":"West District","district_zh":"西區","osm":"way/336695121"},{"zh":"大嶺東黃昏市場","en":"","night":false,"foot":null,"lon":120.6121932,"lat":24.1476007,"ha":0.23,"district_en":"Nantun District","district_zh":"南屯區","osm":"way/562645323"},{"zh":"哈魚碼頭觀光魚市","en":"","night":false,"foot":null,"lon":120.6223011,"lat":24.1476181,"ha":0.44,"district_en":"Nantun District","district_zh":"南屯區","osm":"way/232291861"},{"zh":"台中市花卉批發市場","en":"","night":false,"foot":null,"lon":120.6333747,"lat":24.1476906,"ha":0.27,"district_en":"Nantun District","district_zh":"南屯區","osm":"way/1198180616"},{"zh":"台中市魚市場","en":"","night":false,"foot":null,"lon":120.6223987,"lat":24.14907,"ha":0.77,"district_en":"Nantun District","district_zh":"南屯區","osm":"way/232291860"},{"zh":"大新市場","en":"","night":false,"foot":null,"lon":120.6527578,"lat":24.1491028,"ha":0.13,"district_en":"Nantun District","district_zh":"南屯區","osm":"way/361514596"},{"zh":"模範市場","en":"","night":false,"foot":null,"lon":120.667108,"lat":24.1501909,"ha":1.23,"district_en":"West District","district_zh":"西區","osm":"way/883069090"},{"zh":"小康市場","en":"","night":false,"foot":null,"lon":120.6300875,"lat":24.1533532,"ha":0.16,"district_en":"Nantun District","district_zh":"南屯區","osm":"way/1158213035"},{"zh":"東興市場","en":"","night":false,"foot":null,"lon":120.6778798,"lat":24.1534163,"ha":null,"district_en":"North District","district_zh":"北區","osm":"node/1282923535"},{"zh":"一心市場","en":"","night":false,"foot":null,"lon":120.6873964,"lat":24.1546685,"ha":null,"district_en":"North District","district_zh":"北區","osm":"node/3490270085"},{"zh":"大隆路黃昏市場","en":"","night":false,"foot":null,"lon":120.6534739,"lat":24.1562887,"ha":0.18,"district_en":"Xitun District","district_zh":"西屯區","osm":"way/681549644"},{"zh":"何厝市場","en":"","night":false,"foot":null,"lon":120.6537982,"lat":24.1623109,"ha":null,"district_en":"Xitun District","district_zh":"西屯區","osm":"node/2641091045"},{"zh":"北屯市場","en":"","night":false,"foot":null,"lon":120.6916522,"lat":24.1624569,"ha":0.52,"district_en":"Beitun District","district_zh":"北屯區","osm":"way/547188717"},{"zh":"大臺中環保市場","en":"","night":false,"foot":null,"lon":120.701004,"lat":24.1640104,"ha":0.88,"district_en":"Beitun District","district_zh":"北屯區","osm":"way/380348579"},{"zh":"華美黃昏市場","en":"","night":false,"foot":null,"lon":120.6643767,"lat":24.1653054,"ha":null,"district_en":"North District","district_zh":"北區","osm":"node/9396347298"},{"zh":"中德市場","en":"","night":false,"foot":null,"lon":120.6695713,"lat":24.165359,"ha":0.14,"district_en":"North District","district_zh":"北區","osm":"way/1153984820"},{"zh":"中義市場","en":"","night":false,"foot":null,"lon":120.6575209,"lat":24.167348,"ha":0.21,"district_en":"Xitun District","district_zh":"西屯區","osm":"way/272309710"},{"zh":"東光市場","en":"","night":false,"foot":null,"lon":120.6909443,"lat":24.1701953,"ha":0.31,"district_en":"Beitun District","district_zh":"北屯區","osm":"way/384534275"},{"zh":"北平黃昏市場","en":"","night":false,"foot":null,"lon":120.6790565,"lat":24.1715066,"ha":0.11,"district_en":"North District","district_zh":"北區","osm":"way/335737433"},{"zh":"東山黃昏市場","en":"Dongshan Dusk Market","night":false,"foot":null,"lon":120.7224803,"lat":24.1753523,"ha":0.11,"district_en":"Beitun District","district_zh":"北屯區","osm":"way/343114494"},{"zh":"福安市場","en":"","night":false,"foot":null,"lon":120.6180011,"lat":24.1759577,"ha":0.11,"district_en":"Xitun District","district_zh":"西屯區","osm":"way/950048487"},{"zh":"","en":"","night":false,"foot":null,"lon":120.7190043,"lat":24.1762244,"ha":0.05,"district_en":"Beitun District","district_zh":"北屯區","osm":"way/381193976"},{"zh":"新一點利黃昏市場","en":"","night":false,"foot":null,"lon":120.6972774,"lat":24.1769136,"ha":0.47,"district_en":"Beitun District","district_zh":"北屯區","osm":"way/512647690"},{"zh":"水湳市場 (傳統市場)","en":"","night":false,"foot":null,"lon":120.6671595,"lat":24.177112,"ha":null,"district_en":"Beitun District","district_zh":"北屯區","osm":"node/12465169901"},{"zh":"軍功市場","en":"","night":false,"foot":null,"lon":120.7201174,"lat":24.1772775,"ha":0.12,"district_en":"Beitun District","district_zh":"北屯區","osm":"way/659441434"},{"zh":"昌平金谷市場","en":"","night":false,"foot":null,"lon":120.691131,"lat":24.1778214,"ha":0.46,"district_en":"Beitun District","district_zh":"北屯區","osm":"way/589199074"},{"zh":"黃昏市場","en":"","night":false,"foot":null,"lon":120.638836,"lat":24.1787817,"ha":null,"district_en":"Xitun District","district_zh":"西屯區","osm":"node/3543587954"},{"zh":"上景興市場","en":"Shangjingxing Market","night":false,"foot":null,"lon":120.683512,"lat":24.1797926,"ha":0.79,"district_en":"Beitun District","district_zh":"北屯區","osm":"way/273403691"},{"zh":"","en":"","night":false,"foot":null,"lon":120.7336839,"lat":24.1810331,"ha":null,"district_en":"Beitun District","district_zh":"北屯區","osm":"node/11458406361"},{"zh":"松竹市場","en":"","night":false,"foot":null,"lon":120.7004257,"lat":24.1832951,"ha":null,"district_en":"Beitun District","district_zh":"北屯區","osm":"node/1299123048"},{"zh":"黃昏市場","en":"","night":false,"foot":null,"lon":120.6956584,"lat":24.1845694,"ha":0.15,"district_en":"Beitun District","district_zh":"北屯區","osm":"way/380171264"},{"zh":"黃昏市場","en":"","night":false,"foot":null,"lon":120.6199005,"lat":24.1875803,"ha":0.26,"district_en":"Xitun District","district_zh":"西屯區","osm":"way/258245652"},{"zh":"錦村市場","en":"","night":false,"foot":null,"lon":120.6872342,"lat":24.1961716,"ha":0.7,"district_en":"Beitun District","district_zh":"北屯區","osm":"way/272591379"},{"zh":"臺中果菜市場","en":"","night":false,"foot":null,"lon":120.6584532,"lat":24.1994196,"ha":1.76,"district_en":"Xitun District","district_zh":"西屯區","osm":"way/560714185"}]},"boundary_source":"Derived from MOI district boundaries (2025-03-18) and NLSC village boundaries (2026-08-17) via plotdb/pdmaptw v2.4.0; Open Government Data License v1.0"};
+
+  const $ = (s) => document.querySelector(s);
+  const NS = "http://www.w3.org/2000/svg";
+  const svgEl = (tag, attrs, parent) => {
+    const el = document.createElementNS(NS, tag);
+    for (const k in attrs) el.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(el);
+    return el;
+  };
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+  const clean = (s) => String(s ?? "").replace(/\s+/g, " ").trim();
+  const zh = (s, cls = "zh") => `<span class="${cls}" lang="zh-Hant-TW">${esc(s)}</span>`;
+  const fmt = (n, d = 2) => n.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d });
+  const plural = (n, word) => `${n} ${word}${n === 1 ? "" : "s"}`;
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  // ---------- projection ----------
+  // Spherical (Web) Mercator, the projection OpenStreetMap tiles use, with the
+  // origin moved to the study-area centre. World units are Mercator metres;
+  // GROUND converts them to ground metres along the east-west axis.
+  const rings = (g) => (g.type === "Polygon" ? [g.coordinates] : g.coordinates);
+  let minLon = Infinity, maxLon = -Infinity, minLat = Infinity, maxLat = -Infinity;
+  for (const f of DATA.districts.features) {
+    for (const poly of rings(f.geometry)) for (const ring of poly) for (const [lon, lat] of ring) {
+      if (lon < minLon) minLon = lon; if (lon > maxLon) maxLon = lon;
+      if (lat < minLat) minLat = lat; if (lat > maxLat) maxLat = lat;
+    }
+  }
+  const LON0 = (minLon + maxLon) / 2, LAT0 = (minLat + maxLat) / 2;
+  const RAD = Math.PI / 180, R = 6378137, HALF = Math.PI * R;
+  const mercX = (lon) => R * lon * RAD;
+  const mercY = (lat) => R * Math.log(Math.tan(Math.PI / 4 + (lat * RAD) / 2));
+  const X0 = mercX(LON0), Y0 = mercY(LAT0);
+  const MLON = 111412.84 * Math.cos(LAT0 * RAD) - 93.5 * Math.cos(3 * LAT0 * RAD); // WGS84 ground metres per degree of longitude
+  const GROUND = MLON / (R * RAD); // ground metres per Mercator metre at LAT0
+  const proj = (lon, lat) => [mercX(lon) - X0, Y0 - mercY(lat)];
+  const unproj = (x, y) => [(x + X0) / R / RAD, (2 * Math.atan(Math.exp((Y0 - y) / R)) - Math.PI / 2) / RAD];
+
+  const lineD = (coords) => coords.map(([lon, lat], i) => {
+    const [x, y] = proj(lon, lat);
+    return (i ? "L" : "M") + x.toFixed(1) + " " + y.toFixed(1);
+  }).join("");
+  const polyD = (polys) => polys.map((poly) => poly.map((ring) => lineD(ring) + "Z").join("")).join("");
+  const boxOf = (polys) => {
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (const poly of polys) for (const ring of poly) for (const [lon, lat] of ring) {
+      const [x, y] = proj(lon, lat);
+      if (x < x0) x0 = x; if (x > x1) x1 = x; if (y < y0) y0 = y; if (y > y1) y1 = y;
+    }
+    return [x0, y0, x1, y1];
+  };
+
+  // ---------- model ----------
+  const markets = (DATA.markets ? DATA.markets.features : []).map((m) => {
+    const [wx, wy] = proj(m.lon, m.lat);
+    const shape = m.extent || m.foot;
+    return { ...m, wx, wy, box: shape ? boxOf(shape) : [wx - 250, wy - 250, wx + 250, wy + 250] };
+  });
+  const nightMarkets = markets.filter((m) => m.night);
+  const districts = DATA.districts.features.map((f, i) => {
+    const p = f.properties;
+    const [lx, ly] = proj(p.label_lon, p.label_lat);
+    const en = clean(p.district_en);
+    const mine = markets.filter((m) => m.district_en === en);
+    return { p, i, en, zh: clean(p.district_zh), short: en.replace(/\s*District$/i, ""),
+      d: polyD(rings(f.geometry)), box: boxOf(rings(f.geometry)), lx, ly,
+      nMarkets: mine.length, nNight: mine.filter((m) => m.night).length };
+  });
+  const totalBox = districts.reduce((b, d) => [Math.min(b[0], d.box[0]), Math.min(b[1], d.box[1]), Math.max(b[2], d.box[2]), Math.max(b[3], d.box[3])], [Infinity, Infinity, -Infinity, -Infinity]);
+
+  $("#facts").textContent =
+    `${plural(nightMarkets.length, "night market")} · ${plural(markets.length - nightMarkets.length, "other market")} · ${districts.length} districts | WGS84`;
+
+  // ---------- svg scaffolding ----------
+  const svg = $("#map");
+  const frame = $("#mapframe");
+  const gWorld = $("#world"), gLabels = $("#g-labels");
+  const gTicks = $("#g-ticks"), gNorth = $("#g-north"), gScale = $("#g-scale");
+  const hoverOutline = $("#hover-outline");
+  const tip = $("#tip"), coord = $("#coord");
+  const M = { l: 22, r: 8, t: 8, b: 22 }; // margin outside the neatline, for coordinate labels
+
+  // two-line label: English (l1) above Chinese (l2)
+  const makeLabel = (cls, l1, l2) => {
+    const t = svgEl("text", { class: cls }, gLabels);
+    svgEl("tspan", { class: "l1" }, t).textContent = l1;
+    svgEl("tspan", { class: "l2", lang: "zh-Hant-TW" }, t).textContent = l2;
+    return t;
+  };
+  const placeLabel = (t, x, y, up, down) => {
+    const [a, b] = t.children;
+    a.setAttribute("x", x); a.setAttribute("y", y - up);
+    b.setAttribute("x", x); b.setAttribute("y", y + down);
+  };
+
+  for (const d of districts) {
+    d.el = svgEl("path", { d: d.d, class: "dfill" }, $("#g-dfill"));
+    d.el.__d = d;
+    svgEl("path", { d: d.d, class: "dist" }, $("#g-d"));
+    d.full = d.en;
+    d.compact = d.short;
+    d.labelEl = makeLabel("dlabel", d.full, d.zh);
+  }
+  let DIST_CHAR = 8.5; // approx px per character of a district label; set from --dist-char per style
+  const readDistChar = () => { DIST_CHAR = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--dist-char")) || 8.5; };
+  readDistChar();
+  const distByArea = [...districts].sort((a, b) => b.p.area_km2 - a.p.area_km2);
+
+  // ---------- view state ----------
+  let W = 0, H = 0, fitK = 1, kMin = 0.5, kMax = 10;
+  let view = { k: 1, tx: 0, ty: 0 };
+  let interacted = false;
+  let hot = null;
+  const BASEMAP = true; // false where external tiles are blocked (e.g. the Claude artifact build)
+  const layers = { osm: BASEMAP };
+
+  const inner = () => ({ x0: M.l, y0: M.t, x1: W - M.r, y1: H - M.b });
+  function fitView(box, pad, cap, clamp = true) {
+    const r = inner();
+    const iw = r.x1 - r.x0, ih = r.y1 - r.y0;
+    const bw = Math.max(box[2] - box[0], 1), bh = Math.max(box[3] - box[1], 1);
+    let k = Math.min((iw - 2 * pad) / bw, (ih - 2 * pad) / bh);
+    if (cap) k = Math.min(k, cap);
+    if (clamp) k = Math.max(kMin, Math.min(kMax, k));
+    const cx = (box[0] + box[2]) / 2, cy = (box[1] + box[3]) / 2;
+    return { k, tx: (r.x0 + r.x1) / 2 - k * cx, ty: (r.y0 + r.y1) / 2 - k * cy };
+  }
+
+  function resize() {
+    const rect = svg.getBoundingClientRect();
+    const oldW = W, oldH = H;
+    W = Math.max(rect.width, 1); H = Math.max(rect.height, 1);
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+    const r = inner();
+    for (const id of ["#cliprect", "#groundrect", "#neatline"]) {
+      const el = $(id);
+      el.setAttribute("x", r.x0); el.setAttribute("y", r.y0);
+      el.setAttribute("width", r.x1 - r.x0); el.setAttribute("height", r.y1 - r.y0);
+    }
+    for (const el of [tilesDiv, vbase]) {
+      Object.assign(el.style, { left: r.x0 + "px", top: r.y0 + "px", width: r.x1 - r.x0 + "px", height: r.y1 - r.y0 + "px" });
+    }
+    if (vmap) vmap.resize();
+    // zoom limits are relative to the full-extent fit, so compute that unclamped first
+    const prevFit = fitK;
+    fitK = fitView(totalBox, 18, null, false).k;
+    kMin = fitK * 0.6; kMax = fitK * 16;
+    if (!interacted || !oldW) {
+      view = fitView(totalBox, 18);
+    } else {
+      // keep the same world point at the centre, keep relative zoom
+      const cx = (oldW / 2 - view.tx) / view.k, cy = (oldH / 2 - view.ty) / view.k;
+      const k = view.k * (fitK / prevFit);
+      view = { k, tx: W / 2 - k * cx, ty: H / 2 - k * cy };
+    }
+    drawNorth();
+    draw();
+  }
+
+  function draw() {
+    const { k, tx, ty } = view;
+    gWorld.setAttribute("transform", `matrix(${k} 0 0 ${k} ${tx} ${ty})`);
+    const blocked = []; // screen boxes taken by district labels
+    const hits = (b) => blocked.some((o) => b[0] < o[2] && b[2] > o[0] && b[1] < o[3] && b[3] > o[1]);
+    const innerW = W - M.l - M.r;
+    for (const d of distByArea) {
+      const wPx = (d.box[2] - d.box[0]) * k;
+      // overview zooms, plus small districts until they fill half the frame
+      let show = k < fitK * 2.4 || wPx < innerW * 0.5;
+      if (show) {
+        const sx = k * d.lx + tx, sy = k * d.ly + ty;
+        // fall back to the short name ("XITUN") when the district is narrow on screen
+        const texts = wPx > d.full.length * DIST_CHAR * 1.25 ? [d.full, d.compact] : [d.compact];
+        show = false;
+        for (const text of texts) {
+          const half = (text.length * DIST_CHAR) / 2 + 6, b = [sx - half, sy - 20, sx + half, sy + 20];
+          if (hits(b)) continue;
+          if (d.labelEl.firstChild.textContent !== text) d.labelEl.firstChild.textContent = text;
+          placeLabel(d.labelEl, sx, sy, 9, 10);
+          blocked.push(b);
+          show = true;
+          break;
+        }
+      }
+      d.labelEl.style.display = show ? "" : "none";
+    }
+    drawMarkets();
+    drawTicks();
+    drawScale();
+    if (layers.osm) {
+      if (vmap) syncVector();
+      else if (rasterMode) updateTiles();
+    }
+  }
+
+  // ---------- map furniture ----------
+  const dmsLabel = (minutes) => {
+    const total = Math.round(minutes * 100) / 100;
+    const deg = Math.floor(total / 60 + 1e-9);
+    const m = Math.round((total - deg * 60) * 100) / 100;
+    return `${deg}°${String(m).padStart(2, "0")}′`;
+  };
+  function drawTicks() {
+    gTicks.replaceChildren();
+    const { k, tx, ty } = view;
+    const r = inner();
+    const steps = [0.25, 0.5, 1, 2, 5, 10, 15, 30]; // arc-minutes
+    const pick = (pxPerMin) => steps.find((s) => s * pxPerMin >= 74) ?? 30;
+    const sLon = pick((k * R * RAD) / 60), sLat = pick((k * R * RAD) / Math.cos(LAT0 * RAD) / 60);
+
+    const lonA = unproj((r.x0 - tx) / k, 0)[0] * 60, lonB = unproj((r.x1 - tx) / k, 0)[0] * 60;
+    for (let i = Math.ceil(lonA / sLon); i * sLon <= lonB; i++) {
+      const m = i * sLon;
+      const x = k * proj(m / 60, LAT0)[0] + tx;
+      svgEl("line", { class: "tick", x1: x, x2: x, y1: r.y1, y2: r.y1 - 5 }, gTicks);
+      svgEl("line", { class: "tick", x1: x, x2: x, y1: r.y0, y2: r.y0 + 5 }, gTicks);
+      if (x - r.x0 > 28 && r.x1 - x > 28) {
+        svgEl("text", { class: "ticklabel", x, y: H - 7 }, gTicks).textContent = dmsLabel(m);
+      }
+    }
+    const latTop = unproj(0, (r.y0 - ty) / k)[1] * 60, latBot = unproj(0, (r.y1 - ty) / k)[1] * 60;
+    for (let i = Math.ceil(latBot / sLat); i * sLat <= latTop; i++) {
+      const m = i * sLat;
+      const y = k * proj(LON0, m / 60)[1] + ty;
+      svgEl("line", { class: "tick", x1: r.x0, x2: r.x0 + 5, y1: y, y2: y }, gTicks);
+      svgEl("line", { class: "tick", x1: r.x1, x2: r.x1 - 5, y1: y, y2: y }, gTicks);
+      if (y - r.y0 > 30 && r.y1 - y > 30) {
+        const t = svgEl("text", { class: "ticklabel", x: r.x0 - 8, y, transform: `rotate(-90 ${r.x0 - 8} ${y})` }, gTicks);
+        t.textContent = dmsLabel(m);
+      }
+    }
+  }
+
+  function drawScale() {
+    gScale.replaceChildren();
+    const target = (120 / view.k) * GROUND; // ground metres spanned by ~120 px
+    const nice = [50, 100, 200, 250, 500, 1000, 2000, 2500, 5000, 10000];
+    let len = nice[0];
+    for (const n of nice) if (n <= target) len = n;
+    const px = (len / GROUND) * view.k;
+    const r = inner();
+    const x0 = r.x0 + 14, y0 = r.y1 - 16;
+    svgEl("rect", { class: "sb-a", x: x0, y: y0, width: px / 2, height: 5 }, gScale);
+    svgEl("rect", { class: "sb-b", x: x0 + px / 2, y: y0, width: px / 2, height: 5 }, gScale);
+    svgEl("rect", { class: "sb-frame", x: x0, y: y0, width: px, height: 5 }, gScale);
+    const km = len >= 1000;
+    const val = (m) => (km ? String(m / 1000) : String(m));
+    svgEl("text", { class: "sb-label", x: x0, y: y0 - 6 }, gScale).textContent = "0";
+    svgEl("text", { class: "sb-label", x: x0 + px / 2, y: y0 - 6 }, gScale).textContent = val(len / 2);
+    svgEl("text", { class: "sb-label", x: x0 + px, y: y0 - 6 }, gScale).textContent = val(len) + (km ? " km" : " m");
+  }
+
+  function drawNorth() {
+    gNorth.replaceChildren();
+    const r = inner();
+    const g = svgEl("g", { transform: `translate(${r.x0 + 22} ${r.y0 + 34})`, "aria-hidden": "true" }, gNorth);
+    svgEl("path", { class: "north-b", d: "M0 -12 L7 8 L0 3 Z" }, g);
+    svgEl("path", { class: "north-a", d: "M0 -12 L-7 8 L0 3 Z" }, g);
+    svgEl("text", { class: "north-n", x: 0, y: -17 }, g).textContent = "N";
+  }
+
+  // ---------- basemap ----------
+  // Preferred: OpenFreeMap vector tiles (OpenMapTiles schema, OSM data) drawn by MapLibre GL JS, with every label
+  // switched to the English name (name:en) where OSM has one, otherwise the local name. Raster tiles carry
+  // their labels baked in, in the local language, so they are only the fallback when the vector map cannot start.
+  const VECTOR_STYLE = "https://tiles.openfreemap.org/styles/positron";
+  const MAPLIBRE = "https://cdnjs.cloudflare.com/ajax/libs/maplibre-gl/4.7.1/maplibre-gl";
+  const EN_LABEL = ["coalesce", ["get", "name:en"], ["get", "name_en"], ["get", "name"]];
+  const ATTRIB = {
+    vector: '<a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> © <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">OpenMapTiles</a> · data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors',
+    osm: '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors',
+  };
+  const vbase = $("#vbase");
+  let vmap = null, rasterMode = false, vectorStyled = false;
+
+  function loadVectorBasemap() {
+    const css = document.createElement("link");
+    css.rel = "stylesheet";
+    css.href = MAPLIBRE + ".css";
+    document.head.appendChild(css);
+    const js = document.createElement("script");
+    js.src = MAPLIBRE + ".js";
+    js.onload = startVector;
+    js.onerror = vectorFailed;
+    document.head.appendChild(js);
+    setTimeout(() => { if (!vectorStyled && !rasterMode) vectorFailed(); }, 20000);
+  }
+  function startVector() {
+    if (rasterMode) return;
+    try {
+      vmap = new maplibregl.Map({
+        container: "vmap", style: VECTOR_STYLE, interactive: false, attributionControl: false,
+        fadeDuration: 0, renderWorldCopies: false, center: [LON0, LAT0], zoom: 11,
+        // labels that fall back to Chinese are drawn with local fonts instead of downloaded CJK glyphs
+        localIdeographFontFamily: "'Noto Sans TC', 'PingFang TC', 'Microsoft JhengHei', sans-serif",
+      });
+    } catch (err) { vectorFailed(); return; }
+    vmap.on("style.load", () => {
+      for (const layer of vmap.getStyle().layers) {
+        if (layer.type !== "symbol") continue;
+        const tf = vmap.getLayoutProperty(layer.id, "text-field");
+        if (tf && JSON.stringify(tf).includes("name")) vmap.setLayoutProperty(layer.id, "text-field", EN_LABEL);
+      }
+      vectorStyled = true;
+    });
+    // a missing tile later on is harmless; failing before the style arrives means no vector map
+    vmap.on("error", () => { if (!vectorStyled) vectorFailed(); });
+    syncVector();
+  }
+  function syncVector() {
+    const r = inner();
+    const [lon, lat] = unproj(((r.x0 + r.x1) / 2 - view.tx) / view.k, ((r.y0 + r.y1) / 2 - view.ty) / view.k);
+    // MapLibre zoom z puts the world on 512 * 2^z px; here the world spans k * 2 * HALF px
+    vmap.jumpTo({ center: [lon, lat], zoom: Math.log2((view.k * 2 * HALF) / 512) });
+    vmap.redraw(); // render now, in step with the svg, rather than on the next frame
+  }
+  function vectorFailed() {
+    if (rasterMode) return;
+    if (vmap) { try { vmap.remove(); } catch (err) { /* already gone */ } vmap = null; }
+    vbase.hidden = true;
+    rasterMode = true;
+    osmMsg.textContent = "The English basemap could not load, so the standard OpenStreetMap tiles are shown, with labels in the local language.";
+    osmMsg.hidden = false;
+    setBasemap(layers.osm);
+  }
+
+  // Fallback: standard XYZ raster tiles. Tile usage policy: https://operations.osmfoundation.org/policies/tiles/
+  // (visible attribution required; fine for light interactive use, no bulk downloading).
+  const TILE_URL = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
+  const tilesDiv = $("#tiles"), attrib = $("#attrib"), osmMsg = $("#osm-msg");
+  const tileCache = new Map(); // "z/x/y" -> { img, z, x, y, ok, failed }
+  let tileZ = -1, wanted = new Set(), tileLoads = 0, tileErrors = 0;
+
+  function updateTiles() {
+    const { k, tx, ty } = view;
+    const r = inner();
+    const z = Math.max(0, Math.min(19, Math.round(Math.log2((2 * HALF * k) / 256))));
+    const n = 2 ** z, T = (2 * HALF) / n; // tile edge in Mercator metres
+    // visible extent in absolute Mercator metres (y grows northward)
+    const ax0 = (r.x0 - tx) / k + X0, ax1 = (r.x1 - tx) / k + X0;
+    const ayTop = Y0 - (r.y0 - ty) / k, ayBot = Y0 - (r.y1 - ty) / k;
+    const c0 = Math.max(0, Math.floor((ax0 + HALF) / T)), c1 = Math.min(n - 1, Math.floor((ax1 + HALF) / T));
+    const r0 = Math.max(0, Math.floor((HALF - ayTop) / T)), r1 = Math.min(n - 1, Math.floor((HALF - ayBot) / T));
+    wanted = new Set();
+    tileZ = z;
+    for (let x = c0; x <= c1; x++) for (let y = r0; y <= r1; y++) {
+      const key = `${z}/${x}/${y}`;
+      wanted.add(key);
+      if (tileCache.has(key)) continue;
+      const img = new Image();
+      const t = { img, z, x, y, ok: false, failed: false };
+      img.alt = "";
+      img.decoding = "async";
+      img.draggable = false;
+      img.onload = () => { t.ok = true; tileLoads++; pruneTiles(); };
+      img.onerror = () => {
+        t.failed = true; tileErrors++; img.remove(); pruneTiles();
+        if (!tileLoads && tileErrors >= 4) basemapFailed();
+      };
+      img.src = TILE_URL.replace("{z}", z).replace("{x}", x).replace("{y}", y);
+      tileCache.set(key, t);
+      tilesDiv.appendChild(img);
+    }
+    // same-zoom tiles that scrolled away go now; other zooms stay until the new set has loaded
+    for (const [key, t] of tileCache) if (t.z === z && !wanted.has(key)) { t.img.remove(); tileCache.delete(key); }
+    pruneTiles();
+    for (const t of tileCache.values()) {
+      if (t.failed) continue;
+      const Tz = (2 * HALF) / 2 ** t.z;
+      const sx = k * (t.x * Tz - HALF - X0) + tx - r.x0;
+      const sy = k * (Y0 - (HALF - t.y * Tz)) + ty - r.y0;
+      const size = k * Tz + 0.5; // half-pixel overlap hides seams between tiles
+      t.img.style.transform = `translate(${sx}px, ${sy}px)`;
+      t.img.style.width = t.img.style.height = size + "px";
+      t.img.style.zIndex = t.z === z ? 2 : 1;
+    }
+  }
+  function pruneTiles() {
+    const ready = [...wanted].every((key) => { const t = tileCache.get(key); return t && (t.ok || t.failed); });
+    for (const [key, t] of tileCache) {
+      if (t.z !== tileZ && (ready || tileCache.size > 160)) { t.img.remove(); tileCache.delete(key); }
+    }
+  }
+  function clearTiles() {
+    for (const t of tileCache.values()) t.img.remove();
+    tileCache.clear();
+    wanted = new Set();
+  }
+  function setAttrib() {
+    // the market layer is OSM data too, so the credit stays while it is shown
+    attrib.hidden = !layers.osm && !(markets.length && $("#lyr-mkt").checked);
+    attrib.innerHTML = layers.osm && !rasterMode ? ATTRIB.vector : ATTRIB.osm;
+  }
+  function setBasemap(on, redraw = true) {
+    layers.osm = on;
+    $("#lyr-osm").checked = on;
+    svg.classList.toggle("has-tiles", on);
+    vbase.hidden = !on || rasterMode;
+    tilesDiv.hidden = !on || !rasterMode;
+    setAttrib();
+    if (!on) clearTiles();
+    if (on && vmap) vmap.resize(); // it may have been hidden
+    if (redraw) draw();
+  }
+  function basemapFailed() {
+    setBasemap(false);
+    osmMsg.textContent = "The basemap could not load (offline, a blocked network, or the page was opened as a local file), so the map is shown without it.";
+    osmMsg.hidden = false;
+  }
+
+  // ---------- view changes ----------
+  let anim = 0;
+  function setView(next, animate) {
+    cancelAnimationFrame(anim);
+    next.k = Math.max(kMin, Math.min(kMax, next.k));
+    if (!animate || reduceMotion) { view = next; draw(); return; }
+    const from = { ...view }, t0 = performance.now(), dur = 340;
+    const step = (now) => {
+      const t = Math.min(1, (now - t0) / dur), e = 1 - Math.pow(1 - t, 3);
+      // interpolate zoom geometrically so the motion feels even
+      const k = from.k * Math.pow(next.k / from.k, e);
+      const cx0 = (W / 2 - from.tx) / from.k, cy0 = (H / 2 - from.ty) / from.k;
+      const cx1 = (W / 2 - next.tx) / next.k, cy1 = (H / 2 - next.ty) / next.k;
+      const cx = cx0 + (cx1 - cx0) * e, cy = cy0 + (cy1 - cy0) * e;
+      view = { k, tx: W / 2 - k * cx, ty: H / 2 - k * cy };
+      draw();
+      if (t < 1) anim = requestAnimationFrame(step);
+    };
+    anim = requestAnimationFrame(step);
+  }
+  function zoomAt(factor, sx, sy, animate) {
+    const k = Math.max(kMin, Math.min(kMax, view.k * factor));
+    const f = k / view.k;
+    interacted = true;
+    setView({ k, tx: sx - (sx - view.tx) * f, ty: sy - (sy - view.ty) * f }, animate);
+  }
+  const zoomCenter = (factor) => zoomAt(factor, (M.l + W - M.r) / 2, (M.t + H - M.b) / 2, true);
+  const resetView = () => { interacted = false; setView(fitView(totalBox, 18), true); };
+  const zoomTo = (box, pad, cap) => { interacted = true; setView(fitView(box, pad, cap), true); };
+
+  $("#zin").addEventListener("click", () => zoomCenter(1.6));
+  $("#zout").addEventListener("click", () => zoomCenter(1 / 1.6));
+  $("#zfit").addEventListener("click", resetView);
+
+  svg.addEventListener("wheel", (e) => {
+    e.preventDefault();
+    const r = svg.getBoundingClientRect();
+    const unit = e.deltaMode === 1 ? 16 : 1;
+    zoomAt(Math.exp(-e.deltaY * unit * 0.0016), e.clientX - r.left, e.clientY - r.top, false);
+  }, { passive: false });
+
+  svg.addEventListener("keydown", (e) => {
+    const pan = 70;
+    const moves = { ArrowLeft: [pan, 0], ArrowRight: [-pan, 0], ArrowUp: [0, pan], ArrowDown: [0, -pan] };
+    if (moves[e.key]) {
+      e.preventDefault();
+      interacted = true;
+      setView({ k: view.k, tx: view.tx + moves[e.key][0], ty: view.ty + moves[e.key][1] }, false);
+    } else if (e.key === "+" || e.key === "=") { e.preventDefault(); zoomCenter(1.6); }
+    else if (e.key === "-" || e.key === "_") { e.preventDefault(); zoomCenter(1 / 1.6); }
+    else if (e.key === "0") { e.preventDefault(); resetView(); }
+    else if (e.key === "Escape") { hideTip(); }
+  });
+
+  // ---------- pointer: pan, pinch, hover, click ----------
+  const ptrs = new Map();
+  let drag = null, pinch = null;
+  const local = (e) => { const r = svg.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
+
+  function startPinch() {
+    const [a, b] = [...ptrs.values()];
+    pinch = { d0: Math.hypot(a.x - b.x, a.y - b.y) || 1, mx: (a.x + b.x) / 2, my: (a.y + b.y) / 2, k0: view.k, tx0: view.tx, ty0: view.ty };
+    drag = null;
+  }
+  svg.addEventListener("pointerdown", (e) => {
+    if (e.button !== 0 && e.pointerType === "mouse") return;
+    const p = local(e);
+    ptrs.set(e.pointerId, p);
+    svg.setPointerCapture(e.pointerId);
+    if (ptrs.size === 1) {
+      drag = { x0: p.x, y0: p.y, tx0: view.tx, ty0: view.ty, moved: false, target: e.target };
+    } else if (ptrs.size === 2) {
+      startPinch();
+    }
+  });
+  svg.addEventListener("pointermove", (e) => {
+    const p = local(e);
+    if (ptrs.has(e.pointerId)) ptrs.set(e.pointerId, p);
+    if (pinch && ptrs.size >= 2) {
+      const [a, b] = [...ptrs.values()];
+      const d = Math.hypot(a.x - b.x, a.y - b.y) || 1;
+      const k = Math.max(kMin, Math.min(kMax, pinch.k0 * (d / pinch.d0)));
+      const wx = (pinch.mx - pinch.tx0) / pinch.k0, wy = (pinch.my - pinch.ty0) / pinch.k0;
+      const mx = (a.x + b.x) / 2, my = (a.y + b.y) / 2;
+      interacted = true;
+      view = { k, tx: mx - wx * k, ty: my - wy * k };
+      draw();
+      return;
+    }
+    if (drag) {
+      const dx = p.x - drag.x0, dy = p.y - drag.y0;
+      if (!drag.moved && Math.hypot(dx, dy) > 4) { drag.moved = true; svg.classList.add("dragging"); hideTip(); setHot(null); }
+      if (drag.moved) {
+        interacted = true;
+        view = { k: view.k, tx: drag.tx0 + dx, ty: drag.ty0 + dy };
+        draw();
+      }
+      return;
+    }
+    // plain hover (mouse / pen)
+    updateCoord(p);
+    const mk = e.target.__mkt || null;
+    const d = mk ? null : e.target.__d || null;
+    setHot(d);
+    if (e.pointerType === "touch") hideTip();
+    else if (mk) showMarketTip(mk, e.clientX, e.clientY);
+    else if (d) showDistrictTip(d, e.clientX, e.clientY);
+    else hideTip();
+  });
+  const endPointer = (e) => {
+    if (!ptrs.has(e.pointerId)) return;
+    ptrs.delete(e.pointerId);
+    if (drag && !drag.moved && e.type === "pointerup") {
+      const t = drag.target;
+      if (t && t.__mkt) showMarketTip(t.__mkt, e.clientX, e.clientY);
+      else if (t && t.__d && e.pointerType === "touch") showDistrictTip(t.__d, e.clientX, e.clientY);
+      else hideTip();
+    }
+    svg.classList.remove("dragging");
+    if (ptrs.size === 1 && pinch) {
+      const [p] = [...ptrs.values()];
+      drag = { x0: p.x, y0: p.y, tx0: view.tx, ty0: view.ty, moved: true, target: null };
+      pinch = null;
+    } else if (ptrs.size === 0) {
+      drag = null; pinch = null;
+    }
+  };
+  svg.addEventListener("pointerup", endPointer);
+  svg.addEventListener("pointercancel", endPointer);
+  svg.addEventListener("pointerleave", () => { if (!drag) { setHot(null); hideTip(); coord.hidden = true; } });
+
+  function updateCoord(p) {
+    const r = inner();
+    if (p.x < r.x0 || p.x > r.x1 || p.y < r.y0 || p.y > r.y1) { coord.hidden = true; return; }
+    const [lon, lat] = unproj((p.x - view.tx) / view.k, (p.y - view.ty) / view.k);
+    coord.textContent = `${lat.toFixed(5)}°N  ${lon.toFixed(5)}°E`;
+    coord.hidden = false;
+  }
+
+  function setHot(d) {
+    if (d === hot) return;
+    if (hot) hot.el.classList.remove("is-hot");
+    hot = d;
+    if (hot) { hot.el.classList.add("is-hot"); hoverOutline.setAttribute("d", hot.d); }
+    else hoverOutline.removeAttribute("d");
+  }
+
+  // ---------- tooltip ----------
+  function placeTip(cx, cy) {
+    tip.hidden = false;
+    const w = tip.offsetWidth, h = tip.offsetHeight;
+    let x = cx + 14, y = cy + 14;
+    if (x + w > window.innerWidth - 8) x = cx - w - 14;
+    if (y + h > window.innerHeight - 8) y = cy - h - 14;
+    tip.style.left = Math.max(8, x) + "px";
+    tip.style.top = Math.max(8, y) + "px";
+  }
+  const hideTip = () => { tip.hidden = true; };
+  const marketCount = (d) => `${plural(d.nNight, "night market")}, ${plural(d.nMarkets - d.nNight, "other market")}`;
+  function showDistrictTip(d, cx, cy) {
+    tip.innerHTML = `<b>${esc(d.en)}</b>${zh(d.zh)}<br><span class="num">${fmt(d.p.area_km2)} km²</span> · ${marketCount(d)}`;
+    placeTip(cx, cy);
+  }
+
+  // ---------- markets (OpenStreetMap, fetched by scripts/fetch_landmarks.py) ----------
+  // build_map.py keeps marketplaces and night markets inside the eight districts and drops duplicates.
+  const gMkt = $("#g-mkt"), gMktArea = $("#g-mkt-area");
+  for (const m of markets) {
+    m.g = svgEl("g", { class: m.night ? "mkt-g night" : "mkt-g" }, gMkt);
+    svgEl("circle", { class: "mkt-hit", r: 9 }, m.g).__mkt = m;
+    svgEl("circle", { class: "mkt-dot", r: m.night ? 4.5 : 3.5 }, m.g);
+    m.label = svgEl("text", { class: "mkt-label", x: 7, y: 4 }, m.g);
+    m.label.textContent = m.en || m.zh;
+    // the street-based extent sits under the mapped outline
+    if (m.extent) svgEl("path", { class: "mkt-extent", d: polyD(m.extent) }, gMktArea).__mkt = m;
+    if (m.foot) svgEl("path", { class: "mkt-area", d: polyD(m.foot) }, gMktArea).__mkt = m;
+  }
+  $("#mkt-legend-extent").hidden = !markets.some((m) => m.extent);
+  function drawMarkets() {
+    const show = markets.length && $("#lyr-mkt").checked;
+    gMkt.style.display = gMktArea.style.display = show ? "" : "none";
+    if (!show) return;
+    // night markets are named sooner; the many neighbourhood markets only close in
+    const kNight = fitK * 2, kMarket = fitK * 5;
+    for (const m of markets) {
+      m.g.setAttribute("transform", `translate(${view.k * m.wx + view.tx} ${view.k * m.wy + view.ty})`);
+      m.label.style.display = view.k > (m.night ? kNight : kMarket) ? "" : "none";
+    }
+  }
+  $("#lyr-mkt").addEventListener("change", () => { setAttrib(); draw(); });
+  function showMarketTip(m, cx, cy) {
+    const kind = m.night ? "Night market" : "Market";
+    const head = m.en ? `<b>${esc(m.en)}</b>${zh(m.zh)}` : m.zh ? `<b>${zh(m.zh, "")}</b>` : `<b>Unnamed market</b>`;
+    tip.innerHTML = `${head}<br>${kind}, ${esc(m.district_en)}${m.ha ? ` · ${m.ha} ha mapped` : ""}<br>` +
+      (m.extent ? `Approx. full extent ${m.extent_ha} ha (dashed): ${esc(m.extent_note)}<br>` : "") +
+      `<span class="num">${m.lat.toFixed(5)}°N, ${m.lon.toFixed(5)}°E</span><br>OpenStreetMap ${esc(m.osm.replace("/", " "))}`;
+    placeTip(cx, cy);
+  }
+
+  // night-market list, largest mapped area first
+  const byArea = [...nightMarkets].sort((a, b) => (b.extent_ha || b.ha || 0) - (a.extent_ha || a.ha || 0));
+  $("#nm-list").innerHTML = byArea.map((m, i) => {
+    const area = m.extent ? `about ${m.extent_ha} ha (OSM outline ${m.ha} ha)` : m.ha ? `${m.ha} ha mapped` : "point only";
+    return `
+      <li>
+        <h3>${esc(m.en || m.zh)}${m.en ? zh(m.zh) : ""}</h3>
+        <p class="meta">${esc(m.district_en)} · ${area}</p>
+        <button type="button" class="btn-s" data-nm="${i}">Show on map</button>
+      </li>`;
+  }).join("");
+  $("#nm-list").addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-nm]");
+    if (!btn) return;
+    if (!$("#lyr-mkt").checked) { $("#lyr-mkt").checked = true; setAttrib(); }
+    zoomTo(byArea[+btn.dataset.nm].box, 60, fitK * 10);
+  });
+
+  // ---------- districts ----------
+  const legend = $("#legend");
+  for (const d of [...districts].sort((a, b) => b.nMarkets - a.nMarkets || a.i - b.i)) {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <button type="button" class="legend-dist" aria-label="Zoom to ${esc(d.en)}">
+        <span class="swatch" aria-hidden="true"></span>
+        <span><span class="nm">${esc(d.en)}</span>${zh(d.zh)}</span>
+        <span class="meta num">${d.nNight} / ${d.nMarkets}</span>
+      </button>`;
+    li.querySelector("button").title = `${marketCount(d)}; ${fmt(d.p.area_km2)} km²`;
+    li.querySelector("button").addEventListener("click", () => zoomTo(d.box, 24));
+    legend.appendChild(li);
+  }
+  legend.insertAdjacentHTML("afterbegin", `<li class="legend-group">Districts · night markets / all markets${zh("行政區・夜市／市場數")}</li>`);
+  $("#lyr-osm-wrap").hidden = !BASEMAP;
+  $("#lyr-osm").addEventListener("change", (e) => {
+    osmMsg.hidden = true;
+    tileErrors = 0;
+    setBasemap(e.target.checked);
+  });
+  $("#lyr-fill").addEventListener("change", (e) => svg.classList.toggle("no-fill", !e.target.checked));
+
+  // ---------- sources ----------
+  const osmLink = '<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>';
+  $("#sources").innerHTML = [
+    ...(markets.length ? [`Markets: © ${osmLink} contributors, ODbL 1.0; fetched ${esc(DATA.markets.fetched || "")}. ${markets.length} marketplaces inside the eight districts, ${nightMarkets.length} of them night markets (named 夜市). Only markets mapped in OpenStreetMap appear; points are footprint centres where an outline is mapped, and night markets also show that outline.`] : []),
+    ...(markets.some((m) => m.extent) ? ["The dashed Feng Chia extent is our approximation: OSM street centrelines of Wenhua Road, Fengjia Road, Fuxing Road and Fengjia Road Lane 20 (the streets <i>Business Today</i>, 2015, names as the market area), buffered by 15 m. No official boundary is published."] : []),
+    `District boundaries: ${esc(DATA.boundary_source)}. Simplified; use them for orientation, not measurement. Areas come from the attribute table.`,
+    `Coordinates: WGS84 (CRS84). The map uses Web Mercator to match the basemap; the scale bar uses the east-west scale at the center of the map.`,
+    ...(BASEMAP ? [`Basemap: vector tiles from <a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> (© <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">OpenMapTiles</a>, data © ${osmLink} contributors), drawn with MapLibre GL JS. Labels show the English name (OSM name:en) where one is mapped, otherwise the local name. If the vector map cannot start, the standard OpenStreetMap tiles are used instead (labels in the local language), under the OSMF <a href="https://operations.osmfoundation.org/policies/tiles/" target="_blank" rel="noopener">tile usage policy</a>.`] : []),
+  ].map((t) => `<li>${t}</li>`).join("");
+
+  // ---------- style (Deck / Program) and tone (Light / White / Dark) ----------
+  // Both choices are stored per browser; without a tone the system setting decides.
+  const root = document.documentElement;
+  const sysDark = window.matchMedia("(prefers-color-scheme: dark)");
+  const themeBtns = [...document.querySelectorAll("[data-theme-set]")];
+  const styleBtns = [...document.querySelectorAll("[data-style-set]")];
+  const store = (key, value) => { try { localStorage.setItem(key, value); } catch (err) { /* kept for this visit only */ } };
+  const syncTheme = () => {
+    const t = root.dataset.theme || (sysDark.matches ? "dark" : "light");
+    for (const b of themeBtns) b.setAttribute("aria-pressed", String(b.dataset.themeSet === t));
+    const st = root.dataset.style || "deck";
+    for (const b of styleBtns) b.setAttribute("aria-pressed", String(b.dataset.styleSet === st));
+  };
+  for (const b of themeBtns) b.addEventListener("click", () => {
+    root.dataset.theme = b.dataset.themeSet;
+    store("hyd2026-theme", b.dataset.themeSet);
+    syncTheme();
+  });
+  for (const b of styleBtns) b.addEventListener("click", () => {
+    if (b.dataset.styleSet === "deck") delete root.dataset.style; else root.dataset.style = b.dataset.styleSet;
+    store("hyd2026-style", b.dataset.styleSet);
+    syncTheme();
+    readDistChar();
+    draw(); // district labels change width with the typeface
+  });
+  sysDark.addEventListener("change", syncTheme);
+  syncTheme();
+
+  // ---------- boot ----------
+  setBasemap(BASEMAP, false);
+  new ResizeObserver(() => resize()).observe(frame);
+  resize();
+  if (BASEMAP) loadVectorBasemap();
+  // read-only hook for scripts/check_basemap.mjs
+  window.__hydBasemap = {
+    get mode() { return rasterMode ? "raster" : !vmap ? "none" : vectorStyled ? "vector" : "loading"; },
+    get map() { return vmap; },
+  };
+})();
+</script>
 
 </body>
 </html>

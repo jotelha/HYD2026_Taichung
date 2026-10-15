@@ -1,17 +1,17 @@
-// Smoke test for the English basemap on map/index.html (run by the "Check basemap" workflow).
+// Smoke test for the English basemap on the Boba Index map (index.html) (run by the "Check basemap" workflow).
 //
 // Loads the page in headless Chromium with network access, waits for the OpenFreeMap vector basemap,
 // then reports: which basemap is up (vector or the raster fallback), how far the basemap sits from the
 // svg overlay at a known point, and which labels are drawn in English or fall back to the local name.
 // Screenshots of the three themes go to check-basemap/.
 //
-// Usage: node scripts/check_basemap.mjs http://localhost:8000/map/index.html
+// Usage: node scripts/check_basemap.mjs http://localhost:8000/
 // Exits non-zero if the vector basemap does not start or is misaligned by more than 2 px.
 
 import { chromium } from "playwright";
 import fs from "node:fs";
 
-const url = process.argv[2] || "http://localhost:8000/map/index.html";
+const url = process.argv[2] || "http://localhost:8000/";
 const OUT = "check-basemap";
 fs.mkdirSync(OUT, { recursive: true });
 
@@ -42,15 +42,15 @@ const idle = () => page.evaluate(() => new Promise((resolve) => {
   setTimeout(resolve, 15000);
 }));
 
-// the reference points carry their lon/lat in the tooltip; compare the svg marker with MapLibre's projection
+// compare the Feng Chia market marker in the svg with MapLibre's projection of its coordinates
 const alignment = () => page.evaluate(() => {
   const m = window.__hydBasemap.map;
   const c = document.querySelector("#vmap").getBoundingClientRect();
   const s = document.querySelector("#map").getBoundingClientRect();
-  const ARP = [120.654, 24.1863]; // former Shuinan Airport reference point (data/raw/reference_points.csv)
-  const g = [...document.querySelectorAll("#g-refs > g")].find((el) => /Airport/i.test(el.textContent));
+  const FENGJIA = [120.6459734, 24.1780635]; // centre of OSM way 450771065, as in the market tooltip
+  const g = [...document.querySelectorAll("#g-mkt > g")].find((el) => /Fengjia Night Market/.test(el.textContent));
   const t = g.getAttribute("transform").match(/translate\(([-\d.]+) ([-\d.]+)\)/);
-  const p = m.project(ARP);
+  const p = m.project(FENGJIA);
   return Math.hypot(c.left + p.x - (s.left + +t[1]), c.top + p.y - (s.top + +t[2]));
 });
 
@@ -77,7 +77,7 @@ let worst = 0;
 for (const [name, act] of [
   ["overview", null],
   ["central-district", () => page.click(".legend-dist >> nth=0")],
-  ["shuinan", () => page.click('[data-show="6"]')],
+  ["feng-chia", () => page.click('[data-nm="0"]')],
 ]) {
   if (act) { await act(); await page.waitForTimeout(800); }
   await idle();

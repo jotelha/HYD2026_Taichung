@@ -1,6 +1,6 @@
 name: Check basemap
 
-# Opens map/index.html in headless Chromium and checks that the English vector basemap
+# Opens the Boba Index map (index.html) in headless Chromium and checks that the English vector basemap
 # (OpenFreeMap + MapLibre) loads, lines up with the overlay and labels in English.
 # Screenshots of the three themes are attached to the run as an artifact.
 
@@ -30,7 +30,7 @@ jobs:
         run: |
           python3 -m http.server 8000 >/dev/null 2>&1 &
           sleep 2
-          node scripts/check_basemap.mjs http://localhost:8000/map/index.html
+          node scripts/check_basemap.mjs http://localhost:8000/
 
       - name: Upload screenshots
         if: always()
