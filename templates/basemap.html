@@ -614,6 +614,25 @@ h2 .zh.block { margin-top: 3px; }
 .nm-all { display: flex; align-items: center; gap: 6px; margin: 0 0 10px; font-size: var(--fs-xs); color: var(--muted); }
 .nm-all .btn-s { padding: 2px 8px; font-size: var(--fs-xs); }
 
+/* booth search */
+.search { display: flex; gap: 6px; }
+.search input { flex: 1; min-width: 0; padding: 6px 9px; background: var(--field); border: 1px solid var(--rule); border-radius: var(--r-sm); }
+.search button { padding: 6px 12px; background: var(--ink); color: var(--bg); border: 0; border-radius: var(--r-sm); cursor: pointer; }
+.search-msg { margin: 6px 0 0; font-size: var(--fs-xs); color: var(--ink-2); min-height: 1em; }
+.booth-results { display: grid; gap: 2px; margin: 6px 0 0; padding: 0; list-style: none; }
+.booth-results button { display: grid; grid-template-columns: 12px minmax(0, 1fr) auto; align-items: baseline; gap: 0 8px; width: 100%; padding: 4px 6px; background: transparent; border: 1px solid transparent; border-radius: var(--r-sm); text-align: left; cursor: pointer; font-size: var(--fs-sm); }
+.booth-results button:hover, .booth-results button[aria-current="true"] { border-color: var(--rule); background: var(--field); }
+.booth-results .sw, .booth-card .sw { width: 10px; height: 10px; border-radius: 2px; align-self: center; }
+.booth-results .sub { grid-column: 2; font-size: var(--fs-xs); color: var(--muted); }
+.booth-results .num { grid-row: 1; grid-column: 3; font-size: var(--fs-xs); }
+.booth-card { margin-top: 10px; padding: 8px 10px; border: 1px solid var(--rule); border-radius: var(--r-sm); font-size: var(--fs-sm); }
+.booth-card h3 { margin: 0; font-size: var(--fs-md); }
+.booth-card p { margin: 2px 0 0; color: var(--ink-2); }
+.booth-card .score { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+.booth-sel { fill: none; stroke: var(--ink); stroke-width: 2.5px; pointer-events: none; }
+.booth-sel.halo { stroke: var(--surface); stroke-width: 5px; }
+:root[data-style="program"] .search button:hover { background: var(--hl); color: var(--on-hl, var(--bg)); }
+
 /* ---------- program style: type and details ---------- */
 :root[data-style="program"] h1 { font-weight: 800; font-size: 29px; letter-spacing: -0.02em; }
 :root[data-style="program"] h1::before { content: "#"; color: var(--hl-text); }
@@ -683,6 +702,7 @@ h2 .zh.block { margin-top: 3px; }
           </g>
           <g id="g-labels"></g>
           <g id="g-mkt"></g>
+          <g id="g-booth-sel" style="display: none"><circle class="booth-sel halo" r="13"></circle><circle class="booth-sel" r="13"></circle></g>
         </g>
         <rect class="neatline" id="neatline"></rect>
         <g id="g-ticks"></g>
@@ -706,6 +726,18 @@ h2 .zh.block { margin-top: 3px; }
         <p class="intro">A prototype for rating how authentic Taichung's night markets are. No real scores yet: the map shows the markets mapped in OpenStreetMap, and Feng Chia carries mock booths with random scores.</p>
         <div class="nm-all" role="group" aria-label="Night markets shown on the map">Show<button type="button" class="btn-s" id="nm-all">All</button><button type="button" class="btn-s" id="nm-none">None</button></div>
         <ul class="nm-list" id="nm-list"></ul>
+      </section>
+
+      <section aria-labelledby="h-booth" id="booth-search" hidden>
+        <h2 id="h-booth">Find a Booth<span class="zh" lang="zh-Hant-TW">查詢攤位</span><span class="mock">Mock</span></h2>
+        <form class="search" id="booth-form" autocomplete="off" role="search">
+          <label for="booth-q" hidden>Booth name, dish, street or number</label>
+          <input id="booth-q" type="search" placeholder="e.g. oden, 臭豆腐 or FJ-0316">
+          <button type="submit">Find</button>
+        </form>
+        <p class="search-msg" id="booth-msg" role="status"></p>
+        <ul class="booth-results" id="booth-results"></ul>
+        <div class="booth-card" id="booth-card" hidden></div>
       </section>
 
       <section aria-labelledby="h-legend">
@@ -1226,7 +1258,7 @@ h2 .zh.block { margin-top: 3px; }
     } else if (e.key === "+" || e.key === "=") { e.preventDefault(); zoomCenter(1.6); }
     else if (e.key === "-" || e.key === "_") { e.preventDefault(); zoomCenter(1 / 1.6); }
     else if (e.key === "0") { e.preventDefault(); resetView(); }
-    else if (e.key === "Escape") { hideTip(); }
+    else if (e.key === "Escape") { hideTip(); selectBooth(null); }
   });
 
   // ---------- pointer: pan, pinch, hover, click ----------
@@ -1293,7 +1325,7 @@ h2 .zh.block { margin-top: 3px; }
     ptrs.delete(e.pointerId);
     if (drag && !drag.moved && e.type === "pointerup") {
       const t = drag.target;
-      if (t && t.__booth != null) showBoothTip(t.__booth, e.clientX, e.clientY);
+      if (t && t.__booth != null) { selectBooth(t.__booth, false); showBoothTip(t.__booth, e.clientX, e.clientY); }
       else if (t && t.__heat) showHeatTip(local(e), e.clientX, e.clientY);
       else if (t && t.__mkt) showMarketTip(t.__mkt, e.clientX, e.clientY);
       else if (t && t.__d && e.pointerType === "touch") showDistrictTip(t.__d, e.clientX, e.clientY);
@@ -1471,6 +1503,10 @@ h2 .zh.block { margin-top: 3px; }
     const show = booths.length > 0 && boothHost.on && $("#lyr-booths").checked && view.k >= boothMinK;
     gBooths.style.display = show ? "" : "none";
     svg.classList.toggle("booths-on", show);
+    // the selected booth's ring shows at every zoom, so a search result can be found from afar
+    const ring = $("#g-booth-sel"), sel = selBooth != null && boothHost.on && $("#lyr-booths").checked ? booths[selBooth] : null;
+    ring.style.display = sel ? "" : "none";
+    if (sel) ring.setAttribute("transform", `translate(${view.k * sel.x + view.tx} ${view.k * sel.y + view.ty})`);
   }
   function showBoothTip(i, cx, cy) {
     const b = booths[i];
@@ -1478,6 +1514,59 @@ h2 .zh.block { margin-top: 3px; }
       `Booth ${esc(b.id)} · ${esc(b.street[1])}${zh(b.street[0])}<br>` +
       `Boba Index <span class="num">${b.score.toFixed(1)}</span> / 5<br>Invented name and position, random score`;
     placeTip(cx, cy);
+  }
+
+  // ---------- booth search ----------
+  // Every typed word must appear in the booth's English or Chinese name, number or street (case-insensitive).
+  let selBooth = null, boothHits = [];
+  const swatch = (score) => `<span class="sw" style="background:${rampColor(RAMP, score)}" aria-hidden="true"></span>`;
+  for (const b of booths) b.hay = [b.nameEn, b.nameZh, b.id, b.street[0], b.street[1]].join(" ").toLowerCase();
+  function selectBooth(i, zoom = true) {
+    selBooth = i;
+    const card = $("#booth-card");
+    for (const li of $("#booth-results").children) li.firstElementChild.setAttribute("aria-current", String(+li.dataset.i === i));
+    if (i == null) { card.hidden = true; draw(); return; }
+    const b = booths[i];
+    // make sure the booth can be seen: its market and the booth layer on
+    if (!boothHost.on) { const n = byArea.indexOf(boothHost); if (n >= 0) setNight(n, true); }
+    if (!$("#lyr-booths").checked) $("#lyr-booths").checked = true;
+    card.hidden = false;
+    card.innerHTML = `<h3>${esc(b.nameEn)}${zh(b.nameZh)}</h3>` +
+      `<p>Booth ${esc(b.id)} · ${esc(b.street[1])}${zh(b.street[0])}</p>` +
+      `<p class="score">${swatch(b.score)}Boba Index <span class="num">${b.score.toFixed(1)}</span> / 5 <span class="mock">Mock</span></p>`;
+    if (zoom) {
+      const h = 30 / GROUND; // about 30 m around the booth
+      zoomTo([b.x - h, b.y - h, b.x + h, b.y + h], 40, kMax);
+    } else {
+      draw();
+    }
+  }
+  function searchBooths() {
+    const words = $("#booth-q").value.toLowerCase().split(/\s+/).filter(Boolean);
+    const msg = $("#booth-msg"), list = $("#booth-results");
+    boothHits = words.length ? booths.map((b, i) => i).filter((i) => words.every((w) => booths[i].hay.includes(w))) : [];
+    msg.textContent = !words.length ? "" : !boothHits.length ? "No booth matches. Try a dish (oden, 雞排), a name (阿明) or a number (FJ-0316)."
+      : boothHits.length > 10 ? `${boothHits.length} booths match; showing the first 10.` : boothHits.length === 1 ? "1 booth matches." : `${boothHits.length} booths match.`;
+    list.innerHTML = boothHits.slice(0, 10).map((i) => {
+      const b = booths[i];
+      return `<li data-i="${i}"><button type="button" aria-current="${i === selBooth}">${swatch(b.score)}` +
+        `<span>${esc(b.nameEn)}${zh(b.nameZh)}</span><span class="num">${b.score.toFixed(1)}</span>` +
+        `<span class="sub">${esc(b.id)} · ${esc(b.street[1])}</span></button></li>`;
+    }).join("");
+  }
+  if (booths.length) {
+    $("#booth-search").hidden = false;
+    let typing = 0;
+    $("#booth-q").addEventListener("input", () => { clearTimeout(typing); typing = setTimeout(searchBooths, 120); });
+    $("#booth-form").addEventListener("submit", (e) => {
+      e.preventDefault();
+      searchBooths();
+      if (boothHits.length) selectBooth(boothHits[0]);
+    });
+    $("#booth-results").addEventListener("click", (e) => {
+      const li = e.target.closest("li[data-i]");
+      if (li) selectBooth(+li.dataset.i);
+    });
   }
 
   // ---------- Boba Index heat map: kernel-smoothed booth scores ----------

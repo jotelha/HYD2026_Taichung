@@ -16,6 +16,7 @@ The interface is English-first, with Chinese as the secondary language: labels a
 - A side list of the night markets, largest first: a checkbox switches each one's dot, label and area on or off (**All** / **None** for the lot), and **Show on map** zooms to it. Under the legend, **Night-market areas** switches the coloured outlines (and Feng Chia's dashed extent) on and off, **Mock booths** the Feng Chia booths, and **Other markets** the remaining markets
 - **Mock booths** at Feng Chia: zoom in to see 622 booth rectangles coloured by their Boba Index (0–5 on the viridis scale, purple through green to yellow); hover one for its name, id, street and score. Names, positions and scores are invented (see below)
 - A **Boba Index heat map** over Feng Chia: the booth scores smoothed into a continuous surface on its own plasma scale (purple → orange → yellow), stretched from its lowest to its highest value, readable from the overview zooms on; a slider sets the smoothing width (10–60 m, default 25 m), and hovering shows the smoothed value and how many booths it averages (see below)
+- **Find a Booth**: search the mock booths by English or Chinese name, dish, street or number (e.g. `oden`, `阿明 臭豆腐`, `FJ-0316`; every word must match). Results show the score; picking one (or pressing Enter for the first) zooms to the booth, rings it and shows a card, switching Feng Chia and the booth layer on if needed. Clicking a booth on the map selects it too; `Esc` clears the selection
 - The districts with their night-market and market counts; click one to zoom to it
 - Two styles and three tones from the switches in the header, remembered in the browser:
   - **Deck**: the monochrome look of the HYD Healthy City Workshop deck (Instrument Serif, warm greys, 2px ink rules)
@@ -128,6 +129,7 @@ data/derived/              OSM extracts and derived layers
 - 側欄列出各夜市（依面積排序）：勾選框可個別開關每個夜市的標記、名稱與範圍（**All**／**None**一次全開或全關），**Show on map**移到該夜市；圖例下方的圖層開關可分別切換**Night-market areas**（夜市範圍色塊與逢甲夜市虛線範圍）、**Mock booths**（逢甲模擬攤位）與**Other markets**（其他市場）
 - 逢甲夜市的**模擬攤位**：放大後可看到622個依珍奶指數（0–5，viridis色階：紫→綠→黃）著色的攤位方塊，滑過可看店名、編號、所在街道與分數；店名、位置與分數皆為虛構（見下方說明）
 - 逢甲夜市的**珍奶指數熱度圖**：把攤位分數平滑成連續的面，使用獨立的plasma色階（紫→橘→黃），並依最低到最高值拉伸，縮小時也看得清楚；滑桿可調整平滑半徑（10–60公尺，預設25公尺），滑過可看平滑後的數值與參與平均的攤位數（見下方說明）
+- **Find a Booth**查詢攤位：可用中英文店名、品項、街道或編號搜尋模擬攤位（例如`oden`、`阿明 臭豆腐`、`FJ-0316`，每個詞都須符合）；結果列出分數，點選（或按Enter選第一筆）會移到該攤位、加上圓圈標示並顯示資訊卡，必要時自動開啟逢甲夜市與攤位圖層。在地圖上點攤位也會選取；按`Esc`取消
 - 各行政區的夜市／市場數，點選可縮放到該區
 - 頁首可切換兩種風格（**Deck**簡報風、**Program**議程風）與三種色調（**Light**、**White**、**Dark**），選擇會記在瀏覽器中；尚未選擇時依裝置設定顯示淺色或深色
 - 拖曳平移、滾輪或雙指縮放；方向鍵平移、`+`／`-`縮放、`0`回到全圖
