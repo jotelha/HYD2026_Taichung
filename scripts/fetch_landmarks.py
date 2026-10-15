@@ -2,10 +2,11 @@
 
 Pulls every node, way and relation near the site whose name matches one of the
 major projects (Green Museumbrary, exhibition centre, transfer centre, pop
-music and film centre, dome, Central Park, Wenhua Senior High station), with
-full geometry, and writes data/derived/landmarks_osm.geojson. Polygons carry
-an area-weighted centroid; scripts/locate_projects.py picks the right feature
-for each project.
+music and film centre, dome, Central Park, Wenhua Senior High station), plus
+markets across the former city (amenity=marketplace, or a name containing 夜市
+such as the Feng Chia Night Market), with full geometry, and writes
+data/derived/landmarks_osm.geojson. Polygons carry an area-weighted centroid;
+scripts/locate_projects.py picks the right feature for each project.
 
 Data (c) OpenStreetMap contributors, ODbL 1.0.
 
@@ -17,7 +18,7 @@ import math
 from datetime import datetime, timezone
 from pathlib import Path
 
-from fetch_roads import overpass, SITE_BBOX, bbox
+from fetch_roads import overpass, SITE_BBOX, STUDY_BBOX, bbox
 
 ROOT = Path(__file__).resolve().parent.parent
 OUT = ROOT / "data" / "derived" / "landmarks_osm.geojson"
@@ -30,6 +31,8 @@ QUERY = f"""
 (
   nwr["name"~"{NAMES_ZH}"]({bbox(SITE_BBOX)});
   nwr["name:en"~"{NAMES_EN}",i]({bbox(SITE_BBOX)});
+  nwr["amenity"="marketplace"]({bbox(STUDY_BBOX)});
+  nwr["name"~"夜市"]({bbox(STUDY_BBOX)});
 );
 out tags geom;
 """

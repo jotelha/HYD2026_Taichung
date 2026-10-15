@@ -143,7 +143,7 @@ The script uses only the Python standard library. It inlines the GeoJSON and CSV
 | `data/raw/reference_points.csv` | Reference coordinates and their sources | OpenStreetMap, Wikipedia, OurAirports |
 | `data/derived/shuinan_detailed_plan_traced.geojson` | Detailed plan trace fitted to the road network | `scripts/georef_plan.py` |
 | `data/derived/roads_osm.geojson` | Road and rail network | OpenStreetMap, ODbL 1.0 |
-| `data/derived/landmarks_osm.geojson` | Named landmarks near the site | OpenStreetMap, ODbL 1.0 |
+| `data/derived/landmarks_osm.geojson` | Named landmarks near the site, and markets (e.g. Feng Chia Night Market) across the former city | OpenStreetMap, ODbL 1.0 |
 | `data/derived/project_locations.geojson` | Major project locations with method and source | `scripts/locate_projects.py` |
 
 Notes:
