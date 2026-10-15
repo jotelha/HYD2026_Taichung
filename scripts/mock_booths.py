@@ -13,6 +13,14 @@ carriageway (at junctions), overlap a booth already placed, or fall outside
 the extent. Each booth gets a Boba Index drawn uniformly from 0.0 to 5.0 in
 steps of 0.1, from a fixed seed so the output is reproducible.
 
+Each booth also gets an invented name in Chinese and English, built from the
+patterns real stalls use (阿 + a given name, a surname + 記, a surname + a
+title, a place of origin, optionally a descriptor such as 古早味 or 手工,
+then the dish) and the dishes typical of Taiwanese night markets. Names come
+from their own seed, so they can change without moving the scores. No name may
+contain a real Feng Chia stall name (REAL_STALLS): a real stall shown with a
+random score would read as a rating of that business.
+
 Writes data/derived/fengjia_booths_mock.geojson. Standard library only.
 """
 
@@ -32,6 +40,48 @@ MIN_GAP = 4.5                # minimum distance between booth centres
 # half-width of the carriageway (metres) by OSM highway class; booths stand behind it
 CARRIAGEWAY = {"tertiary": 6.0, "residential": 4.5, "service": 2.5}
 STREET_EN = {"文華路": "Wenhua Road", "逢甲路": "Fengjia Road", "福星路": "Fuxing Road", "逢甲路20巷": "Fengjia Road Lane 20"}
+
+# Name parts. Patterns and dishes follow night-market guides (e.g. TVBS 食尚玩家 and funtime.com.tw on Feng Chia,
+# Smile Taiwan on Michelin-listed night-market stalls); the combinations themselves are invented.
+OWNERS = [  # (zh, en)
+    *[(f"阿{c}", f"A-{e}'s") for c, e in [("明", "Ming"), ("珠", "Zhu"), ("忠", "Zhong"), ("美", "Mei"), ("德", "De"), ("勇", "Yong"),
+                                          ("芳", "Fang"), ("成", "Cheng"), ("龍", "Long"), ("雄", "Xiong"), ("鳳", "Feng"), ("輝", "Hui")]],
+    ("阿嬤", "Grandma's"), ("阿伯", "Uncle's"), ("阿姨", "Auntie's"),
+    *[(f"{c}記", f"{e}'s") for c, e in [("林", "Lin"), ("陳", "Chen"), ("黃", "Huang"), ("張", "Zhang"), ("李", "Li"), ("王", "Wang"),
+                                        ("吳", "Wu"), ("劉", "Liu"), ("蔡", "Tsai"), ("楊", "Yang"), ("許", "Hsu"), ("鄭", "Cheng")]],
+    ("林媽媽", "Mama Lin's"), ("陳姐", "Sister Chen's"), ("黃伯", "Old Huang's"), ("王老闆", "Boss Wang's"), ("張爸", "Papa Zhang's"),
+    ("台南", "Tainan"), ("鹿港", "Lukang"), ("府城", "Old Capital"), ("嘉義", "Chiayi"), ("澎湖", "Penghu"), ("宜蘭", "Yilan"),
+    ("東港", "Donggang"), ("大甲", "Dajia"), ("豐原", "Fengyuan"), ("北港", "Beigang"),
+]
+DESCRIPTORS = [("古早味", "Old-Style"), ("老牌", "Veteran"), ("正宗", "Original"), ("招牌", "Signature"), ("手工", "Handmade"),
+               ("炭烤", "Charcoal"), ("現做", "Made-to-Order"), ("祖傳", "Heirloom"), ("排隊", "Queue-Worthy"), ("巨無霸", "Jumbo"),
+               ("香酥", "Crispy"), ("超大", "Extra-Large")]
+DISHES = [("臭豆腐", "Stinky Tofu"), ("大腸包小腸", "Sausage in Sticky Rice"), ("雞排", "Fried Chicken Cutlet"),
+          ("蚵仔煎", "Oyster Omelette"), ("珍珠奶茶", "Bubble Tea"), ("蔥油餅", "Scallion Pancake"), ("胡椒餅", "Pepper Bun"),
+          ("地瓜球", "Sweet Potato Balls"), ("章魚燒", "Takoyaki"), ("蚵仔麵線", "Oyster Vermicelli"), ("滷味", "Lu Wei"),
+          ("鹽酥雞", "Popcorn Chicken"), ("烤玉米", "Grilled Corn"), ("豆花", "Tofu Pudding"), ("芋圓", "Taro Balls"),
+          ("米血糕", "Rice Blood Cake"), ("潤餅", "Spring Roll"), ("刈包", "Gua Bao"), ("鐵板燒", "Teppanyaki"),
+          ("串燒", "Skewers"), ("黑輪", "Oden"), ("綠豆冰沙", "Mung Bean Slush"), ("蛋餅", "Egg Crepe"),
+          ("烤香腸", "Grilled Sausage"), ("甘蔗汁", "Sugarcane Juice"), ("麻糬", "Mochi"), ("車輪餅", "Wheel Cake"),
+          ("牛肉捲", "Beef Roll"), ("烤魷魚", "Grilled Squid"), ("檸檬愛玉", "Lemon Aiyu")]
+# real Feng Chia stalls named in the guides above; no mock name may contain these
+REAL_STALLS = ["官芝霖", "明倫", "旺伯", "一心", "日船", "繼光", "香香雞", "天使", "丹丹", "金桑", "阿華", "海邊小屋",
+               "金牌", "御品元", "惡魔", "梁記", "駱記", "阿國", "陳董", "福州世祖"]
+
+
+def mock_names(n, rng):
+    """n distinct (zh, en) stall names: owner or origin, sometimes a descriptor, then the dish."""
+    names, seen = [], set()
+    while len(names) < n:
+        (oz, oe), (dz, de) = rng.choice(OWNERS), rng.choice(DISHES)
+        xz, xe = rng.choice(DESCRIPTORS) if rng.random() < 0.45 else ("", "")
+        zh = oz + xz + dz
+        if zh in seen or any(r in zh for r in REAL_STALLS):
+            continue
+        seen.add(zh)
+        names.append((zh, " ".join(w for w in (oe, xe, de) if w)))
+    return names
+
 
 LAT0, LON0 = 24.178, 120.645
 KX = 111320 * math.cos(math.radians(LAT0))
@@ -112,6 +162,7 @@ def main():
                 booths.append({"x": cx, "y": cy, "ux": ux, "uy": uy, "street": st["name"]})
 
     rng = random.Random(SEED)
+    names = mock_names(len(booths), random.Random(SEED + 1))
     features = []
     for i, b in enumerate(sorted(booths, key=lambda b: (-b["y"], b["x"])), 1):
         hw, hd = BOOTH_W / 2, BOOTH_D / 2
@@ -121,6 +172,8 @@ def main():
             "type": "Feature",
             "properties": {
                 "id": f"FJ-{i:04d}",
+                "name_zh": names[i - 1][0],
+                "name_en": names[i - 1][1],
                 "street_zh": b["street"],
                 "street_en": STREET_EN.get(b["street"], ""),
                 "boba_index": round(rng.randint(0, 50) / 10, 1),
@@ -134,7 +187,7 @@ def main():
         "type": "FeatureCollection",
         "name": "fengjia_booths_mock",
         "mock": True,
-        "note": "MOCK DATA: booth positions are laid out along the market streets and Boba Index scores are random (seed "
+        "note": "MOCK DATA: booth positions are laid out along the market streets, names are invented and Boba Index scores are random (seed "
                 f"{SEED}); nothing here describes real booths.",
         "booth_size_m": [BOOTH_W, BOOTH_D],
         "pitch_m": PITCH,

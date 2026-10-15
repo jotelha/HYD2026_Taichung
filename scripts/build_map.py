@@ -142,7 +142,7 @@ def round_rings(geom):
 
 
 def load_booths():
-    """Mock booths as compact rows [lon, lat, bearing, boba_index, street #]; ids follow the row order."""
+    """Mock booths as compact rows [lon, lat, bearing, boba_index, street #, name_zh, name_en]; ids follow the row order."""
     if not BOOTHS.exists():
         return None
     fc = read_json(BOOTHS)
@@ -152,7 +152,7 @@ def load_booths():
         key = [p["street_zh"], p["street_en"]]
         if key not in streets:
             streets.append(key)
-        rows.append([*p["centre"], p["bearing_deg"], p["boba_index"], streets.index(key)])
+        rows.append([*p["centre"], p["bearing_deg"], p["boba_index"], streets.index(key), p["name_zh"], p["name_en"]])
     return {"market": "way/450771065", "note": fc["note"], "size_m": fc["booth_size_m"], "pitch_m": fc["pitch_m"],
             "id_prefix": "FJ-", "streets": streets, "rows": rows}
 

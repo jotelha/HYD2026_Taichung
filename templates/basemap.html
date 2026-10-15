@@ -714,11 +714,13 @@ h2 .zh.block { margin-top: 3px; }
           Booth Boba Index, Feng Chia<span class="zh" lang="zh-Hant-TW">攤位珍奶指數</span><span class="mock">Mock</span>
           <div class="ramp" id="booth-ramp" aria-hidden="true"></div>
           <div class="ends"><span>0</span><span>2.5</span><span>5</span></div>
-          <p class="note">Random scores on invented booth positions, for designing the map. Zoom in on Feng Chia to see the booths.</p>
+          <p class="note">Invented booth names and positions with random scores, for designing the map. Zoom in on Feng Chia to see the booths.</p>
         </div>
         <div class="toggles" role="group" aria-label="Layers">
           <label id="lyr-osm-wrap" hidden><input type="checkbox" id="lyr-osm" checked>Basemap, English labels<span class="zh" lang="zh-Hant-TW">英文底圖</span></label>
           <label><input type="checkbox" id="lyr-fill" checked>District tint<span class="zh" lang="zh-Hant-TW">區底色</span></label>
+          <label><input type="checkbox" id="lyr-area" checked>Night-market areas<span class="zh" lang="zh-Hant-TW">夜市範圍</span></label>
+          <label id="lyr-booths-wrap" hidden><input type="checkbox" id="lyr-booths" checked>Mock booths<span class="zh" lang="zh-Hant-TW">模擬攤位</span></label>
           <label><input type="checkbox" id="lyr-mkt" checked>Other markets<span class="zh" lang="zh-Hant-TW">其他市場</span></label>
         </div>
         <p class="note" id="osm-msg" hidden></p>
@@ -1341,13 +1343,15 @@ h2 .zh.block { margin-top: 3px; }
     for (const m of markets) {
       const show = isShown(m);
       m.g.style.display = show ? "" : "none";
-      for (const a of m.areas) a.style.display = show ? "" : "none";
+      // the outlines have their own layer switch on top of the market's own checkbox
+      for (const a of m.areas) a.style.display = show && $("#lyr-area").checked ? "" : "none";
       if (!show) continue;
       m.g.setAttribute("transform", `translate(${view.k * m.wx + view.tx} ${view.k * m.wy + view.ty})`);
       m.label.style.display = view.k > (m.night ? kNight : kMarket) ? "" : "none";
     }
   }
   $("#lyr-mkt").addEventListener("change", () => { setAttrib(); draw(); });
+  $("#lyr-area").addEventListener("change", () => { hideTip(); draw(); });
   function showMarketTip(m, cx, cy) {
     const kind = m.night ? "Night market" : "Market";
     const head = m.en ? `<b>${esc(m.en)}</b>${zh(m.zh)}` : m.zh ? `<b>${zh(m.zh, "")}</b>` : `<b>Unnamed market</b>`;
@@ -1408,16 +1412,18 @@ h2 .zh.block { margin-top: 3px; }
   const booths = [];
   if (boothHost) {
     const [bw, bd] = BOOTHS.size_m.map((m) => m / GROUND); // ground metres -> world units
-    BOOTHS.rows.forEach(([lon, lat, bearing, score, si], i) => {
+    BOOTHS.rows.forEach(([lon, lat, bearing, score, si, nameZh, nameEn], i) => {
       const [x, y] = proj(lon, lat);
       // bearing is the street direction clockwise from north; the long side runs along it
       const el = svgEl("rect", { class: "booth", x: -bw / 2, y: -bd / 2, width: bw, height: bd,
         transform: `translate(${x.toFixed(2)} ${y.toFixed(2)}) rotate(${(bearing - 90).toFixed(1)})` }, gBooths);
       el.__booth = i;
-      booths.push({ id: BOOTHS.id_prefix + String(i + 1).padStart(4, "0"), score, street: BOOTHS.streets[si], el });
+      booths.push({ id: BOOTHS.id_prefix + String(i + 1).padStart(4, "0"), score, street: BOOTHS.streets[si], nameZh, nameEn, el });
     });
     for (const a of boothHost.areas) a.classList.add("booth-host");
     $("#booth-key").hidden = false;
+    $("#lyr-booths-wrap").hidden = false;
+    $("#lyr-booths").addEventListener("change", () => { hideTip(); draw(); });
   }
   const boothMinK = boothHost ? (4 * GROUND) / BOOTHS.size_m[0] : Infinity; // booths at least 4 px long
   function colourBooths() {
@@ -1426,14 +1432,15 @@ h2 .zh.block { margin-top: 3px; }
     $("#booth-ramp").style.background = `linear-gradient(to right, ${RAMP.join(", ")})`;
   }
   function drawBooths() {
-    const show = booths.length > 0 && boothHost.on && view.k >= boothMinK;
+    const show = booths.length > 0 && boothHost.on && $("#lyr-booths").checked && view.k >= boothMinK;
     gBooths.style.display = show ? "" : "none";
     svg.classList.toggle("booths-on", show);
   }
   function showBoothTip(i, cx, cy) {
     const b = booths[i];
-    tip.innerHTML = `<b>Booth ${esc(b.id)}</b> <span class="mock">Mock</span><br>${esc(b.street[1])}${zh(b.street[0])}<br>` +
-      `Boba Index <span class="num">${b.score.toFixed(1)}</span> / 5<br>Random score, invented position`;
+    tip.innerHTML = `<b>${esc(b.nameEn)}</b>${zh(b.nameZh)} <span class="mock">Mock</span><br>` +
+      `Booth ${esc(b.id)} · ${esc(b.street[1])}${zh(b.street[0])}<br>` +
+      `Boba Index <span class="num">${b.score.toFixed(1)}</span> / 5<br>Invented name and position, random score`;
     placeTip(cx, cy);
   }
 
@@ -1465,7 +1472,7 @@ h2 .zh.block { margin-top: 3px; }
   $("#sources").innerHTML = [
     ...(markets.length ? [`Markets: © ${osmLink} contributors, ODbL 1.0; fetched ${esc(DATA.markets.fetched || "")}. ${markets.length} marketplaces inside the eight districts, ${nightMarkets.length} of them night markets (named 夜市). Only markets mapped in OpenStreetMap appear; points are footprint centres where an outline is mapped, and night markets also show that outline.`] : []),
     ...(markets.some((m) => m.extent) ? ["The dashed Feng Chia extent is our approximation: OSM street centrelines of Wenhua Road, Fengjia Road, Fuxing Road and Fengjia Road Lane 20 (the streets <i>Business Today</i>, 2015, names as the market area), buffered by 15 m. No official boundary is published."] : []),
-    ...(DATA.booths ? [`Feng Chia booths: <b>mock data</b>. ${DATA.booths.rows.length.toLocaleString("en-US")} booths of ${DATA.booths.size_m[0]} × ${DATA.booths.size_m[1]} m laid out every ${DATA.booths.pitch_m} m along both sides of the market streets, each with a random Boba Index from 0.0 to 5.0 (scripts/mock_booths.py, fixed seed), coloured on the viridis scale. They stand in for real booth data while the map is designed.`] : []),
+    ...(DATA.booths ? [`Feng Chia booths: <b>mock data</b>. ${DATA.booths.rows.length.toLocaleString("en-US")} booths of ${DATA.booths.size_m[0]} × ${DATA.booths.size_m[1]} m laid out every ${DATA.booths.pitch_m} m along both sides of the market streets, each with an invented name (typical stall-name patterns and dishes; no real stall names) and a random Boba Index from 0.0 to 5.0 (scripts/mock_booths.py, fixed seed), coloured on the viridis scale. They stand in for real booth data while the map is designed.`] : []),
     `District boundaries: ${esc(DATA.boundary_source)}. Simplified; use them for orientation, not measurement. Areas come from the attribute table.`,
     `Coordinates: WGS84 (CRS84). The map uses Web Mercator to match the basemap; the scale bar uses the east-west scale at the center of the map.`,
     ...(BASEMAP ? [`Basemap: vector tiles from <a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> (© <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">OpenMapTiles</a>, data © ${osmLink} contributors), drawn with MapLibre GL JS. Labels show the English name (OSM name:en) where one is mapped, otherwise the local name. If the vector map cannot start, the standard OpenStreetMap tiles are used instead (labels in the local language), under the OSMF <a href="https://operations.osmfoundation.org/policies/tiles/" target="_blank" rel="noopener">tile usage policy</a>.`] : []),
