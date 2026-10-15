@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-The Boba Index: a prototype for a Taichung night-market authenticity index, built for #HackYourDistrict 2026 out of an earlier research map of the former Taichung City and the Shuinan Economic and Trade Park. It is a static GitHub Pages site (served from the root of branch `2026-10-15-HYD2026`, `.nojekyll`) whose single page maps the OSM markets and night markets in the eight districts. No real index scores exist yet; Feng Chia carries mock booths with random scores. There is no package manager, test suite or linter. The README is the authoritative user-facing doc (English first, then a Chinese section that mirrors it — keep both in step when changing documented behaviour).
+The Boba Index ("Built On Belonging and Authenticity", shown as a tagline under the page title): a prototype for rating Taichung night markets on authenticity and belonging, built for #HackYourDistrict 2026 out of an earlier research map of the former Taichung City and the Shuinan Economic and Trade Park. It is a static GitHub Pages site (served from the root of branch `2026-10-15-HYD2026`, `.nojekyll`) whose single page maps the OSM markets and night markets in the eight districts. No real index scores exist yet; Feng Chia carries mock booths with random scores. There is no package manager, test suite or linter. The README is the authoritative user-facing doc (English first, then a Chinese section that mirrors it — keep both in step when changing documented behaviour).
 
 ## Commands
 

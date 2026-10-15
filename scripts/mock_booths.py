@@ -51,7 +51,7 @@ FIELD_SIGMA = (40.0, 80.0)     # bump width range, metres
 FIELD_SPACING = 120.0          # minimum distance between bump centres, metres
 FIELD_NOISE = 2.5              # booth-to-booth noise (standard deviation, before truncation to 0-5)
 BOOTH_W, BOOTH_D = 3.5, 3.0  # metres along and across the street
-PITCH = 6.5                  # metres between booth centres along a street
+PITCH = 10.2                  # metres between booth centres along a street
 MIN_GAP = 4.5                # minimum distance between booth centres
 # half-width of the carriageway (metres) by OSM highway class; booths stand behind it
 CARRIAGEWAY = {"tertiary": 6.0, "residential": 4.5, "service": 2.5}
