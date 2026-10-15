@@ -30,6 +30,9 @@ jobs:
       - name: Fetch garbage bins from Overpass
         run: python3 scripts/fetch_bins.py
 
+      - name: Fetch convenience stores from Overpass
+        run: python3 scripts/fetch_stores.py
+
       - name: Place major projects
         run: python3 scripts/locate_projects.py
 
@@ -40,7 +43,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add data/derived/roads_osm.geojson data/derived/landmarks_osm.geojson data/derived/waste_bins_osm.geojson data/derived/project_locations.geojson index.html map/index.html
+          git add data/derived/roads_osm.geojson data/derived/landmarks_osm.geojson data/derived/waste_bins_osm.geojson data/derived/convenience_stores_osm.geojson data/derived/project_locations.geojson index.html map/index.html
           if git diff --cached --quiet; then
             echo "Road data unchanged."
             exit 0

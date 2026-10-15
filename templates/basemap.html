@@ -803,6 +803,12 @@ h2 .zh.block { margin-top: 3px; }
 .bin-icon { fill: var(--ink); stroke: var(--surface); stroke-width: 1.5px; paint-order: stroke; stroke-linejoin: round; pointer-events: none; }
 .bin-g.recycle .bin-icon { fill: var(--surface); stroke: var(--ink); stroke-width: 1.3px; }
 .bin-g.market .bin-icon { fill: var(--hl); stroke: var(--ink); stroke-width: 1.2px; } /* the team's own bins, in the brand colour */
+/* convenience stores with toilets (OSM): blue WC badges, the usual toilet colour */
+.wc-hit { fill: transparent; cursor: help; }
+.wc-badge { fill: #2364aa; stroke: var(--surface); stroke-width: 1.5px; paint-order: stroke; pointer-events: none; }
+.wc-text { font: 800 7.5px var(--font-body); fill: #fff; text-anchor: middle; dominant-baseline: central; pointer-events: none; letter-spacing: -0.2px; }
+.wc-key { width: 20px; display: flex; justify-content: center; }
+.wc-key svg { width: 18px; height: 14px; }
 .bin-key { width: 20px; display: flex; justify-content: center; }
 .bin-key svg { width: 12px; height: 14px; }
 .booth-sel { fill: none; stroke: var(--ink); stroke-width: 2.5px; pointer-events: none; }
@@ -893,6 +899,7 @@ h2 .zh.block { margin-top: 3px; }
           <g id="g-labels"></g>
           <g id="g-mkt"></g>
           <g id="g-bins"></g>
+          <g id="g-wc"></g>
           <g id="g-pins"></g>
           <g id="g-booth-sel" style="display: none"><circle class="booth-sel halo" r="13"></circle><circle class="booth-sel" r="13"></circle></g>
         </g>
@@ -918,6 +925,7 @@ h2 .zh.block { margin-top: 3px; }
           <li><span class="line-key"></span>District boundary<span class="zh" lang="zh-Hant-TW">區界</span></li>
           <li class="bin-legend" hidden><span class="bin-key"><svg viewBox="-6 -7 12 14" aria-hidden="true"><path class="bin-icon" d="M-5 -4.5 H5 M-1.8 -4.5 V-6 H1.8 V-4.5 M-4 -3 L-3.2 6 H3.2 L4 -3 Z"/></svg></span>Garbage bin<span class="zh" lang="zh-Hant-TW">垃圾桶</span></li>
           <li class="bin-legend" hidden><span class="bin-key bin-g market"><svg viewBox="-6 -7 12 14" aria-hidden="true"><path class="bin-icon" d="M-5 -4.5 H5 M-1.8 -4.5 V-6 H1.8 V-4.5 M-4 -3 L-3.2 6 H3.2 L4 -3 Z"/></svg></span>Market bin<span class="zh" lang="zh-Hant-TW">夜市垃圾桶</span></li>
+          <li class="wc-legend" hidden><span class="wc-key"><svg viewBox="-9 -7 18 14" aria-hidden="true"><rect class="wc-badge" x="-8" y="-6" width="16" height="12" rx="3"/><text class="wc-text">WC</text></svg></span>Store with toilet<span class="zh" lang="zh-Hant-TW">有廁所的超商</span></li>
           <li class="bin-legend" hidden><span class="bin-key bin-g recycle"><svg viewBox="-6 -7 12 14" aria-hidden="true"><path class="bin-icon" d="M-5 -4.5 H5 M-1.8 -4.5 V-6 H1.8 V-4.5 M-4 -3 L-3.2 6 H3.2 L4 -3 Z"/></svg></span>Recycling<span class="zh" lang="zh-Hant-TW">資源回收</span></li>
         </ul>
         <div class="booth-key" id="booth-key" hidden>
@@ -987,6 +995,7 @@ h2 .zh.block { margin-top: 3px; }
           <label><input type="checkbox" id="lyr-area" checked>Night-market areas<span class="zh" lang="zh-Hant-TW">夜市範圍</span></label>
           <label id="lyr-booths-wrap" hidden><input type="checkbox" id="lyr-booths" checked>Booths<span class="zh" lang="zh-Hant-TW">攤位</span></label>
           <label id="lyr-heat-wrap" hidden><input type="checkbox" id="lyr-heat" checked>Boba Index heat map<span class="zh" lang="zh-Hant-TW">珍奶指數熱度圖</span></label>
+          <label id="lyr-wc-wrap" hidden><input type="checkbox" id="lyr-wc" checked>Stores with toilets<span class="zh" lang="zh-Hant-TW">有廁所的超商</span></label>
           <label id="lyr-bins-wrap" hidden><input type="checkbox" id="lyr-bins" checked>Garbage bins<span class="zh" lang="zh-Hant-TW">垃圾桶</span></label>
           <label><input type="checkbox" id="lyr-mkt" checked>Other markets<span class="zh" lang="zh-Hant-TW">其他市場</span></label>
         </div>
@@ -1214,6 +1223,7 @@ h2 .zh.block { margin-top: 3px; }
     }
     drawMarkets();
     drawBins();
+    drawToilets();
     drawPins();
     drawBooths();
     drawHeat();
@@ -1421,7 +1431,7 @@ h2 .zh.block { margin-top: 3px; }
   }
   function setAttrib() {
     // the market layer is OSM data too, so the credit stays while it is shown
-    attrib.hidden = !layers.osm && !markets.some(isShown) && !(DATA.bins && $("#lyr-bins").checked);
+    attrib.hidden = !layers.osm && !markets.some(isShown) && !(DATA.bins && $("#lyr-bins").checked) && !(DATA.toilets && $("#lyr-wc").checked);
     attrib.innerHTML = layers.osm && !rasterMode ? ATTRIB.vector : ATTRIB.osm;
   }
   function setBasemap(on, redraw = true) {
@@ -1547,11 +1557,13 @@ h2 .zh.block { margin-top: 3px; }
     const bo = e.target.__booth ?? null;
     const ht = e.target.__heat || null;
     const bn = e.target.__bin ?? null;
-    const d = mk || ht || bo != null || bn != null ? null : e.target.__d || null;
+    const wc = e.target.__wc ?? null;
+    const d = mk || ht || bo != null || bn != null || wc != null ? null : e.target.__d || null;
     setHot(d);
     if (e.pointerType === "touch") hideTip();
     else if (bo != null) showBoothTip(bo, e.clientX, e.clientY);
     else if (bn != null) showBinTip(bn, e.clientX, e.clientY);
+    else if (wc != null) showToiletTip(wc, e.clientX, e.clientY);
     else if (ht) showHeatTip(p, e.clientX, e.clientY);
     else if (mk) showMarketTip(mk, e.clientX, e.clientY);
     else if (d) showDistrictTip(d, e.clientX, e.clientY);
@@ -1564,6 +1576,7 @@ h2 .zh.block { margin-top: 3px; }
       const t = drag.target;
       if (t && t.__booth != null) { selectBooth(t.__booth, false); showBoothTip(t.__booth, e.clientX, e.clientY); }
       else if (t && t.__bin != null) showBinTip(t.__bin, e.clientX, e.clientY);
+      else if (t && t.__wc != null) showToiletTip(t.__wc, e.clientX, e.clientY);
       else if (t && t.__heat) showHeatTip(local(e), e.clientX, e.clientY);
       else if (t && t.__mkt) showMarketTip(t.__mkt, e.clientX, e.clientY);
       else if (t && t.__d && e.pointerType === "touch") showDistrictTip(t.__d, e.clientX, e.clientY);
@@ -1966,6 +1979,37 @@ h2 .zh.block { margin-top: 3px; }
     placeTip(cx, cy);
   }
 
+  // ---------- convenience stores with toilets (OpenStreetMap, fetched by scripts/fetch_stores.py) ----------
+  const gWc = $("#g-wc");
+  const wcStores = (DATA.toilets ? DATA.toilets.rows : []).map(([lon, lat, en, zhName, hours, osm], i) => {
+    const [wx, wy] = proj(lon, lat);
+    const g = svgEl("g", {}, gWc);
+    svgEl("circle", { class: "wc-hit", r: 11 }, g).__wc = i;
+    svgEl("rect", { class: "wc-badge", x: -9, y: -6.5, width: 18, height: 13, rx: 3.5 }, g);
+    svgEl("text", { class: "wc-text" }, g).textContent = "WC";
+    return { lon, lat, en, zhName, hours, osm, wx, wy, g };
+  });
+  if (wcStores.length) {
+    $("#lyr-wc-wrap").hidden = false;
+    $("#lyr-wc").addEventListener("change", () => { hideTip(); setAttrib(); draw(); });
+  }
+  function drawToilets() {
+    const on = wcStores.length > 0 && $("#lyr-wc").checked;
+    for (const li of document.querySelectorAll(".wc-legend")) li.hidden = !on;
+    const show = on && view.k >= binMinK(); // street-level zooms, like the bins
+    gWc.style.display = show ? "" : "none";
+    if (!show) return;
+    for (const s of wcStores) s.g.setAttribute("transform", `translate(${view.k * s.wx + view.tx} ${view.k * s.wy + view.ty})`);
+  }
+  function showToiletTip(i, cx, cy) {
+    const s = wcStores[i];
+    const head = s.en ? `<b>${esc(s.en)}</b>${s.zhName && s.zhName !== s.en ? zh(s.zhName) : ""}` : `<b>${zh(s.zhName || "Convenience store", "")}</b>`;
+    tip.innerHTML = `${head}<br>Convenience store with a toilet${zh("有廁所")}<br>` +
+      (s.hours ? `Hours: <span class="num">${esc(s.hours)}</span><br>` : "") +
+      `OpenStreetMap ${esc(s.osm.replace("/", " "))}`;
+    placeTip(cx, cy);
+  }
+
   // ---------- districts ----------
   const legend = $("#legend");
   for (const d of [...districts].sort((a, b) => b.nMarkets - a.nMarkets || a.i - b.i)) {
@@ -2133,6 +2177,7 @@ h2 .zh.block { margin-top: 3px; }
     ...(DATA.booths ? [`Feng Chia booths: ${DATA.booths.rows.length.toLocaleString("en-US")} booths of ${DATA.booths.size_m[0]} × ${DATA.booths.size_m[1]} m along both sides of the market streets, each with its Boba Index from 0.0 to 5.0 on the viridis scale. The heat map is the Gaussian-weighted mean of the booth scores around each 2 m cell (bandwidth set by the slider, default 25 m), clipped to the market extent and faded where booths are sparse, on the plasma scale stretched from its lowest to its highest value; it smooths away single-booth outliers, and its picture depends on the bandwidth.`,
       `This is a demonstrator: the Feng Chia booth layout, names and scores are illustrative and do not describe actual stalls.`] : []),
     ...(DATA.bins ? [`Garbage bins: © ${osmLink} contributors, ODbL 1.0; fetched ${esc(DATA.bins.fetched || "")}. ${bins.filter((b) => b.kind < 3).length} public bins, waste containers and recycling points mapped in OpenStreetMap inside the eight districts, plus ${bins.filter((b) => b.kind === 3).length} market bins placed by the Boba Index team at Feng Chia (orange), shown from street-level zooms. Public bins are rare in Taiwan, where household rubbish goes to the garbage trucks, and OSM coverage is patchy, so this shows what is mapped, not every bin.`] : []),
+    ...(DATA.toilets ? [`Stores with toilets: © ${osmLink} contributors, ODbL 1.0; fetched ${esc(DATA.toilets.fetched || "")}. ${DATA.toilets.rows.length} convenience stores tagged toilets=yes in OpenStreetMap inside the eight districts, out of ${DATA.toilets.stores_total.toLocaleString("en-US")} stores fetched (Shopee parcel pick-up points left out). Most 7-Eleven and FamilyMart branches have customer toilets, but few stores carry the tag yet, so many stores with toilets are missing from this layer.`] : []),
     `Place search: <a href="https://nominatim.org/" target="_blank" rel="noopener">Nominatim</a> (data © ${osmLink} contributors, ODbL), limited to the Taichung area. Walking routes: <a href="https://valhalla.github.io/valhalla/" target="_blank" rel="noopener">Valhalla</a> on the FOSSGIS public server (data © ${osmLink} contributors); directions in English, street names as mapped in OSM. Both are free public services meant for light use; your search text and route points are sent to them.`,
     `District boundaries: ${esc(DATA.boundary_source)}. Simplified; use them for orientation, not measurement. Areas come from the attribute table.`,
     `Coordinates: WGS84 (CRS84). The map uses Web Mercator to match the basemap; the scale bar uses the east-west scale at the center of the map.`,
