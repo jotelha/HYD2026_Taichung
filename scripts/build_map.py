@@ -35,6 +35,24 @@ FENGJIA_EXTENT = ROOT / "data" / "derived" / "fengjia_night_market_extent.geojso
 # MOCK booths with random Boba Index scores from scripts/mock_booths.py. Optional.
 BOOTHS = ROOT / "data" / "derived" / "fengjia_booths_mock.geojson"
 EYEBROW = "#HackYourDistrict 2026 · Taichung · Night market prototype"
+# Public address of the site (GitHub Pages); social previews need absolute image URLs.
+SITE_URL = "https://jotelha.github.io/HYD2026_Taichung/"
+DESCRIPTION = ("Boba Index (Built On Belonging and Authenticity): a prototype map rating Taichung's night markets, "
+               "with mock booth scores at Feng Chia.")
+# Brand assets in img/ (made by the team): favicon, home-screen icon and the banner used for link previews.
+HEAD_LINKS = f"""<meta name="description" content="{DESCRIPTION}">
+<meta name="theme-color" content="#fd9f02">
+<link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32.png">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Boba Index · Built On Belonging and Authenticity">
+<meta property="og:description" content="{DESCRIPTION}">
+<meta property="og:url" content="{SITE_URL}">
+<meta property="og:image" content="{SITE_URL}img/boba-index-banner.jpg">
+<meta property="og:image:width" content="1395">
+<meta property="og:image:height" content="752">
+<meta name="twitter:card" content="summary_large_image">
+"""
 
 REDIRECT = """<!doctype html>
 <html lang="en">
@@ -183,14 +201,14 @@ def fill(template, values):
     return template
 
 
-def wrap_page(fragment, lang):
+def wrap_page(fragment, lang, head=""):
     return (
         "<!doctype html>\n"
         f'<html lang="{lang}">\n<head>\n<meta charset="utf-8">\n'
         '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
         # OSM tile servers expect a Referer from web pages; keep the browser default explicit.
         '<meta name="referrer" content="strict-origin-when-cross-origin">\n'
-        "</head>\n<body>\n" + fragment + "\n</body>\n</html>\n"
+        + head + "</head>\n<body>\n" + fragment + "\n</body>\n</html>\n"
     )
 
 
@@ -219,7 +237,7 @@ def main():
         "/*__BASEMAP__*/true": "true",
         "<!--__EYEBROW__-->": EYEBROW,
     })
-    write(OUT, wrap_page(page, "en"))  # English leads; Chinese spans carry lang="zh-Hant-TW"
+    write(OUT, wrap_page(page, "en", HEAD_LINKS))  # English leads; Chinese spans carry lang="zh-Hant-TW"
     write(OLD_MAP_OUT, REDIRECT)
 
     if args.fragment:

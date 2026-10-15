@@ -4,6 +4,18 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="description" content="Boba Index (Built On Belonging and Authenticity): a prototype map rating Taichung's night markets, with mock booth scores at Feng Chia.">
+<meta name="theme-color" content="#fd9f02">
+<link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32.png">
+<link rel="apple-touch-icon" href="img/apple-touch-icon.png">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Boba Index · Built On Belonging and Authenticity">
+<meta property="og:description" content="Boba Index (Built On Belonging and Authenticity): a prototype map rating Taichung's night markets, with mock booth scores at Feng Chia.">
+<meta property="og:url" content="https://jotelha.github.io/HYD2026_Taichung/">
+<meta property="og:image" content="https://jotelha.github.io/HYD2026_Taichung/img/boba-index-banner.jpg">
+<meta property="og:image:width" content="1395">
+<meta property="og:image:height" content="752">
+<meta name="twitter:card" content="summary_large_image">
 </head>
 <body>
 <title>Boba Index</title>
@@ -16,7 +28,9 @@
    Palette and type follow the HYD Healthy City Workshop deck: warm greys on #f4f4f2 with ink #1c1c1c,
    2px ink rules between blocks, Instrument Serif / Instrument Sans / JetBrains Mono, Noto TC for Chinese.
    Two header switches set attributes on <html>:
-     data-style = (none, the deck) | "program": after the HYD Taichung program page, with navy ink on cool grey,
+     data-style = "boba" (the default, set on load when nothing is stored): the Boba Index brand, with
+                  brown ink on cream, boba-orange highlights, Bricolage Grotesque / Instrument Sans, rounded cards |
+                  (none, the deck) | "program": after the HYD Taichung program page, with navy ink on cool grey,
                   sun-yellow highlights, Bricolage Grotesque / IBM Plex and rounded cards;
      data-theme = "light" | "white" | "dark"; without it, light or dark follows the system setting.
    Each style defines its colours for all three tones; components read only the tokens below. */
@@ -212,6 +226,94 @@
   color-scheme: dark;
 }
 
+/* boba style (the Boba Index brand, from the logo in img/: orange #fd9f02, cream #f7f0d6, brown #42200f);
+   the default style. Map data colours (viridis booths, plasma heat map) stay as they are in every style. */
+:root[data-style="boba"] {
+  --bg: #fbf6e9;
+  --surface: #fffbf1;
+  --field: #fffdf8;
+  --ground: #f3ead3;
+  --ink: #42200f;
+  --ink-2: #5e3a22;
+  --muted: #86664d;
+  --rule: #e7d8b9;
+  --line-admin: #42200f;
+  --accent: #c97a00;
+  --tip-bg: #42200f;
+  --tip-ink: #f7f0d6;
+  --tip-muted: #d2b893;
+  --d1-fill: #f7eed8;
+  --d1-hot: #efe1c0;
+  --d1-wash: 0.03;
+  --d1-wash-hot: 0.12;
+  --tile-filter: grayscale(1) sepia(0.18) contrast(0.92) brightness(1.04);
+  --shadow: 0 8px 24px rgba(66, 32, 15, 0.16);
+  --hl: #fd9f02;
+  --hl-text: #9a5a00;
+  color-scheme: light;
+  --r-sm: 8px;
+  --r-md: 14px;
+  --rule-strong: 2px solid var(--hl);
+  --dist-char: 10;
+  --font-display: "Bricolage Grotesque", "Noto Sans TC", system-ui, sans-serif;
+}
+:root[data-style="boba"][data-theme="white"] {
+  --bg: #ffffff;
+  --surface: #ffffff;
+  --ground: #fbf6e9;
+  --rule: #efe4cc;
+}
+@media (prefers-color-scheme: dark) {
+  :root[data-style="boba"]:not([data-theme="light"]):not([data-theme="white"]) {
+    --bg: #1d120a;
+    --surface: #26180e;
+    --field: #2f1f13;
+    --ground: #22150c;
+    --ink: #f7f0d6;
+    --ink-2: #e3d3b3;
+    --muted: #b79c7e;
+    --rule: #4a3322;
+    --line-admin: #f7f0d6;
+    --accent: #fd9f02;
+    --tip-bg: #f7f0d6;
+    --tip-ink: #42200f;
+    --tip-muted: #86664d;
+    --d1-fill: #2b1c11;
+    --d1-hot: #3a2617;
+    --d1-wash: 0.05;
+    --d1-wash-hot: 0.15;
+    --tile-filter: grayscale(1) invert(1) sepia(0.15) brightness(0.75) contrast(0.95);
+    --shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    --hl: #fd9f02;
+    --hl-text: #fdb64a;
+    color-scheme: dark;
+  }
+}
+:root[data-style="boba"][data-theme="dark"] {
+  --bg: #1d120a;
+  --surface: #26180e;
+  --field: #2f1f13;
+  --ground: #22150c;
+  --ink: #f7f0d6;
+  --ink-2: #e3d3b3;
+  --muted: #b79c7e;
+  --rule: #4a3322;
+  --line-admin: #f7f0d6;
+  --accent: #fd9f02;
+  --tip-bg: #f7f0d6;
+  --tip-ink: #42200f;
+  --tip-muted: #86664d;
+  --d1-fill: #2b1c11;
+  --d1-hot: #3a2617;
+  --d1-wash: 0.05;
+  --d1-wash-hot: 0.15;
+  --tile-filter: grayscale(1) invert(1) sepia(0.15) brightness(0.75) contrast(0.95);
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  --hl: #fd9f02;
+  --hl-text: #fdb64a;
+  color-scheme: dark;
+}
+
 html, body { height: 100%; }
 body {
   margin: 0;
@@ -268,10 +370,13 @@ h1 {
   text-wrap: balance;
 }
 h1 i { font-style: italic; }
+.brand { display: flex; align-items: center; gap: 14px; }
+.brand .logo { flex: none; width: 56px; height: 56px; border-radius: 13px; }
+@media (max-width: 640px) { .brand .logo { width: 44px; height: 44px; border-radius: 10px; } }
 .tagline { margin: 2px 0 0; font-size: var(--fs-sm); color: var(--ink-2); }
 .tagline b { font-weight: 700; color: var(--ink); }
 .tagline .zh { margin-left: 0.6em; }
-:root[data-style="program"] .tagline b { color: var(--hl-text); }
+:root:is([data-style="program"], [data-style="boba"]) .tagline b { color: var(--hl-text); }
 h1 .zh { margin-left: 0.5em; font-family: "Noto Serif TC", "Songti TC", serif; font-size: 0.5em; font-weight: 500; letter-spacing: 0.08em; }
 .facts {
   margin: 0;
@@ -459,7 +564,7 @@ h1 .zh { margin-left: 0.5em; font-family: "Noto Serif TC", "Songti TC", serif; f
 .map-legend .mkt-key, .map-legend .line-key { width: 20px; flex: none; }
 .map-legend .booth-key, .map-legend .heat-key { margin-top: 8px; font-size: var(--fs-xs); }
 .map-legend .ramp { margin: 4px 0 2px; height: 8px; }
-:root[data-style="program"] .map-legend { border-radius: 8px; box-shadow: 0 1px 2px rgba(22, 24, 42, 0.14); }
+:root:is([data-style="program"], [data-style="boba"]) .map-legend { border-radius: 8px; box-shadow: 0 1px 2px rgba(22, 24, 42, 0.14); }
 .map-ctrl button {
   width: 32px;
   height: 32px;
@@ -665,25 +770,32 @@ h2 .zh.block { margin-top: 3px; }
 .booth-card h3 { margin: 0; font-size: var(--fs-md); }
 .booth-card p { margin: 2px 0 0; color: var(--ink-2); }
 .booth-card .score { display: flex; align-items: center; gap: 6px; margin-top: 4px; }
+.cup { display: inline-block; vertical-align: -4px; flex: none; }
+.cup .c-line { fill: none; stroke: currentColor; stroke-width: 1.3; stroke-linejoin: round; stroke-linecap: round; }
+.cup .c-pearl { fill: none; stroke: currentColor; stroke-width: 1; }
+.cup .c-pearl.on { fill: currentColor; }
+.booth-card .score .cup, .tip .cup { margin-right: 2px; }
+.pearl-key { display: flex; align-items: flex-end; gap: 10px; margin-top: 6px; color: var(--ink-2); }
+.pearl-key span { display: grid; justify-items: center; font: 500 10.5px var(--font-mono); }
 .booth-sel { fill: none; stroke: var(--ink); stroke-width: 2.5px; pointer-events: none; }
 .booth-sel.halo { stroke: var(--surface); stroke-width: 5px; }
-:root[data-style="program"] .search button:hover { background: var(--hl); color: var(--on-hl, var(--bg)); }
+:root:is([data-style="program"], [data-style="boba"]) .search button:hover { background: var(--hl); color: var(--on-hl, var(--bg)); }
 
 /* ---------- program style: type and details ---------- */
-:root[data-style="program"] h1 { font-weight: 800; font-size: 29px; letter-spacing: -0.02em; }
+:root:is([data-style="program"], [data-style="boba"]) h1 { font-weight: 800; font-size: 29px; letter-spacing: -0.02em; }
 :root[data-style="program"] h1::before { content: "#"; color: var(--hl-text); }
-:root[data-style="program"] h1 i { font-style: normal; }
-:root[data-style="program"] h1 .zh { font-family: var(--font-zh); font-size: 0.55em; font-weight: 600; letter-spacing: 0.04em; }
-:root[data-style="program"] h2 { font-weight: 800; font-size: 21px; letter-spacing: -0.01em; }
-:root[data-style="program"] .dlabel .l1 { font-style: normal; font-weight: 800; font-size: 17px; letter-spacing: -0.01em; }
-:root[data-style="program"] .dlabel .l2 { font-family: var(--font-zh); font-weight: 600; letter-spacing: 0.2em; }
-:root[data-style="program"] .eyebrow { letter-spacing: 0.08em; }
-:root[data-style="program"] .eyebrow a { color: var(--hl-text); }
-:root[data-style="program"] .facts { padding: 3px 9px; background: var(--surface); border: 1px solid var(--rule); border-radius: 4px; }
-:root[data-style="program"] .legend-dist { background: var(--surface); }
-:root[data-style="program"] .legend-dist:hover { background: var(--surface); border-color: var(--hl); }
-:root[data-style="program"] .map-ctrl button { background: var(--surface); box-shadow: 0 1px 2px rgba(22, 24, 42, 0.14); }
-:root[data-style="program"] .swatch { border-radius: 3px; }
+:root:is([data-style="program"], [data-style="boba"]) h1 i { font-style: normal; }
+:root:is([data-style="program"], [data-style="boba"]) h1 .zh { font-family: var(--font-zh); font-size: 0.55em; font-weight: 600; letter-spacing: 0.04em; }
+:root:is([data-style="program"], [data-style="boba"]) h2 { font-weight: 800; font-size: 21px; letter-spacing: -0.01em; }
+:root:is([data-style="program"], [data-style="boba"]) .dlabel .l1 { font-style: normal; font-weight: 800; font-size: 17px; letter-spacing: -0.01em; }
+:root:is([data-style="program"], [data-style="boba"]) .dlabel .l2 { font-family: var(--font-zh); font-weight: 600; letter-spacing: 0.2em; }
+:root:is([data-style="program"], [data-style="boba"]) .eyebrow { letter-spacing: 0.08em; }
+:root:is([data-style="program"], [data-style="boba"]) .eyebrow a { color: var(--hl-text); }
+:root:is([data-style="program"], [data-style="boba"]) .facts { padding: 3px 9px; background: var(--surface); border: 1px solid var(--rule); border-radius: 4px; }
+:root:is([data-style="program"], [data-style="boba"]) .legend-dist { background: var(--surface); }
+:root:is([data-style="program"], [data-style="boba"]) .legend-dist:hover { background: var(--surface); border-color: var(--hl); }
+:root:is([data-style="program"], [data-style="boba"]) .map-ctrl button { background: var(--surface); box-shadow: 0 1px 2px rgba(22, 24, 42, 0.14); }
+:root:is([data-style="program"], [data-style="boba"]) .swatch { border-radius: 3px; }
 
 @media (prefers-reduced-motion: reduce) {
   * { transition: none !important; animation: none !important; }
@@ -693,20 +805,25 @@ h2 .zh.block { margin-top: 3px; }
   try {
     const t = localStorage.getItem("hyd2026-theme"), st = localStorage.getItem("hyd2026-style");
     if (["light", "white", "dark"].includes(t)) document.documentElement.dataset.theme = t;
-    if (st === "program") document.documentElement.dataset.style = st;
-  } catch (err) { /* storage unavailable: follow the system setting */ }
+    const style = ["boba", "deck", "program"].includes(st) ? st : "boba"; // the brand style by default
+    if (style !== "deck") document.documentElement.dataset.style = style;
+  } catch (err) { document.documentElement.dataset.style = "boba"; /* storage unavailable: brand style, system tone */ }
 </script>
 
 <div class="app" lang="en">
   <header class="top">
-    <div>
+    <div class="brand">
+      <img class="logo" src="img/logo-112.png" width="56" height="56" alt="Boba Index logo: a map pin shaped like a bubble tea cup">
+      <div>
       <p class="eyebrow">#HackYourDistrict 2026 · Taichung · Night market prototype</p>
       <h1>Boba <i>Index</i><span class="zh" lang="zh-Hant-TW">珍奶指數</span></h1>
       <p class="tagline"><b>B</b>uilt <b>O</b>n <b>B</b>elonging and <b>A</b>uthenticity<span class="zh" lang="zh-Hant-TW">以歸屬感與道地為本</span></p>
+      </div>
     </div>
     <div class="top-r">
       <div class="switches">
         <div class="theme-switch" role="group" aria-label="Style">
+          <button type="button" data-style-set="boba" aria-pressed="false">Boba<span class="zh" lang="zh-Hant-TW">珍奶</span></button>
           <button type="button" data-style-set="deck" aria-pressed="false">Deck<span class="zh" lang="zh-Hant-TW">簡報</span></button>
           <button type="button" data-style-set="program" aria-pressed="false">Program<span class="zh" lang="zh-Hant-TW">議程</span></button>
         </div>
@@ -766,6 +883,7 @@ h2 .zh.block { margin-top: 3px; }
           Booth Boba Index<span class="zh" lang="zh-Hant-TW">攤位珍奶指數</span><span class="mock">Mock</span>
           <div class="ramp" id="booth-ramp" aria-hidden="true"></div>
           <div class="ends"><span>0</span><span>2.5</span><span>5</span></div>
+          <div class="pearl-key" id="pearl-key" aria-label="Pearl meter: the cup fills with pearls as the score rises"></div>
         </div>
         <div class="heat-key" id="heat-key" hidden>
           Heat map, smoothed<span class="zh" lang="zh-Hant-TW">熱度圖</span><span class="mock">Mock</span>
@@ -1555,13 +1673,24 @@ h2 .zh.block { margin-top: 3px; }
     const b = booths[i];
     tip.innerHTML = `<b>${esc(b.nameEn)}</b>${zh(b.nameZh)} <span class="mock">Mock</span><br>` +
       `Booth ${esc(b.id)} · ${esc(b.street[1])}${zh(b.street[0])}<br>` +
-      `Boba Index <span class="num">${b.score.toFixed(1)}</span> / 5<br>Invented name and position, random score`;
+      `${cup(b.score, 30)} Boba Index <span class="num">${b.score.toFixed(1)}</span> / 5<br>Invented name and position, random score`;
     placeTip(cx, cy);
   }
 
   // ---------- booth search ----------
   // Every typed word must appear in the booth's English or Chinese name, number or street (case-insensitive).
   let selBooth = null, boothHits = [];
+  // pearl meter (after the brand's cup scale in img/boba-index-pearl-scale.jpg): one cup whose nine pearls fill from
+  // the bottom up with the score, 5 = all nine; drawn in currentColor so it follows the text colour and theme
+  const PEARLS = [[7, 22], [11, 22], [15, 22], [7, 18], [11, 18], [15, 18], [7, 14], [11, 14], [15, 14]];
+  const cup = (score, size = 22) => {
+    const n = Math.round((Math.max(0, Math.min(5, score)) / 5) * PEARLS.length);
+    return `<svg class="cup" viewBox="0 0 22 28" width="${size * 22 / 28}" height="${size}" role="img" aria-label="${score.toFixed(1)} of 5">` +
+      `<path class="c-line" d="M12 8.5 L14.5 1"/><path class="c-line" d="M3.5 9 Q11 1.5 18.5 9"/>` +
+      `<path class="c-line" d="M2.5 9 H19.5"/><path class="c-line" d="M4 9.5 L5.5 26.5 H16.5 L18 9.5"/>` +
+      `<path class="c-line" d="M4.6 12 Q8 10.8 11 12 T17.4 12"/>` +
+      PEARLS.map(([x, y], i) => `<circle class="c-pearl${i < n ? " on" : ""}" cx="${x}" cy="${y}" r="1.6"/>`).join("") + `</svg>`;
+  };
   const swatch = (score) => `<span class="sw" style="background:${rampColor(RAMP, score)}" aria-hidden="true"></span>`;
   for (const b of booths) b.hay = [b.nameEn, b.nameZh, b.id, b.street[0], b.street[1]].join(" ").toLowerCase();
   function selectBooth(i, zoom = true) {
@@ -1576,7 +1705,7 @@ h2 .zh.block { margin-top: 3px; }
     card.hidden = false;
     card.innerHTML = `<h3>${esc(b.nameEn)}${zh(b.nameZh)}</h3>` +
       `<p>Booth ${esc(b.id)} · ${esc(b.street[1])}${zh(b.street[0])}</p>` +
-      `<p class="score">${swatch(b.score)}Boba Index <span class="num">${b.score.toFixed(1)}</span> / 5 <span class="mock">Mock</span></p>`;
+      `<p class="score">${cup(b.score, 34)}${swatch(b.score)}Boba Index <span class="num">${b.score.toFixed(1)}</span> / 5 <span class="mock">Mock</span></p>`;
     if (zoom) {
       const h = 30 / GROUND; // about 30 m around the booth
       zoomTo([b.x - h, b.y - h, b.x + h, b.y + h], 40, kMax);
@@ -1593,10 +1722,11 @@ h2 .zh.block { margin-top: 3px; }
     list.innerHTML = boothHits.slice(0, 10).map((i) => {
       const b = booths[i];
       return `<li data-i="${i}"><button type="button" aria-current="${i === selBooth}">${swatch(b.score)}` +
-        `<span>${esc(b.nameEn)}${zh(b.nameZh)}</span><span class="num">${b.score.toFixed(1)}</span>` +
+        `<span>${esc(b.nameEn)}${zh(b.nameZh)}</span><span class="num">${cup(b.score, 20)} ${b.score.toFixed(1)}</span>` +
         `<span class="sub">${esc(b.id)} · ${esc(b.street[1])}</span></button></li>`;
     }).join("");
   }
+  $("#pearl-key").innerHTML = [0, 1.7, 3.3, 5].map((v) => `<span>${cup(v, 32)}${v.toFixed(1)}</span>`).join("");
   if (booths.length) {
     $("#booth-search").hidden = false;
     let typing = 0;
@@ -1757,7 +1887,7 @@ h2 .zh.block { margin-top: 3px; }
   const syncTheme = () => {
     const t = root.dataset.theme || (sysDark.matches ? "dark" : "light");
     for (const b of themeBtns) b.setAttribute("aria-pressed", String(b.dataset.themeSet === t));
-    const st = root.dataset.style || "deck";
+    const st = root.dataset.style || "deck"; // no attribute = the deck
     for (const b of styleBtns) b.setAttribute("aria-pressed", String(b.dataset.styleSet === st));
   };
   for (const b of themeBtns) b.addEventListener("click", () => {

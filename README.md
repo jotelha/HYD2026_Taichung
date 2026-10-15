@@ -19,10 +19,11 @@ The interface is English-first, with Chinese as the secondary language: labels a
 - A collapsible **legend** in the map's top-left corner: the market symbols and areas, the district boundary, and the colour keys of the booths and the heat map (each shown while its layer is on; the heat-map key shows the current range). It starts collapsed on small screens; the north arrow sits under the zoom buttons
 - **Find a Booth**: search the mock booths by English or Chinese name, dish, street or number (e.g. `oden`, `阿明 臭豆腐`, `FJ-0316`; every word must match). Results show the score; picking one (or pressing Enter for the first) zooms to the booth, rings it and shows a card, switching Feng Chia and the booth layer on if needed. Clicking a booth on the map selects it too; `Esc` clears the selection
 - The districts with their night-market and market counts; click one to zoom to it
-- Two styles and three tones from the switches in the header, remembered in the browser:
+- Three styles and three tones from the switches in the header, remembered in the browser:
+  - **Boba** (the default): the Boba Index brand, with the logo's brown ink on cream, boba-orange highlights, Bricolage Grotesque and rounded cards
   - **Deck**: the monochrome look of the HYD Healthy City Workshop deck (Instrument Serif, warm greys, 2px ink rules)
   - **Program**: after the HYD Taichung program page (Bricolage Grotesque and IBM Plex, navy ink on cool grey, sun-yellow highlights, rounded cards)
-  - **Light**, **White** or **Dark** for either style; until one is chosen, light or dark follows the system setting
+  - **Light**, **White** or **Dark** for any style; until one is chosen, light or dark follows the system setting
 - Pan by dragging, zoom with the wheel or a pinch; arrow keys pan, `+` / `-` zoom, `0` shows the full extent
 - Coordinate ticks on the neatline, scale bar and north arrow
 
@@ -47,6 +48,18 @@ The **heat map** is the Gaussian-weighted mean of the booth scores around each 2
 The booths are drawn at true size and appear once they are about 4 px long; the map zooms in far enough for them to reach about 20 px. Scores are coloured on viridis, a multi-hue scale whose lightness rises evenly with the score and which stays readable with colour-vision deficiencies; it starts one step above its darkest purple so low scores stay visible on the dark theme, and the same colour means the same score in every theme.
 
 The usual build environment cannot reach the Overpass API, so a GitHub Actions workflow fetches the data: **Actions → Fetch OSM road network → Run workflow** runs `scripts/fetch_roads.py`, `scripts/fetch_landmarks.py` and `scripts/locate_projects.py`, rebuilds the site and commits the results. Run it again to refresh. The data is licensed under the ODbL 1.0 and must be credited "© OpenStreetMap contributors".
+
+## Brand
+
+The logo, banner and pearl scale in `img/` were made by the Boba Index team and are published with the site:
+
+| File | Use |
+|---|---|
+| `img/boba-index-logo.jpg` | Square logo (752 × 752): a map pin shaped like a bubble tea cup. Scaled copies are the header logo (`logo-112.png`), the favicon (`favicon-32.png`) and the home-screen icon (`apple-touch-icon.png`) |
+| `img/boba-index-banner.jpg` | Wide banner (1395 × 752), used as the link-preview image (`og:image`, absolute URL from `SITE_URL` in `build_map.py`) |
+| `img/boba-index-pearl-scale.jpg` | The pearl scale: cups filling with pearls. The page redraws it as the **pearl meter**, one cup whose nine pearls fill from the bottom with the Boba Index (5 = full), shown in booth tooltips, the booth card, search results and the legend |
+
+Brand colours, sampled from the logo: orange `#fd9f02`, cream `#f7f0d6`, brown `#42200f`. The **Boba** style uses them for the page; the map's data colours (viridis booths, plasma heat map) stay the same in every style so the data reads the same.
 
 ## Basemap (English labels)
 
@@ -110,6 +123,7 @@ scripts/mock_booths.py     generates mock Feng Chia booths with random scores
 scripts/check_basemap.mjs  checks the basemap in a browser (run by GitHub Actions)
 data/raw/                  source data
 data/derived/              OSM extracts and derived layers
+img/                       brand assets (logo, banner, pearl scale, icons)
 ```
 
 ---
@@ -133,7 +147,7 @@ data/derived/              OSM extracts and derived layers
 - 地圖左上角可收合的**圖例**：市場符號與範圍、區界，以及攤位與熱度圖的色階（各在其圖層開啟時顯示，熱度圖色階顯示目前的數值範圍）；小螢幕預設收合，指北針移到縮放按鈕下方
 - **Find a Booth**查詢攤位：可用中英文店名、品項、街道或編號搜尋模擬攤位（例如`oden`、`阿明 臭豆腐`、`FJ-0316`，每個詞都須符合）；結果列出分數，點選（或按Enter選第一筆）會移到該攤位、加上圓圈標示並顯示資訊卡，必要時自動開啟逢甲夜市與攤位圖層。在地圖上點攤位也會選取；按`Esc`取消
 - 各行政區的夜市／市場數，點選可縮放到該區
-- 頁首可切換兩種風格（**Deck**簡報風、**Program**議程風）與三種色調（**Light**、**White**、**Dark**），選擇會記在瀏覽器中；尚未選擇時依裝置設定顯示淺色或深色
+- 頁首可切換三種風格（預設的**Boba**品牌風：標誌的棕色與米色配珍奶橘重點色；**Deck**簡報風；**Program**議程風）與三種色調（**Light**、**White**、**Dark**），選擇會記在瀏覽器中；尚未選擇時依裝置設定顯示淺色或深色
 - 拖曳平移、滾輪或雙指縮放；方向鍵平移、`+`／`-`縮放、`0`回到全圖
 - 圖框經緯度刻度、比例尺與指北針
 
@@ -150,6 +164,10 @@ data/derived/              OSM extracts and derived layers
 攤位依實際尺寸繪製，約4像素長時才顯示，最大縮放時約20像素。分數以viridis色階著色：多色相、亮度隨分數均勻遞增，色覺辨識障礙者也能分辨；色階從最深紫色的下一階開始，深色主題下低分仍看得見，各主題同色同分。
 
 一般建置環境連不到Overpass API，因此由GitHub Actions抓取：**Actions → Fetch OSM road network → Run workflow**，會依序執行`fetch_roads.py`、`fetch_landmarks.py`、`locate_projects.py`，重建網站並commit結果。資料授權為ODbL 1.0，須標示「© OpenStreetMap contributors」。
+
+### 品牌
+
+`img/`中的標誌、橫幅與珍珠刻度由珍奶指數團隊製作，隨網站公開：方形標誌（地圖標記造型的珍奶杯）縮成頁首標誌、網站圖示與主畫面圖示；橫幅作為連結預覽圖（`og:image`）；珍珠刻度在頁面上重繪為**珍珠計量杯**：一個杯子，九顆珍珠依珍奶指數由下往上填滿（5分為全滿），用於攤位提示、資訊卡、搜尋結果與圖例。品牌色取自標誌：橘`#fd9f02`、米`#f7f0d6`、棕`#42200f`；**Boba**風格以這些顏色裝飾頁面，地圖上的資料色彩（攤位viridis、熱度圖plasma）在各風格中保持不變。
 
 ### 底圖（英文標註）
 
