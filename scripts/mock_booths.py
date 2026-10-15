@@ -16,9 +16,10 @@ Scores are spatially clustered rather than uniform: a smooth field over the
 market starts at FIELD_BASE and adds FIELD_PEAKS Gaussian maxima and as many
 minima (amplitude FIELD_AMP, width FIELD_SIGMA), centred on randomly chosen
 booths at least FIELD_SPACING apart. Each booth's Boba Index is the field at
-its position plus Gaussian noise (FIELD_NOISE), clipped to 0.0-5.0 and rounded
-to 0.1, so neighbouring booths are alike and the market has hot and cold
-spots. The field's centres are written to the output (score_field). A fixed
+its position plus Gaussian noise (FIELD_NOISE); a draw outside 0.0-5.0 is
+redrawn rather than clipped (a truncated normal), so no scores pile up at the
+ends. Scores are rounded to 0.1. The noise is strong, so single booths vary a
+lot, while the hot and cold spots show in averages such as the heat map. The field's centres are written to the output (score_field). A fixed
 seed makes the output reproducible.
 
 Each booth also gets an invented name in Chinese and English, built from the
@@ -48,7 +49,7 @@ FIELD_PEAKS = 3                # maxima, and as many minima
 FIELD_AMP = (1.6, 2.3)         # bump height range, Boba Index points
 FIELD_SIGMA = (40.0, 80.0)     # bump width range, metres
 FIELD_SPACING = 120.0          # minimum distance between bump centres, metres
-FIELD_NOISE = 1.2              # booth-to-booth noise (standard deviation)
+FIELD_NOISE = 2.5              # booth-to-booth noise (standard deviation, before truncation to 0-5)
 BOOTH_W, BOOTH_D = 3.5, 3.0  # metres along and across the street
 PITCH = 6.5                  # metres between booth centres along a street
 MIN_GAP = 4.5                # minimum distance between booth centres
@@ -98,6 +99,15 @@ def score_field(booths, rng):
         else:
             raise SystemExit("could not place the score-field centres; lower FIELD_SPACING")
     return centres
+
+
+def noisy_score(mean, rng):
+    """mean + N(0, FIELD_NOISE), redrawn until it lies in 0.0-5.0 (the field itself may stray slightly outside)."""
+    for _ in range(10000):
+        v = mean + rng.gauss(0, FIELD_NOISE)
+        if 0.0 <= v <= 5.0:
+            return v
+    raise SystemExit(f"no score in 0-5 around {mean:.2f}; FIELD_NOISE is too small for this field")
 
 
 def field_at(x, y, centres):
@@ -202,7 +212,7 @@ def main():
     centres = score_field(booths, rng)
     features = []
     for i, b in enumerate(booths, 1):
-        score = min(5.0, max(0.0, field_at(b["x"], b["y"], centres) + rng.gauss(0, FIELD_NOISE)))
+        score = noisy_score(field_at(b["x"], b["y"], centres), rng)
         hw, hd = BOOTH_W / 2, BOOTH_D / 2
         corners = [(b["x"] + b["ux"] * sa * hw - b["uy"] * sb * hd, b["y"] + b["uy"] * sa * hw + b["ux"] * sb * hd)
                    for sa, sb in ((-1, -1), (1, -1), (1, 1), (-1, 1), (-1, -1))]
