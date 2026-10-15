@@ -425,6 +425,29 @@ h1 .zh { margin-left: 0.5em; font-family: "Noto Serif TC", "Songti TC", serif; f
   display: grid;
   gap: 4px;
 }
+.map-legend {
+  position: absolute;
+  z-index: 2;
+  top: 16px;
+  left: 30px; /* clear of the latitude ticks in the left margin */
+  max-width: min(250px, calc(100% - 96px));
+  max-height: calc(100% - 80px);
+  overflow: auto;
+  padding: 6px 10px 8px;
+  background: color-mix(in srgb, var(--surface) 92%, transparent);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-sm);
+  font-size: var(--fs-xs);
+}
+.map-legend summary { cursor: pointer; font: 500 10.5px var(--font-mono); letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
+.map-legend summary .zh { text-transform: none; letter-spacing: 0.02em; }
+.map-legend .legend-lines { display: grid; gap: 3px; margin: 6px 0 0; font-size: var(--fs-xs); }
+.map-legend .legend-lines li { gap: 6px; }
+.map-legend .legend-lines .zh, .map-legend .booth-key .zh, .map-legend .heat-key .zh { font-size: 10.5px; }
+.map-legend .mkt-key, .map-legend .line-key { width: 20px; flex: none; }
+.map-legend .booth-key, .map-legend .heat-key { margin-top: 8px; font-size: var(--fs-xs); }
+.map-legend .ramp { margin: 4px 0 2px; height: 8px; }
+:root[data-style="program"] .map-legend { border-radius: 8px; box-shadow: 0 1px 2px rgba(22, 24, 42, 0.14); }
 .map-ctrl button {
   width: 32px;
   height: 32px;
@@ -589,6 +612,7 @@ h2 .zh.block { margin-top: 3px; }
 /* mock booths: true-size rectangles coloured by Boba Index; shown once they are a few pixels wide */
 .heat { opacity: 0.85; cursor: help; }
 .heat-key { margin-top: 12px; }
+#booth-notes { margin-top: 10px; }
 .heat-ctrl { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 4px 10px; margin-top: 8px; font-size: var(--fs-xs); color: var(--ink-2); }
 .heat-ctrl input[type="range"] { width: 100%; accent-color: var(--accent); }
 .heat-ctrl output { font: 500 11px var(--font-mono); min-width: 3.5em; text-align: right; }
@@ -716,6 +740,26 @@ h2 .zh.block { margin-top: 3px; }
           <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 6V2h4M10 2h4v4M14 10v4h-4M6 14H2v-4" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
         </button>
       </div>
+      <details class="map-legend" id="map-legend" open>
+        <summary>Legend<span class="zh" lang="zh-Hant-TW">圖例</span></summary>
+        <ul class="legend-lines" id="mkt-legend">
+          <li><span class="mkt-key night"></span>Night market<span class="zh" lang="zh-Hant-TW">夜市</span></li>
+          <li><span class="mkt-key"></span>Market<span class="zh" lang="zh-Hant-TW">市場</span></li>
+          <li><span class="mkt-key area"></span>Night-market area<span class="zh" lang="zh-Hant-TW">夜市範圍（OSM）</span></li>
+          <li id="mkt-legend-extent" hidden><span class="mkt-key extent"></span>Feng Chia, approx. extent<span class="zh" lang="zh-Hant-TW">逢甲夜市約略範圍</span></li>
+          <li><span class="line-key"></span>District boundary<span class="zh" lang="zh-Hant-TW">區界</span></li>
+        </ul>
+        <div class="booth-key" id="booth-key" hidden>
+          Booth Boba Index<span class="zh" lang="zh-Hant-TW">攤位珍奶指數</span><span class="mock">Mock</span>
+          <div class="ramp" id="booth-ramp" aria-hidden="true"></div>
+          <div class="ends"><span>0</span><span>2.5</span><span>5</span></div>
+        </div>
+        <div class="heat-key" id="heat-key" hidden>
+          Heat map, smoothed<span class="zh" lang="zh-Hant-TW">熱度圖</span><span class="mock">Mock</span>
+          <div class="ramp" id="heat-ramp" aria-hidden="true"></div>
+          <div class="ends"><span id="heat-min"></span><span id="heat-mid"></span><span id="heat-max"></span></div>
+        </div>
+      </details>
       <div class="coord" id="coord" hidden></div>
       <div class="attrib" id="attrib" hidden></div>
     </div>
@@ -740,33 +784,8 @@ h2 .zh.block { margin-top: 3px; }
         <div class="booth-card" id="booth-card" hidden></div>
       </section>
 
-      <section aria-labelledby="h-legend">
-        <h2 id="h-legend">Legend<span class="zh" lang="zh-Hant-TW">圖例</span></h2>
-        <ul class="legend-lines" id="mkt-legend">
-          <li><span class="mkt-key night"></span>Night market<span class="zh" lang="zh-Hant-TW">夜市</span></li>
-          <li><span class="mkt-key"></span>Market<span class="zh" lang="zh-Hant-TW">市場</span></li>
-          <li><span class="mkt-key area"></span>Night market, mapped area<span class="zh" lang="zh-Hant-TW">夜市範圍（OSM）</span></li>
-          <li id="mkt-legend-extent" hidden><span class="mkt-key extent"></span>Feng Chia, approx. full extent<span class="zh" lang="zh-Hant-TW">逢甲夜市約略範圍</span></li>
-          <li><span class="line-key"></span>District boundary<span class="zh" lang="zh-Hant-TW">區界</span></li>
-        </ul>
-        <div class="booth-key" id="booth-key" hidden>
-          Boba Index, Feng Chia booths<span class="zh" lang="zh-Hant-TW">攤位珍奶指數</span><span class="mock">Mock</span>
-          <div class="ramp" id="booth-ramp" aria-hidden="true"></div>
-          <div class="ends"><span>0</span><span>2.5</span><span>5</span></div>
-          <p class="note">Invented booth names and positions with random scores, for designing the map. Zoom in on Feng Chia to see the booths.</p>
-          <div class="heat-ctrl" id="heat-ctrl">
-            <label for="heat-bw">Heat map smoothing<span class="zh" lang="zh-Hant-TW">平滑半徑</span></label>
-            <input type="range" id="heat-bw" min="10" max="60" step="5" value="25">
-            <output id="heat-bw-v" for="heat-bw">25 m</output>
-          </div>
-          <p class="note">The heat map is the distance-weighted average of nearby booths' scores (Gaussian kernel of this width), clipped to the market extent and faded where booths are sparse.</p>
-          <div class="heat-key">
-            Heat map, smoothed Boba Index<span class="zh" lang="zh-Hant-TW">熱度圖</span>
-            <div class="ramp" id="heat-ramp" aria-hidden="true"></div>
-            <div class="ends"><span id="heat-min"></span><span id="heat-mid"></span><span id="heat-max"></span></div>
-            <p class="note">Colours stretch from the lowest to the highest smoothed value, so they change with the smoothing width; compare the numbers, not the colours, across widths.</p>
-          </div>
-        </div>
+      <section aria-labelledby="h-layers">
+        <h2 id="h-layers">Layers<span class="zh" lang="zh-Hant-TW">圖層</span></h2>
         <div class="toggles" role="group" aria-label="Layers">
           <label id="lyr-osm-wrap" hidden><input type="checkbox" id="lyr-osm" checked>Basemap, English labels<span class="zh" lang="zh-Hant-TW">英文底圖</span></label>
           <label><input type="checkbox" id="lyr-fill" checked>District tint<span class="zh" lang="zh-Hant-TW">區底色</span></label>
@@ -776,6 +795,15 @@ h2 .zh.block { margin-top: 3px; }
           <label><input type="checkbox" id="lyr-mkt" checked>Other markets<span class="zh" lang="zh-Hant-TW">其他市場</span></label>
         </div>
         <p class="note" id="osm-msg" hidden></p>
+        <div id="booth-notes" hidden>
+          <p class="note">Booths: invented names and positions with random scores, for designing the map. Zoom in on Feng Chia to see them.</p>
+          <div class="heat-ctrl" id="heat-ctrl">
+            <label for="heat-bw">Heat map smoothing<span class="zh" lang="zh-Hant-TW">平滑半徑</span></label>
+            <input type="range" id="heat-bw" min="10" max="60" step="5" value="25">
+            <output id="heat-bw-v" for="heat-bw">25 m</output>
+          </div>
+          <p class="note">The heat map is the distance-weighted average of nearby booths' scores (Gaussian kernel of this width), clipped to the market extent and faded where booths are sparse. Its colours stretch from the lowest to the highest smoothed value, so they change with the width; compare the numbers in the legend, not the colours, across widths.</p>
+        </div>
         <ul class="legend" id="legend"></ul>
         <p class="note">The eight districts of the former Taichung City. Click a district to zoom to it.</p>
       </section>
@@ -1051,7 +1079,8 @@ h2 .zh.block { margin-top: 3px; }
   function drawNorth() {
     gNorth.replaceChildren();
     const r = inner();
-    const g = svgEl("g", { transform: `translate(${r.x0 + 22} ${r.y0 + 34})`, "aria-hidden": "true" }, gNorth);
+    // under the zoom buttons (16 px from the frame's top right, three 32 px buttons); the legend has the top-left corner
+    const g = svgEl("g", { transform: `translate(${W - 32} ${160})`, "aria-hidden": "true" }, gNorth);
     svgEl("path", { class: "north-b", d: "M0 -12 L7 8 L0 3 Z" }, g);
     svgEl("path", { class: "north-a", d: "M0 -12 L-7 8 L0 3 Z" }, g);
     svgEl("text", { class: "north-n", x: 0, y: -17 }, g).textContent = "N";
@@ -1480,7 +1509,7 @@ h2 .zh.block { margin-top: 3px; }
       booths.push({ id: BOOTHS.id_prefix + String(i + 1).padStart(4, "0"), score, street: BOOTHS.streets[si], nameZh, nameEn, el, x, y });
     });
     for (const a of boothHost.areas) a.classList.add("booth-host");
-    $("#booth-key").hidden = false;
+    $("#booth-notes").hidden = false;
     $("#lyr-booths-wrap").hidden = false;
     $("#lyr-booths").addEventListener("change", () => { hideTip(); draw(); });
   }
@@ -1503,6 +1532,7 @@ h2 .zh.block { margin-top: 3px; }
     const show = booths.length > 0 && boothHost.on && $("#lyr-booths").checked && view.k >= boothMinK;
     gBooths.style.display = show ? "" : "none";
     svg.classList.toggle("booths-on", show);
+    $("#booth-key").hidden = !(booths.length && boothHost.on && $("#lyr-booths").checked);
     // the selected booth's ring shows at every zoom, so a search result can be found from afar
     const ring = $("#g-booth-sel"), sel = selBooth != null && boothHost.on && $("#lyr-booths").checked ? booths[selBooth] : null;
     ring.style.display = sel ? "" : "none";
@@ -1658,7 +1688,9 @@ h2 .zh.block { margin-top: 3px; }
     $("#heat-ctrl").hidden = true;
   }
   function drawHeat() {
-    gHeat.style.display = booths.length && boothHost.on && $("#lyr-heat").checked ? "" : "none";
+    const show = booths.length && boothHost.on && $("#lyr-heat").checked;
+    gHeat.style.display = show ? "" : "none";
+    $("#heat-key").hidden = !show;
   }
   function showHeatTip(p, cx, cy) {
     const { value, n } = kernelAt((p.x - view.tx) / view.k, (p.y - view.ty) / view.k, heatBw);
@@ -1732,6 +1764,7 @@ h2 .zh.block { margin-top: 3px; }
   colourBooths();
 
   // ---------- boot ----------
+  if (window.matchMedia("(max-width: 640px)").matches) $("#map-legend").open = false; // keep the small map clear
   setBasemap(BASEMAP, false);
   new ResizeObserver(() => resize()).observe(frame);
   resize();
