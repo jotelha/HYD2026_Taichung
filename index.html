@@ -779,6 +779,32 @@ h2 .zh.block { margin-top: 3px; }
 .booth-card { margin-top: 10px; padding: 8px 10px; border: 1px solid var(--rule); border-radius: var(--r-sm); font-size: var(--fs-sm); }
 .booth-card h3 { margin: 0; font-size: var(--fs-md); }
 .booth-card p { margin: 2px 0 0; color: var(--ink-2); }
+/* place search and walking route */
+.route-halo, .route-line { fill: none; vector-effect: non-scaling-stroke; stroke-linecap: round; stroke-linejoin: round; pointer-events: none; }
+.route-halo { stroke: var(--surface); stroke-width: 9; }
+.route-line { stroke: var(--brand-green, var(--ink)); stroke-width: 5; }
+.pin circle { fill: var(--brand-green, var(--ink)); stroke: var(--surface); stroke-width: 2.5px; paint-order: stroke; }
+.pin text { font: 700 12px var(--font-body); fill: var(--surface); text-anchor: middle; dominant-baseline: central; }
+.pin.place circle { fill: var(--hl); stroke: var(--ink); stroke-width: 2px; }
+.pin.place text { fill: var(--ink); }
+.pin, .pin * { pointer-events: none; }
+.place-results { display: grid; gap: 2px; margin: 6px 0 0; padding: 0; list-style: none; }
+.place-results li { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 2px 6px; padding: 4px 6px; border: 1px solid transparent; border-radius: var(--r-sm); }
+.place-results li:hover { border-color: var(--rule); background: var(--field); }
+.place-results .go { all: unset; cursor: pointer; display: grid; min-width: 0; font-size: var(--fs-sm); }
+.place-results .go small { font-size: var(--fs-xs); color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.place-results .ends { display: flex; gap: 4px; }
+.place-results .btn-s, .route-ends .btn-s, .booth-card .btn-s { padding: 2px 8px; font-size: var(--fs-xs); }
+.route-ends { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 4px 10px; align-items: center; margin: 0; font-size: var(--fs-sm); }
+.route-ends dt { font: 700 12px var(--font-body); width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: var(--brand-green, var(--ink)); color: var(--surface); }
+.route-ends dd { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.route-ends dd .none { color: var(--muted); }
+.route-summary { margin: 10px 0 0; font-size: var(--fs-md); font-weight: 700; }
+.route-steps { margin: 6px 0 0; padding-left: 1.4em; font-size: var(--fs-sm); color: var(--ink-2); display: grid; gap: 3px; max-height: 280px; overflow: auto; }
+.route-steps li { cursor: pointer; }
+.route-steps li:hover { color: var(--ink); text-decoration: underline; }
+.route-steps .d { color: var(--muted); font-size: var(--fs-xs); margin-left: 4px; }
+.booth-card .actions { margin-top: 8px; }
 .booth-card .slogan { margin-top: 6px; font-style: italic; font-size: var(--fs-xs); color: var(--muted); }
 .booth-card .slogan .zh { font-style: normal; }
 :root[data-style="boba"] .booth-card .slogan { color: var(--brand-terracotta); }
@@ -879,12 +905,15 @@ h2 .zh.block { margin-top: 3px; }
             <clipPath id="heat-clip"><path id="heat-clip-path"></path></clipPath>
             <g id="g-heat"></g>
             <g id="g-booths"></g>
+            <path class="route-halo" id="route-halo"></path>
+            <path class="route-line" id="route-line"></path>
             <g id="g-d"></g>
             <path class="hover-outline" id="hover-outline"></path>
           </g>
           <g id="g-labels"></g>
           <g id="g-mkt"></g>
           <g id="g-bins"></g>
+          <g id="g-pins"></g>
           <g id="g-booth-sel" style="display: none"><circle class="booth-sel halo" r="13"></circle><circle class="booth-sel" r="13"></circle></g>
         </g>
         <rect class="neatline" id="neatline"></rect>
@@ -945,6 +974,29 @@ h2 .zh.block { margin-top: 3px; }
         <p class="search-msg" id="booth-msg" role="status"></p>
         <ul class="booth-results" id="booth-results"></ul>
         <div class="booth-card" id="booth-card" hidden></div>
+      </section>
+
+      <section aria-labelledby="h-place">
+        <h2 id="h-place">Find a Place<span class="zh" lang="zh-Hant-TW">查詢地點</span></h2>
+        <form class="search" id="place-form" autocomplete="off" role="search">
+          <label for="place-q" hidden>Address or place</label>
+          <input id="place-q" type="search" placeholder="Address or place, e.g. 臺中車站 or Wenhua Road">
+          <button type="submit">Search</button>
+        </form>
+        <p class="search-msg" id="place-msg" role="status"></p>
+        <ul class="place-results" id="place-results"></ul>
+      </section>
+
+      <section aria-labelledby="h-route">
+        <h2 id="h-route">Walking Route<span class="zh" lang="zh-Hant-TW">步行路線</span></h2>
+        <dl class="route-ends">
+          <dt>A</dt><dd><span id="rt-from" class="none">Start: a searched place or</span><button type="button" class="btn-s" id="rt-here">My location</button></dd>
+          <dt>B</dt><dd><span id="rt-to" class="none">Destination: a searched place or a booth's "Walk here"</span></dd>
+        </dl>
+        <p class="search-msg" id="rt-msg" role="status"></p>
+        <p class="route-summary" id="rt-summary" hidden></p>
+        <ol class="route-steps" id="rt-steps"></ol>
+        <p class="note" id="rt-credit" hidden>Walking directions by <a href="https://valhalla.github.io/valhalla/" target="_blank" rel="noopener">Valhalla</a> on the FOSSGIS server; map data © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a> contributors. <button type="button" class="btn-s" id="rt-clear">Clear route</button></p>
       </section>
 
       <section aria-labelledby="h-layers">
@@ -1102,8 +1154,16 @@ h2 .zh.block { margin-top: 3px; }
   const layers = { osm: BASEMAP };
 
   const inner = () => ({ x0: M.l, y0: M.t, x1: W - M.r, y1: H - M.b });
-  function fitView(box, pad, cap, clamp = true) {
-    const r = inner();
+  // The open legend covers the frame's top-left corner, so views fitted to something (the opening view, a route, a
+  // district) use the part of the frame to its right. Zoom limits keep using the whole frame (avoid = false).
+  function viewArea(avoid = true) {
+    const r = inner(), lg = $("#map-legend");
+    if (!avoid || !lg || !lg.open) return r;
+    const right = lg.getBoundingClientRect().right - svg.getBoundingClientRect().left + 8;
+    return right > r.x0 && right < (r.x0 + r.x1) / 2 ? { ...r, x0: right } : r;
+  }
+  function fitView(box, pad, cap, clamp = true, avoid = true) {
+    const r = viewArea(avoid);
     const iw = r.x1 - r.x0, ih = r.y1 - r.y0;
     const bw = Math.max(box[2] - box[0], 1), bh = Math.max(box[3] - box[1], 1);
     let k = Math.min((iw - 2 * pad) / bw, (ih - 2 * pad) / bh);
@@ -1130,7 +1190,7 @@ h2 .zh.block { margin-top: 3px; }
     if (vmap) vmap.resize();
     // zoom limits are relative to the full-extent fit, so compute that unclamped first
     const prevFit = fitK;
-    fitK = fitView(totalBox, 18, null, false).k;
+    fitK = fitView(totalBox, 18, null, false, false).k;
     // deep enough for the mock booths (3.5 m) to reach about 20 px
     kMin = fitK * 0.6; kMax = fitK * 160;
     if (!interacted || !oldW) {
@@ -1174,6 +1234,7 @@ h2 .zh.block { margin-top: 3px; }
     }
     drawMarkets();
     drawBins();
+    drawPins();
     drawBooths();
     drawHeat();
     drawTicks();
@@ -1692,7 +1753,7 @@ h2 .zh.block { margin-top: 3px; }
   function homeView() {
     if (!booths.length) return fitView(totalBox, 18);
     const v = fitView(boothHost.box, 24);
-    const k = Math.min(kMax, Math.max(v.k, boothMinK * 1.15)), r = inner();
+    const k = Math.min(kMax, Math.max(v.k, boothMinK * 1.15)), r = viewArea();
     const cx = (boothHost.box[0] + boothHost.box[2]) / 2, cy = (boothHost.box[1] + boothHost.box[3]) / 2;
     return { k, tx: (r.x0 + r.x1) / 2 - k * cx, ty: (r.y0 + r.y1) / 2 - k * cy };
   }
@@ -1748,7 +1809,12 @@ h2 .zh.block { margin-top: 3px; }
     card.innerHTML = `<h3>${esc(b.nameEn)}${zh(b.nameZh)}</h3>` +
       `<p>Booth ${esc(b.id)} · ${esc(b.street[1])}${zh(b.street[0])}</p>` +
       `<p class="score">${cup(b.score, 34)}${swatch(b.score)}Boba Index <span class="num">${b.score.toFixed(1)}</span> / 5</p>` +
-      `<p class="slogan">Not just a score — a story.<span class="zh" lang="zh-Hant-TW">不只是分數，更是故事。</span></p>`;
+      `<p class="slogan">Not just a score — a story.<span class="zh" lang="zh-Hant-TW">不只是分數，更是故事。</span></p>` +
+      `<p class="actions"><button type="button" class="btn-s" id="walk-booth">Walk here</button></p>`;
+    $("#walk-booth").addEventListener("click", () => {
+      const [lon, lat] = unproj(b.x, b.y);
+      setRouteEnd("to", { lon, lat, label: `${b.nameEn} (${b.id})` });
+    });
     if (zoom) {
       const h = 30 / GROUND; // about 30 m around the booth
       zoomTo([b.x - h, b.y - h, b.x + h, b.y + h], 40, kMax);
@@ -1943,6 +2009,142 @@ h2 .zh.block { margin-top: 3px; }
   });
   $("#lyr-fill").addEventListener("change", (e) => svg.classList.toggle("no-fill", !e.target.checked));
 
+  // ---------- place search (Nominatim) and walking routes (Valhalla, pedestrian) ----------
+  // Both are free public services: Nominatim allows at most one request a second and no search-as-you-type, so it
+  // runs on submit only; Valhalla on the FOSSGIS server is for light, fair use.
+  const NOMINATIM = "https://nominatim.openstreetmap.org/search";
+  const VALHALLA = "https://valhalla1.openstreetmap.de/route";
+  const gPins = $("#g-pins");
+  const route = { from: null, to: null, place: null, line: null, abort: null };
+  const toWorld = (pt) => { const [x, y] = proj(pt.lon, pt.lat); return { ...pt, x, y }; };
+  function drawPins() {
+    gPins.replaceChildren();
+    for (const [key, letter, cls] of [["place", "", "pin place"], ["from", "A", "pin"], ["to", "B", "pin"]]) {
+      const pt = route[key];
+      if (!pt) continue;
+      const g = svgEl("g", { class: cls, transform: `translate(${view.k * pt.x + view.tx} ${view.k * pt.y + view.ty})` }, gPins);
+      svgEl("circle", { r: key === "place" ? 8 : 11 }, g);
+      if (letter) svgEl("text", {}, g).textContent = letter;
+    }
+  }
+  const zoomAround = (pt, m = 120) => { const h = m / GROUND; zoomTo([pt.x - h, pt.y - h, pt.x + h, pt.y + h], 40, kMax); };
+
+  // place search
+  const PAD = 0.12; // degrees around the former city, so nearby stations and landmarks are found too
+  async function searchPlaces() {
+    const q = $("#place-q").value.trim(), msg = $("#place-msg"), list = $("#place-results");
+    list.innerHTML = "";
+    if (!q) { msg.textContent = ""; return; }
+    msg.textContent = "Searching…";
+    const url = `${NOMINATIM}?format=jsonv2&limit=6&countrycodes=tw&bounded=1&accept-language=en,zh-TW` +
+      `&viewbox=${minLon - PAD},${maxLat + PAD},${maxLon + PAD},${minLat - PAD}&q=${encodeURIComponent(q)}`;
+    try {
+      const res = await fetch(url, { headers: { Accept: "application/json" } });
+      if (!res.ok) throw new Error(res.status);
+      const hits = await res.json();
+      if (!hits.length) { msg.textContent = "Nothing found around Taichung. Try a street, a landmark or a district."; return; }
+      msg.textContent = `${plural(hits.length, "place")} found. Pick one to see it, or use it as start (A) or destination (B).`;
+      list.innerHTML = hits.map((h, i) => {
+        const title = h.name || h.display_name.split(",")[0];
+        return `<li><button type="button" class="go" data-i="${i}">${esc(title)}<small>${esc(h.display_name)}</small></button>` +
+          `<span class="ends"><button type="button" class="btn-s" data-end="from" data-i="${i}">A</button>` +
+          `<button type="button" class="btn-s" data-end="to" data-i="${i}">B</button></span></li>`;
+      }).join("");
+      list.hits = hits.map((h) => ({ lon: +h.lon, lat: +h.lat, label: h.name || h.display_name.split(",")[0] }));
+    } catch (err) {
+      msg.textContent = "The place search is not reachable right now. Please try again in a moment.";
+    }
+  }
+  $("#place-form").addEventListener("submit", (e) => { e.preventDefault(); searchPlaces(); });
+  $("#place-results").addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-i]");
+    if (!btn) return;
+    const pt = $("#place-results").hits[+btn.dataset.i];
+    if (btn.dataset.end) { setRouteEnd(btn.dataset.end, pt); return; }
+    route.place = toWorld(pt);
+    zoomAround(route.place);
+  });
+
+  // walking route
+  function setRouteEnd(end, pt) {
+    route[end] = toWorld(pt);
+    route.place = null;
+    const el = $(end === "from" ? "#rt-from" : "#rt-to");
+    el.textContent = pt.label; el.classList.remove("none");
+    $("#h-route").scrollIntoView({ block: "nearest", behavior: reduceMotion ? "auto" : "smooth" });
+    if (route.from && route.to) planRoute();
+    else { $("#rt-msg").textContent = end === "to" ? "Now pick a start (A): your location or a searched place." : "Now pick a destination (B)."; zoomAround(route[end]); }
+  }
+  $("#rt-here").addEventListener("click", () => {
+    if (!navigator.geolocation) { $("#rt-msg").textContent = "This browser cannot share its location."; return; }
+    $("#rt-msg").textContent = "Finding your location…";
+    navigator.geolocation.getCurrentPosition(
+      (pos) => setRouteEnd("from", { lon: pos.coords.longitude, lat: pos.coords.latitude, label: "My location" }),
+      () => { $("#rt-msg").textContent = "Your location is not available (permission denied or no fix). Search for a start instead."; },
+      { enableHighAccuracy: true, timeout: 10000 });
+  });
+  // Valhalla returns the route as a polyline with 6 decimals
+  function decode6(str) {
+    const pts = [];
+    let i = 0, lat = 0, lon = 0;
+    while (i < str.length) {
+      for (const k of [0, 1]) {
+        let shift = 0, result = 0, b;
+        do { b = str.charCodeAt(i++) - 63; result |= (b & 0x1f) << shift; shift += 5; } while (b >= 0x20);
+        const d = result & 1 ? ~(result >> 1) : result >> 1;
+        if (k === 0) lat += d; else lon += d;
+      }
+      pts.push([lon / 1e6, lat / 1e6]);
+    }
+    return pts;
+  }
+  const fmtDist = (km) => (km < 1 ? `${Math.round(km * 1000 / 10) * 10} m` : `${km.toFixed(1)} km`);
+  async function planRoute() {
+    if (route.abort) route.abort.abort();
+    route.abort = new AbortController();
+    const msg = $("#rt-msg");
+    msg.textContent = "Finding a walking route…";
+    const body = { locations: [route.from, route.to].map((p) => ({ lat: p.lat, lon: p.lon })), costing: "pedestrian",
+      directions_options: { units: "kilometers", language: "en-US" } };
+    try {
+      const res = await fetch(`${VALHALLA}?json=${encodeURIComponent(JSON.stringify(body))}`, { signal: route.abort.signal });
+      const data = await res.json();
+      if (!res.ok || !data.trip) throw new Error(data.error || res.status);
+      const leg = data.trip.legs[0], sum = data.trip.summary;
+      const coords = decode6(leg.shape);
+      route.line = coords.map(([lon, lat]) => proj(lon, lat));
+      const d = "M" + route.line.map(([x, y]) => x.toFixed(1) + " " + y.toFixed(1)).join("L");
+      $("#route-line").setAttribute("d", d); $("#route-halo").setAttribute("d", d);
+      msg.textContent = "";
+      $("#rt-summary").hidden = false;
+      $("#rt-summary").textContent = `${fmtDist(sum.length)} · about ${Math.max(1, Math.round(sum.time / 60))} min on foot`;
+      $("#rt-steps").innerHTML = leg.maneuvers.map((m, i) =>
+        `<li data-s="${m.begin_shape_index}">${esc(m.instruction)}${m.length ? `<span class="d">${fmtDist(m.length)}</span>` : ""}</li>`).join("");
+      $("#rt-credit").hidden = false;
+      let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+      for (const [x, y] of route.line) { x0 = Math.min(x0, x); y0 = Math.min(y0, y); x1 = Math.max(x1, x); y1 = Math.max(y1, y); }
+      zoomTo([x0, y0, x1, y1], 50, kMax);
+    } catch (err) {
+      if (err.name === "AbortError") return;
+      msg.textContent = "No walking route found between these points, or the routing service is busy. Please try again.";
+    }
+  }
+  $("#rt-steps").addEventListener("click", (e) => {
+    const li = e.target.closest("li[data-s]");
+    if (!li || !route.line) return;
+    const [x, y] = route.line[+li.dataset.s];
+    zoomAround({ x, y }, 40);
+  });
+  $("#rt-clear").addEventListener("click", () => {
+    if (route.abort) route.abort.abort();
+    Object.assign(route, { from: null, to: null, place: null, line: null });
+    $("#route-line").removeAttribute("d"); $("#route-halo").removeAttribute("d");
+    $("#rt-from").textContent = "Start: a searched place or"; $("#rt-from").classList.add("none");
+    $("#rt-to").textContent = "Destination: a searched place or a booth's \"Walk here\""; $("#rt-to").classList.add("none");
+    $("#rt-summary").hidden = true; $("#rt-steps").innerHTML = ""; $("#rt-credit").hidden = true; $("#rt-msg").textContent = "";
+    draw();
+  });
+
   // ---------- sources ----------
   const osmLink = '<a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>';
   $("#sources").innerHTML = [
@@ -1951,6 +2153,7 @@ h2 .zh.block { margin-top: 3px; }
     ...(DATA.booths ? [`Feng Chia booths: ${DATA.booths.rows.length.toLocaleString("en-US")} booths of ${DATA.booths.size_m[0]} × ${DATA.booths.size_m[1]} m along both sides of the market streets, each with its Boba Index from 0.0 to 5.0 on the viridis scale. The heat map is the Gaussian-weighted mean of the booth scores around each 2 m cell (bandwidth set by the slider, default 25 m), clipped to the market extent and faded where booths are sparse, on the plasma scale stretched from its lowest to its highest value; it smooths away single-booth outliers, and its picture depends on the bandwidth.`,
       `This is a demonstrator: the Feng Chia booth layout, names and scores are illustrative and do not describe actual stalls.`] : []),
     ...(DATA.bins ? [`Garbage bins: © ${osmLink} contributors, ODbL 1.0; fetched ${esc(DATA.bins.fetched || "")}. ${bins.filter((b) => b.kind < 3).length} public bins, waste containers and recycling points mapped in OpenStreetMap inside the eight districts, plus ${bins.filter((b) => b.kind === 3).length} market bins placed by the Boba Index team at Feng Chia (orange), shown from street-level zooms. Public bins are rare in Taiwan, where household rubbish goes to the garbage trucks, and OSM coverage is patchy, so this shows what is mapped, not every bin.`] : []),
+    `Place search: <a href="https://nominatim.org/" target="_blank" rel="noopener">Nominatim</a> (data © ${osmLink} contributors, ODbL), limited to the Taichung area. Walking routes: <a href="https://valhalla.github.io/valhalla/" target="_blank" rel="noopener">Valhalla</a> on the FOSSGIS public server (data © ${osmLink} contributors); directions in English, street names as mapped in OSM. Both are free public services meant for light use; your search text and route points are sent to them.`,
     `District boundaries: ${esc(DATA.boundary_source)}. Simplified; use them for orientation, not measurement. Areas come from the attribute table.`,
     `Coordinates: WGS84 (CRS84). The map uses Web Mercator to match the basemap; the scale bar uses the east-west scale at the center of the map.`,
     ...(BASEMAP ? [`Basemap: vector tiles from <a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> (© <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">OpenMapTiles</a>, data © ${osmLink} contributors), drawn with MapLibre GL JS. Labels show the English name (OSM name:en) where one is mapped, otherwise the local name. If the vector map cannot start, the standard OpenStreetMap tiles are used instead (labels in the local language), under the OSMF <a href="https://operations.osmfoundation.org/policies/tiles/" target="_blank" rel="noopener">tile usage policy</a>.`] : []),

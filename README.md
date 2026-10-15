@@ -19,6 +19,7 @@ The interface is English-first, with Chinese as the secondary language: labels a
 - A collapsible **legend** in the map's top-left corner: the market symbols and areas, the district boundary, and the colour keys of the booths and the heat map (each shown while its layer is on; the heat-map key shows the current range). It starts collapsed on small screens; the north arrow sits under the zoom buttons
 - **Find a Booth**: search the mock booths by English or Chinese name, dish, street or number (e.g. `oden`, `阿明 臭豆腐`, `FJ-0316`; every word must match). Results show the score; picking one (or pressing Enter for the first) zooms to the booth, rings it and shows a card, switching Feng Chia and the booth layer on if needed. Clicking a booth on the map selects it too; `Esc` clears the selection
 - **Garbage bins**: public bins, waste containers and recycling points mapped in OpenStreetMap (70 in the eight districts), as small bin icons from street-level zooms; hover one for its type and OSM feature (see below)
+- **Find a Place** and **Walking Route**: search any address or place around Taichung (Chinese or English), see it on the map, and use it as start (A) or destination (B); start from your own location, or send a booth there with **Walk here** on its card. The walking route is drawn on the map with its distance, time and turn-by-turn steps (click a step to zoom to it); see below
 - The districts with their night-market and market counts; click one to zoom to it
 - Three styles and three tones from the switches in the header, remembered in the browser:
   - **Boba** (the default): the Boba Index brand, with the logo's brown ink on cream, boba-orange highlights, Bricolage Grotesque and rounded cards
@@ -35,6 +36,15 @@ The interface is English-first, with Chinese as the secondary language: labels a
 `scripts/fetch_landmarks.py` fetches every `amenity=marketplace` feature and every feature named …夜市 across the former city. `build_map.py` keeps marketplaces and untagged features whose name ends in 夜市 (so the parking lots, access ways and restaurants that only share the name drop out), drops stall sub-areas and duplicate points, and clips to the district boundaries. That leaves 62 markets, 7 of them night markets. Markets that nobody has mapped in OSM are missing (for example Yizhong Street).
 
 Night markets show their mapped OSM outline as a coloured area. For Feng Chia that outline covers only Wenhua Road and Fengjia Road Lane 20, so the map adds a dashed **approximate full extent** (6.28 ha): the OSM centrelines of Wenhua Road, Fengjia Road, Fuxing Road and Fengjia Road Lane 20 (the streets [Business Today, 2015](https://www.businesstoday.com.tw/article/category/80392/post/201507160040/) names as the market area), clipped to the stretches set in `scripts/fengjia_extent.py`, buffered by 15 m and merged. No official boundary is published; treat it as an approximation. Regenerate with `python3 scripts/fengjia_extent.py` (needs `pip install shapely` and Overpass access).
+
+### Place search and walking routes
+
+Both run in the browser against free public services built on OpenStreetMap data, with no API key:
+
+- **Place search**: [Nominatim](https://nominatim.org/), on submit only (its usage policy allows at most one request a second and no search-as-you-type), limited to Taiwan and a box around the former city, with English names where OSM has them. Street names and landmarks are well covered; house numbers in Taichung only partly, so an exact address sometimes lands on the street.
+- **Walking routes**: [Valhalla](https://valhalla.github.io/valhalla/) on the FOSSGIS public server (`valhalla1.openstreetmap.de`), pedestrian costing, directions in English with street names as mapped in OSM (often Chinese). The route line, A/B pins and steps come from its response; views fitted to a route (and the opening view) leave room for the map legend.
+
+Both services are for light, fair use, fine for a demonstrator; a real launch should host its own Nominatim/Valhalla or use a paid provider. Search text and route points are sent to them, as the Data Notes say. Google's search and directions are not used: they need a paid key and their terms do not allow showing results on a non-Google map. Public transport routing would need Taiwan's TDX platform.
 
 ### Garbage bins (OpenStreetMap)
 
@@ -157,6 +167,7 @@ img/                       brand assets (logo, banner, pearl scale, icons)
 - 地圖左上角可收合的**圖例**：市場符號與範圍、區界，以及攤位與熱度圖的色階（各在其圖層開啟時顯示，熱度圖色階顯示目前的數值範圍）；小螢幕預設收合，指北針移到縮放按鈕下方
 - **Find a Booth**查詢攤位：可用中英文店名、品項、街道或編號搜尋模擬攤位（例如`oden`、`阿明 臭豆腐`、`FJ-0316`，每個詞都須符合）；結果列出分數，點選（或按Enter選第一筆）會移到該攤位、加上圓圈標示並顯示資訊卡，必要時自動開啟逢甲夜市與攤位圖層。在地圖上點攤位也會選取；按`Esc`取消
 - **垃圾桶**：OpenStreetMap上的公共垃圾桶、大型垃圾箱與資源回收點（八區內共70處），放大到街道層級後以垃圾桶圖示顯示，滑過可看類型與OSM地物（見下方說明）
+- **Find a Place**查詢地點與**Walking Route**步行路線：可用中英文搜尋臺中一帶的任何地址或地點，在地圖上查看，並設為起點（A）或終點（B）；也可從目前位置出發，或在攤位資訊卡按**Walk here**設為終點。步行路線會畫在地圖上，並列出距離、時間與逐步指引（點選步驟可放大到該處）；見下方說明
 - 各行政區的夜市／市場數，點選可縮放到該區
 - 頁首可切換三種風格（預設的**Boba**品牌風：標誌的棕色與米色配珍奶橘重點色；**Deck**簡報風；**Program**議程風）與三種色調（**Light**、**White**、**Dark**），選擇會記在瀏覽器中；尚未選擇時依裝置設定顯示淺色或深色
 - 拖曳平移、滾輪或雙指縮放；方向鍵平移、`+`／`-`縮放、`0`回到全圖
@@ -169,6 +180,8 @@ img/                       brand assets (logo, banner, pearl scale, icons)
 `fetch_landmarks.py`抓取原臺中市範圍內所有`amenity=marketplace`及名稱含「夜市」的地物；`build_map.py`保留市場及名稱以「夜市」結尾、未另標類型的地物（排除同名的停車場、通道與餐廳），去除攤區分區與重複點位，並以區界裁切，共62處，其中7處夜市。OSM未繪製的市場不會出現（例如一中街）。
 
 夜市以色塊顯示OSM上的範圍；逢甲夜市在OSM上只畫了文華路與逢甲路20巷，因此另以虛線標示**約略全範圍**（6.28公頃）：取文華路、逢甲路、福星路、逢甲路20巷（[商業周刊2015年報導](https://www.businesstoday.com.tw/article/category/80392/post/201507160040/)所列範圍）的OSM道路中心線，依`scripts/fengjia_extent.py`設定的路段裁切，兩側各外擴15 m後合併。官方未公布範圍，僅供參考。重建：`python3 scripts/fengjia_extent.py`（需`pip install shapely`及Overpass連線）。
+
+**地點搜尋與步行路線**：兩者都在瀏覽器中呼叫以OpenStreetMap資料為基礎的免費公共服務，不需API key。地點搜尋使用[Nominatim](https://nominatim.org/)，依其使用政策只在送出時查詢（每秒最多一次、不做即時建議），範圍限於臺灣及原臺中市周邊；路名與地標相當完整，門牌號碼僅部分收錄，精確地址有時只會定位到路段。步行路線使用FOSSGIS公共伺服器上的[Valhalla](https://valhalla.github.io/valhalla/)（行人模式），指引為英文、路名依OSM標示（多為中文）。這兩項服務僅供輕度合理使用，適合展示；正式上線應自行架設或改用付費服務。搜尋文字與路線點位會傳送給這些服務（資料說明中已註明）。未使用Google的搜尋與路線服務：需付費金鑰，且條款不允許在非Google地圖上顯示結果；大眾運輸路線則需要臺灣的TDX平台。
 
 **垃圾桶（OSM）**：`scripts/fetch_bins.py`（標準函式庫）抓取原臺中市範圍內的`amenity=waste_basket`（公共垃圾桶）、`amenity=waste_disposal`（大型垃圾箱）與`amenity=recycling`（不含資源回收場等設施），輸出`data/derived/waste_bins_osm.geojson`，`build_map.py`保留八區範圍內的點位。**Garbage bins**圖層以實心圖示表示垃圾桶與垃圾箱、空心圖示表示資源回收，放大到街道層級才顯示。臺灣公共垃圾桶不多（家戶垃圾交由垃圾車收運），OSM的繪製也不完整，因此只呈現已繪製的點位。「Fetch OSM road network」工作流程會一併更新。逢甲夜市另有四個由珍奶指數團隊放置的**夜市垃圾桶**，來自`data/raw/custom_bins.csv`（編號、中英文地點、經緯度、備註），位於逢甲路與文華路、福星路口、逢甲路20巷及文華路，以較大的品牌橘色圖示表示，提示中註明地點與由團隊放置；在CSV新增一列並重建即可增加。
 
