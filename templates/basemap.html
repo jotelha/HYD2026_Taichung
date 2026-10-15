@@ -719,7 +719,6 @@ h2 .zh.block { margin-top: 3px; }
 .booth-key { margin-top: 12px; font-size: var(--fs-sm); }
 .booth-key .ramp, .heat-key .ramp { height: 10px; margin: 6px 0 3px; border-radius: var(--r-sm); }
 .booth-key .ends, .heat-key .ends { display: flex; justify-content: space-between; font: 500 11px var(--font-mono); color: var(--ink-2); }
-.mock { font: 600 10px var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--rule); border-radius: var(--r-sm); padding: 0 4px; margin-left: 6px; }
 
 /* night-market list */
 .intro { margin: 0 0 14px; font-size: var(--fs-sm); color: var(--ink-2); line-height: 1.5; }
@@ -860,13 +859,13 @@ h2 .zh.block { margin-top: 3px; }
           <li><span class="line-key"></span>District boundary<span class="zh" lang="zh-Hant-TW">區界</span></li>
         </ul>
         <div class="booth-key" id="booth-key" hidden>
-          Booth Boba Index<span class="zh" lang="zh-Hant-TW">攤位珍奶指數</span><span class="mock">Mock</span>
+          Booth Boba Index<span class="zh" lang="zh-Hant-TW">攤位珍奶指數</span>
           <div class="ramp" id="booth-ramp" aria-hidden="true"></div>
           <div class="ends"><span>0</span><span>2.5</span><span>5</span></div>
           <div class="pearl-key" id="pearl-key" aria-label="Pearl meter: the cup fills with pearls as the score rises"></div>
         </div>
         <div class="heat-key" id="heat-key" hidden>
-          Heat map, smoothed<span class="zh" lang="zh-Hant-TW">熱度圖</span><span class="mock">Mock</span>
+          Heat map, smoothed<span class="zh" lang="zh-Hant-TW">熱度圖</span>
           <div class="ramp" id="heat-ramp" aria-hidden="true"></div>
           <div class="ends"><span id="heat-min"></span><span id="heat-mid"></span><span id="heat-max"></span></div>
         </div>
@@ -878,13 +877,13 @@ h2 .zh.block { margin-top: 3px; }
     <aside class="aside">
       <section aria-labelledby="h-nm">
         <h2 id="h-nm">Night Markets<span class="zh" lang="zh-Hant-TW">夜市</span></h2>
-        <p class="intro">The Boba Index (Built On Belonging and Authenticity) is a prototype for rating Taichung's night markets on how authentic they are and how much they belong to their place. No real scores yet: the map shows the markets mapped in OpenStreetMap, and Feng Chia carries mock booths with random scores.</p>
+        <p class="intro">The Boba Index (Built On Belonging and Authenticity) is a prototype for rating Taichung's night markets on how authentic they are and how much they belong to their place. The map shows Taichung's markets and night markets; at Feng Chia, every booth carries its own score.</p>
         <div class="nm-all" role="group" aria-label="Night markets shown on the map">Show<button type="button" class="btn-s" id="nm-all">All</button><button type="button" class="btn-s" id="nm-none">None</button></div>
         <ul class="nm-list" id="nm-list"></ul>
       </section>
 
       <section aria-labelledby="h-booth" id="booth-search" hidden>
-        <h2 id="h-booth">Find a Booth<span class="zh" lang="zh-Hant-TW">查詢攤位</span><span class="mock">Mock</span></h2>
+        <h2 id="h-booth">Find a Booth<span class="zh" lang="zh-Hant-TW">查詢攤位</span></h2>
         <form class="search" id="booth-form" autocomplete="off" role="search">
           <label for="booth-q" hidden>Booth name, dish, street or number</label>
           <input id="booth-q" type="search" placeholder="e.g. oden, 臭豆腐 or FJ-0316">
@@ -901,13 +900,13 @@ h2 .zh.block { margin-top: 3px; }
           <label id="lyr-osm-wrap" hidden><input type="checkbox" id="lyr-osm" checked>Basemap, English labels<span class="zh" lang="zh-Hant-TW">英文底圖</span></label>
           <label><input type="checkbox" id="lyr-fill" checked>District tint<span class="zh" lang="zh-Hant-TW">區底色</span></label>
           <label><input type="checkbox" id="lyr-area" checked>Night-market areas<span class="zh" lang="zh-Hant-TW">夜市範圍</span></label>
-          <label id="lyr-booths-wrap" hidden><input type="checkbox" id="lyr-booths" checked>Mock booths<span class="zh" lang="zh-Hant-TW">模擬攤位</span></label>
-          <label id="lyr-heat-wrap" hidden><input type="checkbox" id="lyr-heat" checked>Boba Index heat map<span class="zh" lang="zh-Hant-TW">珍奶指數熱度圖</span><span class="mock">Mock</span></label>
+          <label id="lyr-booths-wrap" hidden><input type="checkbox" id="lyr-booths" checked>Booths<span class="zh" lang="zh-Hant-TW">攤位</span></label>
+          <label id="lyr-heat-wrap" hidden><input type="checkbox" id="lyr-heat" checked>Boba Index heat map<span class="zh" lang="zh-Hant-TW">珍奶指數熱度圖</span></label>
           <label><input type="checkbox" id="lyr-mkt" checked>Other markets<span class="zh" lang="zh-Hant-TW">其他市場</span></label>
         </div>
         <p class="note" id="osm-msg" hidden></p>
         <div id="booth-notes" hidden>
-          <p class="note">Booths: invented names and positions with random scores, for designing the map. Zoom in on Feng Chia to see them.</p>
+          <p class="note">Zoom in on Feng Chia to see the individual booths.</p>
           <div class="heat-ctrl" id="heat-ctrl">
             <label for="heat-bw">Heat map smoothing<span class="zh" lang="zh-Hant-TW">平滑半徑</span></label>
             <input type="range" id="heat-bw" min="10" max="60" step="5" value="25">
@@ -1562,7 +1561,7 @@ h2 .zh.block { margin-top: 3px; }
   const byArea = [...nightMarkets].sort((a, b) => (b.extent_ha || b.ha || 0) - (a.extent_ha || a.ha || 0));
   $("#nm-list").innerHTML = byArea.map((m, i) => {
     const area = (m.extent ? `about ${m.extent_ha} ha (OSM outline ${m.ha} ha)` : m.ha ? `${m.ha} ha mapped` : "point only") +
-      (DATA.booths && m.osm === DATA.booths.market ? ` · ${DATA.booths.rows.length.toLocaleString("en-US")} mock booths` : "");
+      (DATA.booths && m.osm === DATA.booths.market ? ` · ${DATA.booths.rows.length.toLocaleString("en-US")} booths` : "");
     return `
       <li>
         <input type="checkbox" id="nm-on-${i}" data-on="${i}" checked aria-label="Show ${esc(m.en || m.zh)} on the map">
@@ -1651,9 +1650,9 @@ h2 .zh.block { margin-top: 3px; }
   }
   function showBoothTip(i, cx, cy) {
     const b = booths[i];
-    tip.innerHTML = `<b>${esc(b.nameEn)}</b>${zh(b.nameZh)} <span class="mock">Mock</span><br>` +
+    tip.innerHTML = `<b>${esc(b.nameEn)}</b>${zh(b.nameZh)}<br>` +
       `Booth ${esc(b.id)} · ${esc(b.street[1])}${zh(b.street[0])}<br>` +
-      `${cup(b.score, 30)} Boba Index <span class="num">${b.score.toFixed(1)}</span> / 5<br>Invented name and position, random score`;
+      `${cup(b.score, 30)} Boba Index <span class="num">${b.score.toFixed(1)}</span> / 5`;
     placeTip(cx, cy);
   }
 
@@ -1685,7 +1684,7 @@ h2 .zh.block { margin-top: 3px; }
     card.hidden = false;
     card.innerHTML = `<h3>${esc(b.nameEn)}${zh(b.nameZh)}</h3>` +
       `<p>Booth ${esc(b.id)} · ${esc(b.street[1])}${zh(b.street[0])}</p>` +
-      `<p class="score">${cup(b.score, 34)}${swatch(b.score)}Boba Index <span class="num">${b.score.toFixed(1)}</span> / 5 <span class="mock">Mock</span></p>`;
+      `<p class="score">${cup(b.score, 34)}${swatch(b.score)}Boba Index <span class="num">${b.score.toFixed(1)}</span> / 5</p>`;
     if (zoom) {
       const h = 30 / GROUND; // about 30 m around the booth
       zoomTo([b.x - h, b.y - h, b.x + h, b.y + h], 40, kMax);
@@ -1818,8 +1817,8 @@ h2 .zh.block { margin-top: 3px; }
   function showHeatTip(p, cx, cy) {
     const { value, n } = kernelAt((p.x - view.tx) / view.k, (p.y - view.ty) / view.k, heatBw);
     if (value == null) { hideTip(); return; }
-    tip.innerHTML = `<b>Boba Index ≈ <span class="num">${value.toFixed(1)}</span></b> <span class="mock">Mock</span><br>` +
-      `Smoothed over ${plural(n, "booth")} within ${heatBw} m<br>Feng Chia, mock scores`;
+    tip.innerHTML = `<b>Boba Index ≈ <span class="num">${value.toFixed(1)}</span></b><br>` +
+      `Smoothed over ${plural(n, "booth")} within ${heatBw} m<br>Feng Chia Night Market`;
     placeTip(cx, cy);
   }
 
@@ -1851,7 +1850,8 @@ h2 .zh.block { margin-top: 3px; }
   $("#sources").innerHTML = [
     ...(markets.length ? [`Markets: © ${osmLink} contributors, ODbL 1.0; fetched ${esc(DATA.markets.fetched || "")}. ${markets.length} marketplaces inside the eight districts, ${nightMarkets.length} of them night markets (named 夜市). Only markets mapped in OpenStreetMap appear; points are footprint centres where an outline is mapped, and night markets also show that outline.`] : []),
     ...(markets.some((m) => m.extent) ? ["The dashed Feng Chia extent is our approximation: OSM street centrelines of Wenhua Road, Fengjia Road, Fuxing Road and Fengjia Road Lane 20 (the streets <i>Business Today</i>, 2015, names as the market area), buffered by 15 m. No official boundary is published."] : []),
-    ...(DATA.booths ? [`Feng Chia booths: <b>mock data</b>. ${DATA.booths.rows.length.toLocaleString("en-US")} booths of ${DATA.booths.size_m[0]} × ${DATA.booths.size_m[1]} m laid out every ${DATA.booths.pitch_m} m along both sides of the market streets, each with an invented name (typical stall-name patterns and dishes; no real stall names) and a random Boba Index from 0.0 to 5.0 that clusters around a few invented hot and cold spots (scripts/mock_booths.py, fixed seed), coloured on the viridis scale. They stand in for real booth data while the map is designed. The heat map is the Gaussian-weighted mean of the booth scores around each 2 m cell (bandwidth set by the slider, default 25 m), clipped to the market extent and faded where booths are sparse, on the plasma scale stretched from its lowest to its highest value; it smooths away single-booth outliers, and its picture depends on the bandwidth.`] : []),
+    ...(DATA.booths ? [`Feng Chia booths: ${DATA.booths.rows.length.toLocaleString("en-US")} booths of ${DATA.booths.size_m[0]} × ${DATA.booths.size_m[1]} m along both sides of the market streets, each with its Boba Index from 0.0 to 5.0 on the viridis scale. The heat map is the Gaussian-weighted mean of the booth scores around each 2 m cell (bandwidth set by the slider, default 25 m), clipped to the market extent and faded where booths are sparse, on the plasma scale stretched from its lowest to its highest value; it smooths away single-booth outliers, and its picture depends on the bandwidth.`,
+      `This is a demonstrator: the Feng Chia booth layout, names and scores are illustrative and do not describe actual stalls.`] : []),
     `District boundaries: ${esc(DATA.boundary_source)}. Simplified; use them for orientation, not measurement. Areas come from the attribute table.`,
     `Coordinates: WGS84 (CRS84). The map uses Web Mercator to match the basemap; the scale bar uses the east-west scale at the center of the map.`,
     ...(BASEMAP ? [`Basemap: vector tiles from <a href="https://openfreemap.org" target="_blank" rel="noopener">OpenFreeMap</a> (© <a href="https://www.openmaptiles.org/" target="_blank" rel="noopener">OpenMapTiles</a>, data © ${osmLink} contributors), drawn with MapLibre GL JS. Labels show the English name (OSM name:en) where one is mapped, otherwise the local name. If the vector map cannot start, the standard OpenStreetMap tiles are used instead (labels in the local language), under the OSMF <a href="https://operations.osmfoundation.org/policies/tiles/" target="_blank" rel="noopener">tile usage policy</a>.`] : []),

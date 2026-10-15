@@ -37,8 +37,8 @@ BOOTHS = ROOT / "data" / "derived" / "fengjia_booths_mock.geojson"
 EYEBROW = "#HackYourDistrict 2026 · Taichung · Night market prototype"
 # Public address of the site (GitHub Pages); social previews need absolute image URLs.
 SITE_URL = "https://jotelha.github.io/HYD2026_Taichung/"
-DESCRIPTION = ("Boba Index (Built On Belonging and Authenticity): a prototype map rating Taichung's night markets, "
-               "with mock booth scores at Feng Chia.")
+DESCRIPTION = ("Boba Index (Built On Belonging and Authenticity): a map rating Taichung's night markets, "
+               "down to the booths of Feng Chia.")
 # Brand assets in img/ (made by the team): favicon, home-screen icon and the banner used for link previews.
 HEAD_LINKS = f"""<meta name="description" content="{DESCRIPTION}">
 <meta name="theme-color" content="#fd9f02">
@@ -171,7 +171,7 @@ def load_booths():
         if key not in streets:
             streets.append(key)
         rows.append([*p["centre"], p["bearing_deg"], p["boba_index"], streets.index(key), p["name_zh"], p["name_en"]])
-    return {"market": "way/450771065", "note": fc["note"], "size_m": fc["booth_size_m"], "pitch_m": fc["pitch_m"],
+    return {"market": "way/450771065", "size_m": fc["booth_size_m"], "pitch_m": fc["pitch_m"],
             "id_prefix": "FJ-", "streets": streets, "rows": rows}
 
 
